@@ -1,0 +1,163 @@
+/**
+ * ArcMarkets — Light + Dark theme sync (UI only)
+ * Midnight Blue brand with WCAG AA contrast in both modes
+ */
+
+/* ── Theme-aware backgrounds ── */
+[data-theme="dark"] body::before {
+  opacity: 0.5;
+  filter: saturate(1.05) contrast(1.05);
+}
+
+[data-theme="dark"] body::after {
+  background:
+    linear-gradient(165deg, rgba(2, 6, 14, 0.88) 0%, rgba(3, 86, 197, 0.35) 45%, rgba(2, 6, 14, 0.92) 100%),
+    radial-gradient(ellipse 70% 50% at 20% 80%, rgba(0, 123, 255, 0.2), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 85% 15%, rgba(224, 240, 255, 0.08), transparent 50%);
+}
+
+[data-theme="light"] body::before {
+  opacity: 0.14;
+  filter: saturate(0.85) brightness(1.15);
+}
+
+[data-theme="light"] body::after {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(228, 238, 252, 0.88) 40%, rgba(210, 226, 248, 0.95) 100%),
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(3, 86, 197, 0.08), transparent 60%);
+}
+
+[data-theme="light"] h1,
+[data-theme="light"] h2,
+[data-theme="light"] h3,
+[data-theme="light"] .font-serif,
+[data-theme="light"] .font-headline {
+  text-shadow: none;
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .grid-bg {
+  opacity: 0.2;
+}
+
+[data-theme="light"] .text-gradient-primary-purple,
+[data-theme="light"] .text-gradient-arc {
+  background: linear-gradient(135deg, #0a1628 0%, #0356c5 55%, #024a9e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+[data-theme="light"] .arc-card {
+  background: linear-gradient(160deg, rgba(255, 255, 255, 0.95) 0%, rgba(240, 246, 255, 0.9) 100%) !important;
+  border-left-color: var(--royal) !important;
+  box-shadow: var(--card-shadow) !important;
+}
+
+[data-theme="light"] .arc-nav-mark {
+  background: linear-gradient(145deg, rgba(3, 86, 197, 0.15), rgba(77, 159, 255, 0.12));
+  color: var(--royal);
+  border-color: rgba(3, 86, 197, 0.25);
+  box-shadow: 0 4px 16px rgba(3, 86, 197, 0.12);
+}
+
+[data-theme="light"] .wallet-pill {
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--text-secondary);
+  border-color: var(--border);
+}
+
+[data-theme="light"] .wallet-pill.connected {
+  color: var(--text-primary);
+  border-color: rgba(5, 150, 105, 0.45);
+  box-shadow: 0 0 0 1px rgba(5, 150, 105, 0.1);
+}
+
+[data-theme="light"] .empty-state {
+  background: rgba(255, 255, 255, 0.85);
+  border-color: var(--border-bright);
+}
+
+[data-theme="light"] .hero-stat-item:hover {
+  background: rgba(3, 86, 197, 0.06);
+}
+
+[data-theme="light"] .tab-item.active {
+  color: var(--royal);
+  background: rgba(3, 86, 197, 0.1);
+  box-shadow: inset 0 0 0 1px rgba(3, 86, 197, 0.2);
+}
+
+[data-theme="light"] .mobile-bottom-nav-item.active {
+  color: var(--royal) !important;
+  text-shadow: none !important;
+}
+
+[data-theme="light"] .btn-primary {
+  color: #ffffff;
+  box-shadow: 0 4px 20px rgba(3, 86, 197, 0.28);
+}
+
+[data-theme="light"] .btn-shimmer {
+  color: var(--royal);
+  border-color: rgba(3, 86, 197, 0.35);
+  background: rgba(3, 86, 197, 0.06);
+}
+
+[data-theme="light"] .btn-ghost:hover {
+  color: var(--royal);
+  background: rgba(3, 86, 197, 0.08);
+}
+
+[data-theme="light"] .input {
+  color: var(--text-primary);
+  background: #ffffff;
+  border-color: var(--border-bright);
+}
+
+[data-theme="light"] .input::placeholder {
+  color: var(--text-muted);
+}
+
+[data-theme="light"] *:focus-visible {
+  --ring: 0 0 0 2px var(--bg), 0 0 0 4px rgba(3, 86, 197, 0.45);
+}
+
+/* Theme toggle button */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  background: var(--bg-card);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s, border-color 0.2s;
+}
+
+.theme-toggle:hover {
+  color: var(--text-primary);
+  border-color: var(--border-bright);
+  background: var(--bg-card-hover);
+}
+
+/* Skip link for a11y */
+.skip-link {
+  position: absolute;
+  left: -9999px;
+  top: 0;
+  z-index: 9999;
+  padding: 10px 16px;
+  background: var(--royal);
+  color: #fff;
+  font-weight: 600;
+  border-radius: 8px;
+}
+
+.skip-link:focus {
+  left: 16px;
+  top: 16px;
+}
