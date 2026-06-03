@@ -16,6 +16,10 @@ import { useBetting } from "../hooks/useBetting";
 import { useAgent } from "../hooks/useAgent";
 import { getCryptoLogo } from "../utils/marketAssets";
 import { LeaderboardSidebar, LeaderboardTab } from "../components/LeaderboardView";
+import { useLeaderboard } from "../hooks/useLeaderboard";
+import MatchProDashboard from "../components/MatchProDashboard";
+
+const TEAM_IMAGES = {};
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 const shortAddr = (a) => a ? `${a.slice(0, 6)}…${a.slice(-4)}` : "";
@@ -154,7 +158,7 @@ function NumberTicker({ value, prefix = "", suffix = "" }) {
 }
 
 // ─── Match Card ───────────────────────────────────────────────────────────────
-function MatchCard({ match, onBet }) {
+function MatchCard({ match, onBet, onSelect }) {
   const t = match.totalPool || 1;
   const hp = Math.round((match.homePool / t) * 100);
   const dp = Math.round((match.drawPool / t) * 100);
@@ -166,7 +170,11 @@ function MatchCard({ match, onBet }) {
   const awayIsToken = !!getCryptoLogo(match.awayTeam);
 
   return (
-    <div className="card arc-card animate-slide-up" style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between" }}>
+    <div 
+      className="card arc-card gamified-card animate-slide-up" 
+      onClick={() => onSelect && onSelect(match)}
+      style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between", cursor: "pointer" }}
+    >
       {/* Header stripe */}
       <div style={{
         padding: "14px 20px", display: "flex", justifyContent: "space-between",
@@ -245,7 +253,10 @@ function MatchCard({ match, onBet }) {
               key={opt.o}
               className={`odds-btn ${opt.cls} ${statusClass}`}
               disabled={match.status !== 0 || match.kickoffTime <= Date.now()}
-              onClick={() => onBet(match, opt.o)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onBet(match, opt.o);
+              }}
             >
               <span className="odds-label">{opt.label}</span>
               <span className="odds-value font-mono">{opt.odds}x</span>
@@ -278,6 +289,26 @@ function MatchCard({ match, onBet }) {
           </span>
         </div>
       </div>
+
+      {/* CTA Footer */}
+      {match.status === 0 && match.kickoffTime > Date.now() && (
+        <div style={{ padding: "0 20px 20px" }}>
+          <button
+            onClick={(e) => {
+              e.stopPropagation();
+              onSelect ? onSelect(match) : onBet(match, 1);
+            }}
+            className="w-full py-3 text-white rounded-xl font-bold text-xs hover:scale-[1.02] active:scale-95 transition-all duration-200 flex items-center justify-center gap-2"
+            style={{
+              background: "linear-gradient(135deg, var(--primary), var(--purple))",
+              border: "none",
+              cursor: "pointer"
+            }}
+          >
+            <Zap size={12} /> Place Prediction
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -340,10 +371,10 @@ function BetSuccessModal({ result, match, onClose, theme }) {
             <CheckCircle2 size={28} style={{ color: "#4ade80" }} />
           </div>
 
-          <h2 style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 6, color: "#f8fafc", fontFamily: "'Inter', sans-serif" }}>
+          <h2 style={{ fontSize: 26, fontWeight: 800, letterSpacing: "-0.03em", marginBottom: 6, color: "var(--text-primary)", fontFamily: "var(--font-serif)" }}>
             Bet Placed!
           </h2>
-          <p style={{ fontSize: 13, color: "rgba(255,255,255,0.5)", marginBottom: 20, fontFamily: "'Inter', sans-serif" }}>
+          <p style={{ fontSize: 13, color: "var(--text-secondary)", marginBottom: 20, fontFamily: "var(--font-sans)" }}>
             Your wager is live on Arc Testnet
           </p>
 
@@ -468,8 +499,8 @@ function BetModal({ match, initOutcome, onClose, onSuccess, signer, theme }) {
     await placeBet(match.index, outcome, numAmount);
   };
 
-  const homeImg = TEAM_IMAGES[match.homeTeam];
-  const awayImg = TEAM_IMAGES[match.awayTeam];
+  const homeImg = match.homeImage || getCryptoLogo(match.homeTeam) || match.homeCrest;
+  const awayImg = match.awayImage || getCryptoLogo(match.awayTeam) || match.awayCrest;
 
   return (
     <div style={{
@@ -839,8 +870,43 @@ function FixturePreviewCard({ fixture }) {
   );
 }
 
-function MatchesTab({ matches = [], upcomingFixtures = [], fixturesLoading, loading, onBet }) {
+function MatchesTab({ 
+  matches = [], 
+  upcomingFixtures = [], 
+  fixturesLoading, 
+  loading, 
+  onBet, 
+  leaderboardRows = [], 
+  leaderboardLoading = false, 
+  setTab,
+  wallet,
+  usdtBalance,
+  refetchUsdt,
+  onNotif,
+  addNotif,
+  theme
+}) {
   const [search, setSearch] = useState("");
+  const [champsSort, setChampsSort] = useState("profit"); // "profit", "winRate", "bets"
+  const [selectedMatch, setSelectedMatch] = useState(null);
+  const [initialOutcome, setInitialOutcome] = useState(1);
+
+  if (selectedMatch) {
+    return (
+      <MatchProDashboard
+        match={selectedMatch}
+        onBack={() => setSelectedMatch(null)}
+        wallet={wallet}
+        usdtBalance={usdtBalance}
+        refetchUsdt={refetchUsdt}
+        onNotif={onNotif}
+        addNotif={addNotif}
+        theme={theme}
+        initialOutcome={initialOutcome}
+      />
+    );
+  }
+
   const filtered = matches.filter(m =>
     !search || m.homeTeam.toLowerCase().includes(search.toLowerCase()) || m.awayTeam.toLowerCase().includes(search.toLowerCase())
   );
@@ -871,21 +937,39 @@ function MatchesTab({ matches = [], upcomingFixtures = [], fixturesLoading, load
     return b.kickoffTime - a.kickoffTime;
   });
 
+  const sortedChamps = [...(leaderboardRows || [])].sort((a, b) => {
+    if (champsSort === "winRate") return b.winRate - a.winRate;
+    if (champsSort === "bets") return b.bets - a.bets;
+    return b.profit - a.profit;
+  });
+
+  const displayChamps = sortedChamps.slice(0, 5);
+
   return (
     <div>
       {/* Controls */}
-      <div className="font-sans" style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
-        <div>
-          <h2 className="font-serif" style={{ fontSize: 34, fontWeight: 400, letterSpacing: "-0.01em", marginBottom: 6 }}>
-            Live <span className="text-gradient-arc" style={{ fontStyle: "italic" }}>Markets</span>
-          </h2>
-          <p style={{ fontSize: 13, color: "var(--text-secondary)", fontWeight: 500 }}>
-            On-chain pools + real fixtures from top leagues · Arc Testnet
-          </p>
+      <div className="font-sans" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
+        <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
+          <div style={{
+            width: 44, height: 44, borderRadius: 12,
+            background: "linear-gradient(135deg, var(--primary), var(--purple))",
+            display: "flex", alignItems: "center", justifyContent: "center",
+            color: "#fff", boxShadow: "0 4px 16px var(--primary-glow)"
+          }}>
+            <Flame size={20} />
+          </div>
+          <div>
+            <h2 className="font-serif" style={{ fontSize: 28, fontWeight: 700, letterSpacing: "-0.02em", margin: 0 }}>
+              Featured Markets
+            </h2>
+            <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "2px 0 0 0", fontWeight: 500 }}>
+              Hottest predictions in the ecosystem right now.
+            </p>
+          </div>
         </div>
         <div style={{ position: "relative" }}>
           <Search size={14} style={{ position: "absolute", left: 14, top: "50%", transform: "translateY(-50%)", color: "var(--text-secondary)" }} />
-          <input placeholder="Search matches…" value={search} onChange={e => setSearch(e.target.value)}
+          <input placeholder="Search markets…" value={search} onChange={e => setSearch(e.target.value)}
             className="input font-sans" style={{ paddingLeft: 36, width: 240, fontSize: 13, height: 42, borderRadius: 8 }} />
         </div>
       </div>
@@ -932,7 +1016,20 @@ function MatchesTab({ matches = [], upcomingFixtures = [], fixturesLoading, load
                 Bet on-chain
               </h3>
               <div className="match-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16, marginBottom: 28 }}>
-                {sorted.map(m => <MatchCard key={m.index} match={m} onBet={onBet} />)}
+                {sorted.map(m => (
+                  <MatchCard 
+                    key={m.index} 
+                    match={m} 
+                    onBet={(match, outcome) => {
+                      setSelectedMatch(match);
+                      setInitialOutcome(outcome);
+                    }}
+                    onSelect={(match) => {
+                      setSelectedMatch(match);
+                      setInitialOutcome(1);
+                    }}
+                  />
+                ))}
               </div>
             </>
           )}
@@ -952,6 +1049,144 @@ function MatchesTab({ matches = [], upcomingFixtures = [], fixturesLoading, load
               )}
             </>
           )}
+
+          {/* Leaderboard Preview Section */}
+          <section className="mt-12 p-6 md:p-8 rounded-3xl border border-outline-variant shadow-xl" style={{ background: "var(--surface-container-lowest)", borderColor: "var(--border)" }}>
+            <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 16, marginBottom: 28 }} className="md:flex-row md:items-center">
+              <div>
+                <h2 className="font-serif" style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.01em", margin: 0 }}>Weekly Champions</h2>
+                <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "4px 0 0 0" }}>The most profitable predictors on ArcMarkets right now.</p>
+              </div>
+              <div style={{ display: "flex", gap: 8, padding: 4, background: "var(--surface-container)", borderRadius: 12 }} className="w-fit">
+                {[
+                  { id: "profit", label: "Profit" },
+                  { id: "winRate", label: "Win Rate" },
+                  { id: "bets", label: "Predictions" }
+                ].map(opt => {
+                  const isActive = champsSort === opt.id;
+                  return (
+                    <button
+                      key={opt.id}
+                      onClick={() => setChampsSort(opt.id)}
+                      className={`px-4 py-1.5 rounded-lg shadow-sm font-bold text-xs transition-all ${
+                        isActive 
+                          ? "bg-white text-primary dark:bg-slate-800 dark:text-white" 
+                          : "text-secondary hover:text-primary"
+                      }`}
+                      style={{ border: "none", cursor: "pointer", background: isActive ? undefined : "none" }}
+                    >
+                      {opt.label}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+            <div className="overflow-x-auto">
+              <table style={{ width: "100%", borderCollapse: "collapse" }}>
+                <thead>
+                  <tr style={{ borderBottom: "1px solid var(--border)", textAlign: "left" }}>
+                    <th style={{ paddingBottom: 12, fontSize: 10, fontFamily: "var(--font-mono)", textTransform: "uppercase", color: "var(--text-muted)", fontWeight: 700 }}>Rank</th>
+                    <th style={{ paddingBottom: 12, fontSize: 10, fontFamily: "var(--font-mono)", textTransform: "uppercase", color: "var(--text-muted)", fontWeight: 700 }}>User</th>
+                    <th style={{ paddingBottom: 12, fontSize: 10, fontFamily: "var(--font-mono)", textTransform: "uppercase", color: "var(--text-muted)", fontWeight: 700 }}>Win Rate</th>
+                    <th style={{ paddingBottom: 12, fontSize: 10, fontFamily: "var(--font-mono)", textTransform: "uppercase", color: "var(--text-muted)", fontWeight: 700, textAlign: "right" }}>Profit</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-outline-variant" style={{ borderColor: "var(--border)" }}>
+                  {leaderboardLoading ? (
+                    <tr>
+                      <td colSpan={4} style={{ padding: "32px 0", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
+                        <RefreshCw size={18} className="animate-spin inline-block mr-2" />
+                        Loading champions...
+                      </td>
+                    </tr>
+                  ) : displayChamps.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} style={{ padding: "32px 0", textAlign: "center", color: "var(--text-muted)", fontSize: 13 }}>
+                        No predictions recorded on-chain yet.
+                      </td>
+                    </tr>
+                  ) : (
+                    displayChamps.map(u => (
+                      <tr key={u.addr} className="hover:bg-primary/5 transition-colors">
+                        <td style={{ padding: "16px 0" }}>
+                          <div style={{
+                            width: 32,
+                            height: 32,
+                            borderRadius: "50%",
+                            background: u.rank <= 3 ? "transparent" : "var(--surface-container)",
+                            display: "flex",
+                            alignItems: "center",
+                            justifyContent: "center",
+                            color: "var(--text-primary)",
+                            fontWeight: 900,
+                            fontSize: u.rank <= 3 ? 18 : 13
+                          }}>
+                            {u.rank === 1 ? "🥇" : u.rank === 2 ? "🥈" : u.rank === 3 ? "🥉" : u.rank}
+                          </div>
+                        </td>
+                        <td style={{ padding: "16px 0" }}>
+                          <a
+                            href={`${ACTIVE_NETWORK.explorerUrl}/address/${u.addr}`}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            style={{ display: "flex", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit" }}
+                          >
+                            <div style={{
+                              width: 40,
+                              height: 40,
+                              borderRadius: 12,
+                              background: u.rank === 1 ? "rgba(251, 191, 36, 0.15)" : u.rank === 2 ? "rgba(203, 213, 225, 0.15)" : "rgba(205, 127, 50, 0.15)",
+                              display: "flex",
+                              alignItems: "center",
+                              justifyContent: "center",
+                              color: u.rank === 1 ? "#fbbf24" : u.rank === 2 ? "#cbd5e1" : "#cd7f32"
+                            }}>
+                              <Trophy size={16} />
+                            </div>
+                            <div>
+                              <p style={{ margin: 0, fontWeight: 700, fontSize: 14, color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
+                                {u.shortAddr}
+                              </p>
+                              <p style={{ margin: "2px 0 0 0", fontSize: 11, color: "var(--text-muted)" }}>
+                                Vol ${fmt(u.volume, 0)} USDC
+                              </p>
+                            </div>
+                          </a>
+                        </td>
+                        <td style={{ padding: "16px 0" }}>
+                          <div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+                            <span style={{ fontWeight: 750, fontSize: 13, color: "var(--text-primary)" }}>{u.winRate}%</span>
+                            <div style={{ width: 128, height: 6, background: "var(--surface-container)", borderRadius: 99, overflow: "hidden" }}>
+                              <div style={{ height: "100%", background: "var(--green)", width: `${u.winRate}%` }} />
+                            </div>
+                          </div>
+                        </td>
+                        <td style={{ padding: "16px 0", textAlign: "right" }}>
+                          <p style={{ margin: 0, fontSize: 14.5, fontWeight: 800, color: u.profit >= 0 ? "var(--green)" : "var(--red)" }}>
+                            {u.profit >= 0 ? "+" : ""}${fmt(u.profit, 2)}
+                          </p>
+                          <p style={{ margin: "2px 0 0 0", fontSize: 11, color: "var(--text-muted)" }}>
+                            {u.bets} prediction{u.bets !== 1 ? "s" : ""}
+                          </p>
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+            {!leaderboardLoading && displayChamps.length > 0 && (
+              <div style={{ marginTop: 24, textAlign: "center" }}>
+                <button
+                  onClick={() => setTab("leaderboard")}
+                  className="btn-ghost"
+                  style={{ fontSize: 12, gap: 5, padding: "8px 20px", display: "inline-flex", cursor: "pointer" }}
+                >
+                  View Full Leaderboard <ChevronRight size={13} />
+                </button>
+              </div>
+            )}
+          </section>
         </>
       )}
     </div>
@@ -959,7 +1194,7 @@ function MatchesTab({ matches = [], upcomingFixtures = [], fixturesLoading, load
 }
 
 // ─── AI Agent Tab ─────────────────────────────────────────────────────────────
-function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif, addNotif, theme }) {
+function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif, addNotif, theme, refetchBets }) {
   const [risk, setRisk] = useState("moderate");
   const [budget, setBudget] = useState("100");
   const [analysing, setAn] = useState(false);
@@ -1135,6 +1370,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
             );
             refetchAgent();
             refetchUsdt();
+            if (refetchBets) refetchBets();
             onNotif("Agent cycle execution completed successfully!", "success");
           }
         });
@@ -1612,8 +1848,8 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
 }
 
 // ─── Portfolio Tab ────────────────────────────────────────────────────────────
-function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLeaderboard }) {
-  const { bets, loading, totalPnl, totalBetAmount, pendingBets, claimableBets, settledBets, refetch: refetchBets } = useUserBets(address);
+function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLeaderboard, userBetsState }) {
+  const { bets, loading, totalPnl, totalBetAmount, pendingBets, claimableBets, settledBets, refetch: refetchBets } = userBetsState;
   const { claimWinnings, status: claimStatus } = useBetting(signer);
   const [activeSubTab, setActiveSubTab] = useState("all");
 
@@ -1874,15 +2110,15 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                     {/* Teams Avatar Group */}
                     <div style={{ display: "flex", alignItems: "center", position: "relative", width: 44, height: 26, flexShrink: 0 }}>
                       <div style={{ position: "absolute", left: 0, zIndex: 2 }}>
-                        {TEAM_IMAGES[bet.homeTeam] ? (
-                          <img src={TEAM_IMAGES[bet.homeTeam]} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid var(--bg-card)", objectFit: "cover" }} />
+                        {getCryptoLogo(bet.homeTeam) ? (
+                          <img src={getCryptoLogo(bet.homeTeam)} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid var(--bg-card)", objectFit: "cover" }} />
                         ) : (
                           <span style={{ fontSize: 18 }}>{TEAM_FLAGS[bet.homeTeam] || "🏴"}</span>
                         )}
                       </div>
                       <div style={{ position: "absolute", left: 16, zIndex: 1 }}>
-                        {TEAM_IMAGES[bet.awayTeam] ? (
-                          <img src={TEAM_IMAGES[bet.awayTeam]} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid var(--bg-card)", objectFit: "cover" }} />
+                        {getCryptoLogo(bet.awayTeam) ? (
+                          <img src={getCryptoLogo(bet.awayTeam)} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid var(--bg-card)", objectFit: "cover" }} />
                         ) : (
                           <span style={{ fontSize: 18 }}>{TEAM_FLAGS[bet.awayTeam] || "🏴"}</span>
                         )}
@@ -2020,6 +2256,54 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
   );
 }
 
+function RankProgressBentoCard({ walletAddress, userBetsState, setTab }) {
+  const bets = userBetsState?.bets || [];
+  const count = bets.length;
+
+  let tier = "Bronze League Initiate";
+  let percent = 15;
+  let text = "850 XP until Silver";
+
+  if (count === 1) {
+    tier = "Silver League Challenger";
+    percent = 40;
+    text = "600 XP until Gold";
+  } else if (count === 2) {
+    tier = "Silver League Elite";
+    percent = 60;
+    text = "400 XP until Gold";
+  } else if (count === 3) {
+    tier = "Gold League Elite";
+    percent = 72;
+    text = "280 XP until Platinum";
+  } else if (count >= 4) {
+    tier = "Diamond Grandmaster";
+    percent = 100;
+    text = "Max Level Achieved";
+  }
+
+  return (
+    <div
+      onClick={() => setTab("portfolio")}
+      className="sm:col-span-2 bento-card-gradient p-6 rounded-2xl gamified-card text-white flex items-center justify-between shadow-lg relative overflow-hidden cursor-pointer group"
+    >
+      {/* Decorative background glow */}
+      <div className="absolute right-0 bottom-0 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none" />
+      <div className="space-y-2 z-10 w-full pr-12">
+        <span className="font-mono uppercase text-[10px] tracking-widest text-white/70 font-semibold">Your Rank Progress</span>
+        <h3 className="text-xl md:text-2xl font-bold font-sans tracking-tight text-white">{tier}</h3>
+        <div className="w-full h-3 bg-white/20 rounded-full overflow-hidden mt-4">
+          <div className="progress-fill h-full bg-blue-300 transition-all duration-1000" style={{ width: `${percent}%` }} />
+        </div>
+        <p className="text-[11px] text-white/70 font-medium group-hover:text-white transition-colors">{text} · View details →</p>
+      </div>
+      <div className="absolute right-6 flex items-center justify-center pointer-events-none opacity-20 md:opacity-30">
+        <Trophy size={72} style={{ strokeWidth: 1 }} />
+      </div>
+    </div>
+  );
+}
+
 // ─── Main Page ────────────────────────────────────────────────────────────────
 export default function Home() {
   const wallet = useWalletContext() || {};
@@ -2035,6 +2319,10 @@ export default function Home() {
   const [showNotifDropdown, setShowNotifDropdown] = useState(false);
   const notifRef = useRef(null);
   const [showSwapWarning, setShowSwapWarning] = useState(true);
+
+  // Load leaderboard & user bets data once at the root level to share
+  const { rows: leaderboardRows, loading: leaderboardLoading } = useLeaderboard(5);
+  const userBetsState = useUserBets(wallet.address);
 
   useEffect(() => {
     const stored = localStorage.getItem("arcmarkets-theme");
@@ -2153,7 +2441,9 @@ export default function Home() {
         <div className="nav-inner">
           {/* Logo */}
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div className="arc-nav-mark">AM</div>
+            <div className="arc-nav-mark" style={{ overflow: "hidden", padding: 0, borderRadius: 8 }}>
+              <img src="/logo.jpg" alt="AM Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+            </div>
             <div>
               <div className="text-gradient-logo" style={{
                 fontFamily: "var(--font-serif)",
@@ -2325,101 +2615,127 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ── Hero Stats ── */}
-      <div style={{ paddingTop: 64, borderBottom: "1px solid var(--border)", background: "var(--hero-bg)", position: "relative", overflow: "hidden" }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", padding: "36px 32px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 28 }}>
-          {/* Headline */}
-          <div style={{ position: "relative" }}>
-            <div style={{
-              position: "absolute",
-              top: "-40%",
-              left: "-20%",
-              width: "140%",
-              height: "180%",
-              background: "radial-gradient(circle, rgba(0,212,255,0.08) 0%, rgba(123,47,247,0.04) 50%, transparent 100%)",
-              filter: "blur(40px)",
-              zIndex: -1,
-              pointerEvents: "none"
-            }} />
-            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 16 }}>
-              <Star size={11} style={{ color: "var(--primary)", fill: "var(--primary)" }} />
-              <span className="font-sans" style={{ fontSize: 11, color: "var(--primary)", fontWeight: 700, letterSpacing: "0.12em", textTransform: "uppercase" }}>FIFA World Cup 2026 · Prediction Markets</span>
+      {/* ── Hero Stats (Stitch Vibrant Gamified) ── */}
+      <div style={{ paddingTop: 80, paddingBottom: 24, maxWidth: 1400, margin: "0 auto", paddingLeft: 24, paddingRight: 24 }} className="font-sans">
+        {/* Stitch Hero Section */}
+        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-container p-8 md:p-12 flex flex-col md:flex-row items-center justify-between text-white shadow-xl mb-8">
+          <div className="z-10 md:w-1/2 space-y-6 text-center md:text-left">
+            <div className="inline-flex items-center gap-2 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm">
+              <span className="pulse-live w-2.5 h-2.5 bg-red-400 rounded-full" />
+              <span className="font-mono text-[11px] uppercase tracking-wider font-semibold">Live &amp; On-Chain</span>
             </div>
-            <h1 style={{ margin: 0, lineHeight: 1, letterSpacing: "-0.04em" }}>
-              <span style={{
-                display: "block",
-                fontSize: "clamp(48px, 5.5vw, 72px)",
-                fontWeight: 900,
-                fontFamily: "'Inter', sans-serif",
-                color: "var(--text-primary)",
-                lineHeight: 1.0,
-              }}>
-                Predict
-              </span>
-              <span style={{
-                display: "block",
-                fontSize: "clamp(48px, 5.5vw, 72px)",
-                fontWeight: 900,
-                fontFamily: "'Inter', sans-serif",
-                lineHeight: 1.0,
-                background: "linear-gradient(90deg, var(--primary) 0%, var(--purple) 100%)",
-                WebkitBackgroundClip: "text",
-                WebkitTextFillColor: "transparent",
-                backgroundClip: "text",
-              }}>
-                Win On-Chain
-              </span>
-              <span style={{
-                display: "block",
-                fontSize: "clamp(14px, 1.3vw, 18px)",
-                fontWeight: 500,
-                fontFamily: "'Inter', sans-serif",
-                color: "var(--text-secondary)",
-                letterSpacing: "0em",
-                marginTop: 14,
-                lineHeight: 1.5,
-                maxWidth: 380,
-              }}>
-                Decentralized FIFA World Cup markets on Arc Testnet.<br />
-                Earn USDC, Every bet is an on chain NFT.
-              </span>
+            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight" style={{ fontFamily: "var(--font-serif)" }}>
+              Predict the Future, <br/><span className="text-blue-200">Win the Rewards.</span>
             </h1>
+            <p className="text-sm md:text-base text-white/80 max-w-md">
+              The most high-octane decentralized prediction market. Gamified analytics, real-time odds, and instant payouts.
+            </p>
+            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+              <button 
+                onClick={() => setTab("matches")}
+                className="px-6 py-3.5 bg-white text-primary rounded-xl font-bold text-sm shadow-xl hover:scale-105 transition-transform active:scale-95"
+                style={{ border: "none", cursor: "pointer" }}
+              >
+                Explore Markets
+              </button>
+              <button 
+                onClick={() => setFooterModal("whitepaper")}
+                className="px-6 py-3.5 bg-transparent border border-white/30 text-white rounded-xl font-bold text-sm hover:bg-white/10 transition-all active:scale-95"
+                style={{ cursor: "pointer" }}
+              >
+                How it Works
+              </button>
+            </div>
           </div>
+          <div className="md:w-1/2 mt-8 md:mt-0 relative flex justify-center">
+            <div className="relative z-10 w-full aspect-square max-w-[340px] md:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+              <img 
+                className="w-full h-full object-cover" 
+                alt="Futuristic Crystal Ball" 
+                src="/hero_crystal_ball.png" 
+              />
+            </div>
+            {/* Decorative glows */}
+            <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-300 rounded-full blur-3xl opacity-30" />
+            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-primary rounded-full blur-3xl opacity-40" />
+          </div>
+        </section>
 
-          {/* Stats */}
-          <div className="hero-stats-container">
-            {[
-              { label: "Total Pool", rawValue: totalPool, display: `$${totalPool >= 1e6 ? (totalPool / 1e6).toFixed(1) + 'M' : totalPool >= 1e3 ? (totalPool / 1e3).toFixed(0) + 'K' : totalPool.toFixed(2)}`, icon: <Coins size={14} />, color: "var(--primary)" },
-              { label: "Open Markets", rawValue: matches ? matches.filter(m => m.status === 0).length : 0, display: String(matches ? matches.filter(m => m.status === 0).length : 0), icon: <Activity size={14} />, color: "var(--purple)" },
-              { label: "Blockchain", rawValue: null, display: "Arc Testnet", icon: <Globe size={14} />, color: "var(--primary)" },
-              { label: "Event", rawValue: null, display: "X Cup 2026", icon: <Trophy size={14} />, color: "var(--purple)" },
-            ].map((s, i) => (
-              <div key={s.label} className="hero-stat-item" style={{
-                display: "flex",
-                flexDirection: "column",
-                alignItems: "flex-start",
-                textAlign: "left",
-                padding: "20px 24px",
-                position: "relative"
-              }}>
-                <div style={{
-                  position: "absolute",
-                  top: 0, left: 0, right: 0,
-                  height: 1,
-                  background: `linear-gradient(90deg, transparent, ${s.color}, transparent)`,
-                  opacity: 0.8
-                }} />
-                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", width: "100%", marginBottom: 6 }}>
-                  <span style={{ fontSize: 10, color: "var(--text-secondary)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>{s.label}</span>
-                  <span style={{ color: s.color, opacity: 0.8 }}>{s.icon}</span>
+        {/* Bento Stats Grid */}
+        {(() => {
+          const activeTeams = [];
+          if (matches) {
+            for (const m of matches) {
+              if (m.status === 0) {
+                if (m.homeTeam && activeTeams.length < 3 && !activeTeams.some(t => t.name === m.homeTeam)) {
+                  activeTeams.push({
+                    name: m.homeTeam,
+                    img: m.homeImage || getCryptoLogo(m.homeTeam) || m.homeCrest,
+                    flag: m.homeFlag
+                  });
+                }
+                if (m.awayTeam && activeTeams.length < 3 && !activeTeams.some(t => t.name === m.awayTeam)) {
+                  activeTeams.push({
+                    name: m.awayTeam,
+                    img: m.awayImage || getCryptoLogo(m.awayTeam) || m.awayCrest,
+                    flag: m.awayFlag
+                  });
+                }
+              }
+              if (activeTeams.length >= 3) break;
+            }
+          }
+          return (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              {/* Card 1: Global Vol */}
+              <div className="p-6 rounded-2xl gamified-card flex flex-col justify-between" style={{ background: "var(--surface-container-lowest)", border: "1px solid var(--border)" }}>
+                <div>
+                  <span className="text-secondary font-mono uppercase text-[11px] tracking-widest font-semibold" style={{ color: "var(--text-secondary)" }}>Global Vol</span>
+                  <h3 className="text-3xl font-bold text-primary mt-1" style={{ color: "var(--primary)", fontFamily: "var(--font-mono)" }}>
+                    <AnimatedStat value={totalPool} prefix="$" />
+                  </h3>
                 </div>
-                <div style={{ fontSize: 28, fontWeight: 800, letterSpacing: -1, color: s.color, fontFamily: "'JetBrains Mono', monospace", lineHeight: 1 }}>
-                  {s.rawValue !== null ? <AnimatedStat value={s.rawValue} prefix={s.label === "Total Pool" ? "$" : ""} /> : s.display}
+                <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>
+                  <Activity size={14} style={{ color: "var(--green)" }} />
+                  <span>Real-time pool data</span>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
+
+              {/* Card 2: Active Markets */}
+              <div className="p-6 rounded-2xl gamified-card flex flex-col justify-between" style={{ background: "var(--surface-container-lowest)", border: "1px solid var(--border)" }}>
+                <div>
+                  <span className="text-secondary font-mono uppercase text-[11px] tracking-widest font-semibold" style={{ color: "var(--text-secondary)" }}>Active Markets</span>
+                  <h3 className="text-3xl font-bold text-tertiary mt-1" style={{ color: "var(--purple)", fontFamily: "var(--font-mono)" }}>
+                    <NumberTicker value={matches ? matches.filter(m => m.status === 0).length : 0} />
+                  </h3>
+                </div>
+                {/* Dynamic Avatars from Active Markets */}
+                <div className="mt-4 flex -space-x-2 items-center">
+                  {activeTeams.map((team, idx) => {
+                    const isToken = !!getCryptoLogo(team.name);
+                    return (
+                      <div key={idx} className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-slate-900 overflow-hidden flex items-center justify-center relative shadow-sm" title={team.name} style={{ width: 32, height: 32 }}>
+                        {team.img ? (
+                          <img src={team.img} alt={team.name} className="w-full h-full object-cover" />
+                        ) : (
+                          <span className="text-[14px]">{team.flag || "⚽"}</span>
+                        )}
+                      </div>
+                    );
+                  })}
+                  {matches && matches.filter(m => m.status === 0).length > activeTeams.length && (
+                    <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-primary text-white text-[10px] flex items-center justify-center font-bold shadow-sm" style={{ width: 32, height: 32 }}>
+                      +{matches.filter(m => m.status === 0).length - activeTeams.length}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Card 3: Rank Progress */}
+              <RankProgressBentoCard walletAddress={wallet.address} userBetsState={userBetsState} setTab={setTab} />
+            </div>
+          );
+        })()}
       </div>
 
       {/* ── Content ── */}
@@ -2456,9 +2772,30 @@ export default function Home() {
             fixturesLoading={fixturesLoading}
             loading={matchesLoading}
             onBet={openBet}
+            leaderboardRows={leaderboardRows}
+            leaderboardLoading={leaderboardLoading}
+            setTab={setTab}
+            wallet={wallet}
+            usdtBalance={usdtBalance}
+            refetchUsdt={refetchUsdt}
+            onNotif={notify}
+            addNotif={addNotification}
+            theme={theme}
           />
         )}
-        {tab === "agent" && <AgentTab address={wallet.address} signer={wallet.signer} matches={matches} usdtBalance={usdtBalance} refetchUsdt={refetchUsdt} onNotif={notify} addNotif={addNotification} theme={theme} />}
+        {tab === "agent" && (
+          <AgentTab
+            address={wallet.address}
+            signer={wallet.signer}
+            matches={matches}
+            usdtBalance={usdtBalance}
+            refetchUsdt={refetchUsdt}
+            onNotif={notify}
+            addNotif={addNotification}
+            theme={theme}
+            refetchBets={userBetsState.refetch}
+          />
+        )}
         {tab === "portfolio" && (
           <PortfolioTab
             address={wallet.address}
@@ -2467,40 +2804,59 @@ export default function Home() {
             onNotif={notify}
             addNotif={addNotification}
             onGoLeaderboard={() => setTab("leaderboard")}
+            userBetsState={userBetsState}
           />
         )}
         {tab === "leaderboard" && <LeaderboardTab />}
       </main>
 
-      {/* ── Footer ── */}
-      <footer className="footer-section">
-        <div className="footer-inner">
-          <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 20, fontWeight: 600, letterSpacing: "-0.02em" }}>ArcMarkets</div>
-          <div className="footer-links">
-            {[
-              { label: "Whitepaper", key: "whitepaper" },
-              { label: "Verification", key: "verification" },
-              { label: "Odds API", key: "odds" },
-              { label: "Privacy", key: "privacy" }
-            ].map(l => (
-              <button key={l.key} onClick={() => setFooterModal(l.key)} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", textDecoration: "none", fontWeight: 500, transition: "color 0.2s" }}
-                onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
-                onMouseLeave={e => e.currentTarget.style.color = "var(--text-secondary)"}
-              >{l.label}</button>
-            ))}
-          </div>
-          <div className="footer-credits">
-            <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>© 2026 ArcMarkets · Secured by Arc Testnet</span>
-            <span style={{ fontSize: 10.5, color: "var(--text-muted)", fontWeight: 500 }}>
-              Built by{" "}
-              <a
-                href="https://github.com/Ritesh59697"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="developer-link"
-              >
-                Ritesh59697
+      {/* ── Footer (Stitch Vibrant Design) ── */}
+      <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--surface-container)", borderColor: "var(--border)", padding: "40px 24px 24px" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 32 }} className="font-sans">
+          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap", gap: 32 }}>
+            {/* Logo column */}
+            <div style={{ flex: "1 1 280px" }}>
+              <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>ArcMarkets</div>
+              <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 12, lineHeight: 1.6, maxWidth: 280 }}>
+                © 2026 ArcMarkets. Predict Win On-Chain. The world's fastest gamified parimutuel prediction protocol.
+              </p>
+            </div>
+
+            {/* Links columns */}
+            <div style={{ display: "flex", gap: 48, flexWrap: "wrap" }}>
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)" }}>Platform</span>
+                <button onClick={() => setTab("matches")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Markets</button>
+                <button onClick={() => setTab("agent")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">AI Agent</button>
+                <button onClick={() => setTab("portfolio")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Portfolio</button>
+              </div>
+
+              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)" }}>Support</span>
+                <button onClick={() => setFooterModal("whitepaper")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Whitepaper</button>
+                <button onClick={() => setFooterModal("verification")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Verification</button>
+                <button onClick={() => setFooterModal("odds")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Odds API</button>
+                <button onClick={() => setFooterModal("privacy")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Privacy</button>
+              </div>
+            </div>
+
+            {/* Social media column */}
+            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
+              <a href="https://twitter.com/arcmarkets" target="_blank" rel="noopener noreferrer" style={{ width: 44, height: 44, borderRadius: 12, background: "var(--surface-container-lowest)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", padding: 10, cursor: "pointer" }} className="hover:scale-105 transition-transform">
+                <img src="/social_twitter.png" alt="Twitter" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
               </a>
+              <a href="https://discord.gg/arcmarkets" target="_blank" rel="noopener noreferrer" style={{ width: 44, height: 44, borderRadius: 12, background: "var(--surface-container-lowest)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", padding: 10, cursor: "pointer" }} className="hover:scale-105 transition-transform">
+                <img src="/social_discord.png" alt="Discord" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
+              </a>
+            </div>
+          </div>
+
+          {/* Credits bottom row */}
+          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 16, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
+            <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>Secured by Arc Testnet</span>
+            <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
+              Built by{" "}
+              <a href="https://github.com/Ritesh59697" target="_blank" rel="noopener noreferrer" className="developer-link" style={{ color: "var(--primary)", fontWeight: 600 }}>Ritesh59697</a>
             </span>
           </div>
         </div>

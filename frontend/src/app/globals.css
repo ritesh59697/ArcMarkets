@@ -124,6 +124,25 @@ html {
   --scrollbar-thumb: rgba(3, 86, 197, 0.35);
   --tooltip-bg: rgba(2, 10, 28, 0.96);
   --footer-bg: rgba(2, 6, 14, 0.55);
+
+  /* Material-3 Gamified Variables */
+  --primary-container: rgba(3, 86, 197, 0.35);
+  --on-primary-container: #eeefff;
+  --secondary: #a0a6b7;
+  --secondary-container: rgba(218, 226, 253, 0.12);
+  --on-secondary-container: #bec6e0;
+  --tertiary: #5dc3e0;
+  --tertiary-container: #005c79;
+  --on-tertiary-container: #e0f3ff;
+  --tertiary-fixed: #c0e8ff;
+  --surface: #02060e;
+  --surface-container: rgba(255, 255, 255, 0.04);
+  --surface-container-lowest: rgba(2, 10, 28, 0.55);
+  --gamified-card-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.25), 0 4px 20px rgba(0, 0, 0, 0.4);
+  --gamified-card-hover-shadow: 0 12px 0 0 rgba(3, 86, 197, 0.25), 0 8px 32px rgba(3, 86, 197, 0.15);
+  --gamified-card-active-shadow: 0 3px 0 0 rgba(0, 0, 0, 0.25), 0 2px 10px rgba(0, 0, 0, 0.4);
+  --hero-banner-bg: linear-gradient(135deg, #0b1528 0%, rgba(3, 86, 197, 0.95) 50%, #0d0925 100%);
+  --hero-banner-border: rgba(160, 196, 255, 0.15);
 }
 
 [data-theme="light"] {
@@ -155,7 +174,7 @@ html {
   --border-bright: rgba(10, 22, 40, 0.16);
   --text-primary: #0a1628;
   --text-secondary: #334155;
-  --text-muted: #64748b;
+  --text-muted: #475569;
 
   --navbar-bg: rgba(255, 255, 255, 0.88);
   --navbar-border: rgba(10, 22, 40, 0.08);
@@ -226,6 +245,25 @@ html {
   --scrollbar-thumb: rgba(3, 86, 197, 0.25);
   --tooltip-bg: #ffffff;
   --footer-bg: rgba(255, 255, 255, 0.7);
+
+  /* Material-3 Gamified Variables */
+  --primary-container: #2563eb;
+  --on-primary-container: #ffffff;
+  --secondary: #565e74;
+  --secondary-container: #dae2fd;
+  --on-secondary-container: #131b2e;
+  --tertiary: #005c79;
+  --tertiary-container: #00769a;
+  --on-tertiary-container: #e0f3ff;
+  --tertiary-fixed: #c0e8ff;
+  --surface: #f7f9fb;
+  --surface-container: #eceef0;
+  --surface-container-lowest: #ffffff;
+  --gamified-card-shadow: 0 8px 0 0 rgba(10, 22, 40, 0.06), 0 4px 16px rgba(10, 22, 40, 0.04);
+  --gamified-card-hover-shadow: 0 12px 0 0 rgba(3, 86, 197, 0.1), 0 8px 24px rgba(3, 86, 197, 0.08);
+  --gamified-card-active-shadow: 0 3px 0 0 rgba(10, 22, 40, 0.06), 0 2px 8px rgba(10, 22, 40, 0.04);
+  --hero-banner-bg: linear-gradient(135deg, #0284c7 0%, #0356c5 60%, #4f46e5 100%);
+  --hero-banner-border: rgba(255, 255, 255, 0.3);
 }
 
 body {
@@ -1078,22 +1116,19 @@ body::after {
 
 @media (max-width: 768px) {
   .hero-stats-container {
-    display: grid !important;
-    grid-template-columns: repeat(2, 1fr) !important;
+    display: flex !important;
+    flex-direction: column !important;
   }
 
   .hero-stat-item {
-    padding: 16px 12px !important;
+    padding: 16px 20px !important;
     min-width: 0 !important;
-    border-right: 1px solid var(--border) !important;
-  }
-
-  .hero-stat-item:nth-child(2n) {
     border-right: none !important;
+    border-bottom: 1px solid var(--border) !important;
   }
 
-  .hero-stat-item:nth-child(-n+2) {
-    border-bottom: 1px solid var(--border) !important;
+  .hero-stat-item:last-child {
+    border-bottom: none !important;
   }
 }
 
@@ -1610,7 +1645,7 @@ body::after {
 .arc-nav-mark {
   width: 38px;
   height: 38px;
-  border-radius: 14px;
+  border-radius: 8px;
   background: linear-gradient(145deg, rgba(3, 86, 197, 0.55), rgba(77, 159, 255, 0.35));
   border: 1px solid rgba(224, 240, 255, 0.2);
   display: flex;
@@ -1634,4 +1669,49 @@ body::after {
   object-fit: contain !important;
   padding: 8px !important;
   background: rgba(255, 255, 255, 0.04) !important;
+}
+
+/* ─── Stitch Gamified Experience classes ─── */
+.gamified-card {
+  transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease, border-color 0.2s ease;
+  box-shadow: var(--gamified-card-shadow);
+}
+.gamified-card:hover {
+  transform: translateY(-4px);
+  box-shadow: var(--gamified-card-hover-shadow);
+}
+.gamified-card:active {
+  transform: translateY(2px);
+  box-shadow: var(--gamified-card-active-shadow);
+}
+
+.pulse-live {
+  animation: pulse-ring-live 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+@keyframes pulse-ring-live {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50% { opacity: .5; transform: scale(1.05); }
+}
+
+.gradient-mesh {
+  background-color: var(--surface);
+  background-image: 
+      radial-gradient(at 0% 0%, rgba(3, 86, 197, 0.1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, rgba(91, 141, 239, 0.1) 0px, transparent 50%);
+}
+
+.progress-fill {
+  transition: width 1s ease-in-out;
+}
+
+.bento-card-gradient {
+  background: var(--hero-banner-bg);
+  border: 1px solid var(--hero-banner-border) !important;
+  color: #ffffff;
+}
+.bento-card-gradient p, .bento-card-gradient span {
+  color: rgba(255, 255, 255, 0.8) !important;
+}
+.bento-card-gradient h3 {
+  color: #ffffff !important;
 }

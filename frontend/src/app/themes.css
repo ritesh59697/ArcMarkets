@@ -23,8 +23,8 @@
 
 [data-theme="light"] body::after {
   background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.92) 0%, rgba(228, 238, 252, 0.88) 40%, rgba(210, 226, 248, 0.95) 100%),
-    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(3, 86, 197, 0.08), transparent 60%);
+    linear-gradient(180deg, rgba(255, 255, 255, 0.98) 0%, rgba(240, 246, 255, 0.96) 40%, rgba(224, 238, 252, 0.98) 100%),
+    radial-gradient(ellipse 80% 50% at 50% 0%, rgba(3, 86, 197, 0.05), transparent 60%);
 }
 
 [data-theme="light"] h1,
@@ -161,3 +161,25 @@
   left: 16px;
   top: 16px;
 }
+
+/* Light mode high-contrast odds buttons overrides */
+[data-theme="light"] .odds-btn-home .odds-value {
+  color: #0356c5;
+  text-shadow: none;
+}
+[data-theme="light"] .odds-btn-home:hover:not(:disabled) {
+  border-color: rgba(3, 86, 197, 0.25);
+  background: rgba(3, 86, 197, 0.04);
+  box-shadow: 0 6px 16px rgba(3, 86, 197, 0.06);
+}
+
+[data-theme="light"] .odds-btn-away .odds-value {
+  color: #6b21a8; /* Deep purple */
+  text-shadow: none;
+}
+[data-theme="light"] .odds-btn-away:hover:not(:disabled) {
+  border-color: rgba(107, 33, 168, 0.25);
+  background: rgba(107, 33, 168, 0.04);
+  box-shadow: 0 6px 16px rgba(107, 33, 168, 0.06);
+}
+

@@ -16,7 +16,7 @@ const INITIAL_STATE = {
 
 /**
  * Safely resolve an injected EVM provider.
- * When Rabby + OKX (+ others) are installed, `window.ethereum` is often a Proxy chain;
+ * When multiple EVM wallet extensions are installed, `window.ethereum` is often a Proxy chain;
  * reading it can cause "Maximum call stack size exceeded". Use each wallet's own global first.
  */
 function getEthereumProvider() {
@@ -24,7 +24,6 @@ function getEthereumProvider() {
 
   const candidates = [
     () => window.rabby,
-    () => window.okxwallet?.ethereum ?? window.okxwallet,
     () => window.phantom?.ethereum,
     () => window.coinbaseWalletExtension,
     () => window.braveEthereum,
@@ -84,7 +83,7 @@ export function useWallet() {
       setState((s) => ({
         ...s,
         isConnecting: false,
-        error: "Wallet extension conflict. Try disabling extra wallet extensions or use OKX/Rabby only.",
+        error: "Wallet extension conflict. Try disabling extra wallet extensions.",
       }));
       return;
     }
@@ -92,7 +91,7 @@ export function useWallet() {
     if (!ethereum) {
       setState((s) => ({
         ...s,
-        error: "No wallet found. Install MetaMask, OKX Wallet, or Rabby.",
+        error: "No wallet found. Install MetaMask, Rabby, or another EVM wallet.",
       }));
       return;
     }

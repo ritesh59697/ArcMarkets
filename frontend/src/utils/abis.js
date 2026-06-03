@@ -21,6 +21,7 @@ export const PREDICTION_MARKET_ABI = [
   "function revokeAgent()",
 
   // Events
+  "event MatchCreated(uint256 indexed matchIndex, string homeTeam, string awayTeam, uint256 kickoffTime)",
   "event BetPlaced(uint256 indexed betId, address indexed bettor, uint256 matchIndex, uint8 outcome, uint256 amount, bool isAgentBet)",
   "event WinningsClaimed(address indexed bettor, uint256 betId, uint256 payout)",
   "event MarketResolved(uint256 indexed matchIndex, uint8 result)",
