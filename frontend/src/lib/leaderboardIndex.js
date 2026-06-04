@@ -46,7 +46,7 @@ async function queryChunked(contract, filter, fromBlock, toBlock) {
 
 export async function buildOnChainLeaderboard(limit = 50) {
   const marketAddress = getMarketAddress();
-  const provider = new ethers.JsonRpcProvider(getRpcUrl(), undefined, { batchMaxCount: 1 });
+  const provider = new ethers.JsonRpcProvider(getRpcUrl(), undefined, { batchMaxCount: 100, batchStallTime: 10 });
   const contract = new ethers.Contract(marketAddress, PREDICTION_MARKET_ABI, provider);
 
   const latest = await provider.getBlockNumber();

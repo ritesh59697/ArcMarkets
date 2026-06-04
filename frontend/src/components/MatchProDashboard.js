@@ -40,30 +40,42 @@ export default function MatchProDashboard({
   const OUTCOME_NAMES = { 1: match.homeTeam, 2: "Draw", 3: match.awayTeam };
   const OUTCOME_LABELS = { 1: "Home Win", 2: "Draw", 3: "Away Win" };
 
-  // Generate mock chart data based on timeframe & final match odds
+  // Generate realistic smooth parimutuel odds and volume simulation
   const [chartData, setChartData] = useState([]);
   useEffect(() => {
     const points = [];
-    const count = 12;
+    const count = 18;
     let baseOdds = parseFloat(odds[outcome] || 2.0);
     
-    // Add time increments depending on filter
     const prefix = timeframe === "1H" ? "Min" : timeframe === "1D" ? "Hr" : timeframe === "1W" ? "Day" : "Wk";
     
+    // Start with a price slightly offset from the live target odds
+    let currentOdds = Math.max(1.15, baseOdds - (Math.random() - 0.5) * 0.5);
+    
     for (let i = 0; i < count; i++) {
-      // Create a nice random walk that trends towards current live odds
       const progress = i / (count - 1);
-      const randomOffset = Math.sin(i * 0.9) * 0.15 + Math.cos(i * 0.6) * 0.08;
-      const val = Math.max(1.15, baseOdds - (1 - progress) * 0.6 + randomOffset);
-      const vol = Math.max(50, Math.round((500 + Math.sin(i * 1.5) * 400) * 10) / 10);
+      
+      if (i > 0 && i < count - 1) {
+        // Soft drift back to target, plus tiny random noise to keep it smooth and continuous
+        const drift = (baseOdds - currentOdds) * 0.12;
+        const change = (Math.random() - 0.5) * 0.08;
+        currentOdds = Math.max(1.15, currentOdds + drift + change);
+      }
+      
+      // Volume remains clean and spikey but matches the smooth timeline
+      let vol = Math.round(Math.random() * 12 + 4);
+      if (Math.random() < 0.2) {
+        vol = Math.round(Math.random() * 80 + 30);
+      }
       
       points.push({
         time: `${prefix} ${i + 1}`,
-        odds: parseFloat(val.toFixed(2)),
+        odds: parseFloat(currentOdds.toFixed(2)),
         volume: vol
       });
     }
-    // Set the final point to exactly reflect live odds
+    
+    // Set the final point to exactly reflect live contract odds
     points[points.length - 1].odds = parseFloat(baseOdds.toFixed(2));
     setChartData(points);
   }, [timeframe, outcome, match.index]);
@@ -112,7 +124,7 @@ export default function MatchProDashboard({
   // SVG Chart geometry
   const width = 680;
   const height = 260;
-  const pad = 35;
+  const pad = 50; // Increased padding to prevent Y-axis labels from being cropped
   const chartW = width - pad * 2;
   const chartH = height - pad * 2 - 30; // Leave space for volume bars
 
@@ -123,7 +135,7 @@ export default function MatchProDashboard({
   const getX = (i) => pad + (i / (chartData.length - 1)) * chartW;
   const getY = (v) => pad + chartH - ((v - minOdds) / (maxOdds - minOdds)) * chartH;
 
-  // Build chart path string
+  // Build clean smooth line chart path strings
   let linePath = "";
   let areaPath = "";
   if (chartData.length > 0) {
@@ -249,7 +261,7 @@ export default function MatchProDashboard({
                   return (
                     <g key={i}>
                       <line x1={pad} y1={yPos} x2={width - pad} y2={yPos} stroke="var(--border)" strokeWidth="1" strokeDasharray="4 4" />
-                      <text x={pad - 10} y={yPos + 4} fill="var(--text-muted)" fontSize="9" textAnchor="end" fontFamily="var(--font-mono)">
+                      <text x={pad - 12} y={yPos + 4} fill="var(--text-muted)" fontSize="9" textAnchor="end" fontFamily="var(--font-mono)">
                         {yVal.toFixed(2)}x
                       </text>
                     </g>
@@ -257,20 +269,24 @@ export default function MatchProDashboard({
                 })}
 
                 {/* Volume Bar Chart at the bottom */}
-                {chartData.map((d, i) => {
-                  const barH = (d.volume / 900) * 40;
-                  return (
-                    <rect
-                      key={i}
-                      x={getX(i) - 6}
-                      y={height - pad - barH - 10}
-                      width="12"
-                      height={barH}
-                      fill="rgba(3, 86, 197, 0.15)"
-                      rx="2"
-                    />
-                  );
-                })}
+                {(() => {
+                  const maxVol = Math.max(...chartData.map(d => d.volume), 100);
+                  const barW = Math.max(2, Math.floor(chartW / chartData.length * 0.5));
+                  return chartData.map((d, i) => {
+                    const barH = (d.volume / maxVol) * 35;
+                    return (
+                      <rect
+                        key={i}
+                        x={getX(i) - barW / 2}
+                        y={height - pad - barH - 10}
+                        width={barW}
+                        height={barH}
+                        fill="rgba(3, 86, 197, 0.15)"
+                        rx="1"
+                      />
+                    );
+                  });
+                })()}
 
                 {/* Area path */}
                 {areaPath && <path d={areaPath} fill="url(#chartGlow)" />}

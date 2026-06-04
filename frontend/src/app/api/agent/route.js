@@ -37,7 +37,7 @@ export async function POST(req) {
       return NextResponse.json({ error: "Agent PRIVATE_KEY not configured on server" }, { status: 500 });
     }
 
-    const provider = new ethers.JsonRpcProvider(rpcUrl, undefined, { batchMaxCount: 1 });
+    const provider = new ethers.JsonRpcProvider(rpcUrl, undefined, { batchMaxCount: 100, batchStallTime: 10 });
     const agentWallet = new ethers.Wallet(privateKey, provider);
 
     const marketAddress = process.env.NEXT_PUBLIC_MARKET_ADDRESS || CONTRACT_ADDRESSES.PredictionMarket;
@@ -66,15 +66,46 @@ export async function POST(req) {
 
     // Fetch matches from the contract
     const matchCount = await marketContract.getMatchCount();
+    const count = Number(matchCount);
     const actions = [];
 
-    // Analyze each match
-    for (let i = 0; i < Number(matchCount); i++) {
+    // Pre-fetch all match details, odds, and user bets in parallel to leverage JSON-RPC batching!
+    const matchesData = await Promise.all(
+      Array.from({ length: count }, (_, i) => marketContract.getMatch(i))
+    );
+    const matchesOdds = await Promise.all(
+      Array.from({ length: count }, (_, i) => marketContract.getOdds(i))
+    );
+    const userBetsLists = await Promise.all(
+      Array.from({ length: count }, (_, i) => marketContract.getUserBetsForMatch(i, userAddress))
+    );
+
+    // Fetch details for all user bets in parallel to check if the agent has already bet on them
+    const allBetPromises = [];
+    const betIndexMap = []; // keeps track of which match each promise belongs to
+    userBetsLists.forEach((bets, matchIndex) => {
+      bets.forEach(betId => {
+        allBetPromises.push(marketContract.getBet(betId));
+        betIndexMap.push({ matchIndex, betId: Number(betId) });
+      });
+    });
+    const allBets = await Promise.all(allBetPromises);
+
+    // Map bets to their match index for instant check
+    const agentBetForMatch = new Set();
+    allBets.forEach((bet, idx) => {
+      if (bet.isAgentBet) {
+        agentBetForMatch.add(betIndexMap[idx].matchIndex);
+      }
+    });
+
+    // Analyze each match using the pre-fetched data
+    for (let i = 0; i < count; i++) {
       if (userBudget < 0.01) {
         console.log(`[Agent API] Stopping match loop: budget too low (${userBudget} USDC)`);
         break;
       }
-      const match = await marketContract.getMatch(i);
+      const match = matchesData[i];
 
       // Check status: 0 is MarketStatus.OPEN
       if (Number(match.status) !== 0) continue;
@@ -87,17 +118,7 @@ export async function POST(req) {
       const awayTeam = match.awayTeam;
 
       // Check if user has already placed a bet on this match through this agent to prevent duplicates
-      const userBets = await marketContract.getUserBetsForMatch(i, userAddress);
-      let alreadyBet = false;
-      for (const betId of userBets) {
-        const bet = await marketContract.getBet(betId);
-        if (bet.isAgentBet) {
-          alreadyBet = true;
-          break;
-        }
-      }
-
-      if (alreadyBet) {
+      if (agentBetForMatch.has(i)) {
         console.log(`[Agent API] Already placed agent bet on match ${i} for user ${userAddress}`);
         continue;
       }
@@ -112,8 +133,8 @@ export async function POST(req) {
       const awayWinProb = Math.min(85, Math.max(15, 50 - ratingDiff * 0.4 - 5));
       const drawProb = Math.max(10, 100 - homeWinProb - awayWinProb);
 
-      // Get contract odds (in basis points, 10000 = 1x)
-      const odds = await marketContract.getOdds(i);
+      // Get contract odds (pre-fetched)
+      const odds = matchesOdds[i];
       const oddsHome = Number(odds[0]) / 10000;
       const oddsDraw = Number(odds[1]) / 10000;
       const oddsAway = Number(odds[2]) / 10000;

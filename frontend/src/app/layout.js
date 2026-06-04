@@ -1,17 +1,9 @@
-"use client";
 import "./globals.css";
 import "./polish.css";
 import "./themes.css";
-import { createContext, useContext } from "react";
-import { useWallet } from "../hooks/useWallet";
-
-export const WalletContext = createContext(null);
-export function useWalletContext() {
-  return useContext(WalletContext);
-}
+import { Providers } from "./providers";
 
 export default function RootLayout({ children }) {
-  const wallet = useWallet();
   return (
     <html lang="en" data-theme="dark" suppressHydrationWarning>
       <head>
@@ -40,9 +32,9 @@ export default function RootLayout({ children }) {
         />
       </head>
       <body>
-        <WalletContext.Provider value={wallet}>
+        <Providers>
           {children}
-        </WalletContext.Provider>
+        </Providers>
       </body>
     </html>
   );

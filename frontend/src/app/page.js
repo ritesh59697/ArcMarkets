@@ -7,7 +7,7 @@ import {
   Target, Flame, Layers, Activity, Coins, CircleDot, Search,
   LogOut, Copy, ExternalLink, Info, Lock, Unlock, Timer, Sun, Moon
 } from "lucide-react";
-import { useWalletContext } from "./layout";
+import { useWalletContext } from "./providers";
 import { ACTIVE_NETWORK, TEAM_FLAGS, CONTRACTS } from "../utils/config";
 import { useEnrichedMatches } from "../hooks/useEnrichedMatches";
 import { useUserBets } from "../hooks/useUserBets";
@@ -884,7 +884,9 @@ function MatchesTab({
   refetchUsdt,
   onNotif,
   addNotif,
-  theme
+  theme,
+  userBetsState,
+  setFooterModal
 }) {
   const [search, setSearch] = useState("");
   const [champsSort, setChampsSort] = useState("profit"); // "profit", "winRate", "bets"
@@ -944,11 +946,136 @@ function MatchesTab({
   });
 
   const displayChamps = sortedChamps.slice(0, 5);
+  const totalPool = matches ? matches.reduce((a, m) => a + m.totalPool, 0) : 0;
 
   return (
-    <div>
+    <div className="space-y-8">
+      {/* Stitch Hero Section */}
+      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-container p-8 md:p-12 flex flex-col md:flex-row items-center justify-between text-white shadow-xl">
+        <div className="z-10 md:w-1/2 space-y-6 text-center md:text-left">
+          <div className="inline-flex items-center gap-2 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm">
+            <span className="pulse-live w-2.5 h-2.5 bg-red-400 rounded-full" />
+            <span className="font-mono text-[11px] uppercase tracking-wider font-semibold">Live &amp; On-Chain</span>
+          </div>
+          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight" style={{ fontFamily: "var(--font-serif)" }}>
+            Predict the Future, <br/><span className="text-blue-200">Win the Rewards.</span>
+          </h1>
+          <p className="text-sm md:text-base text-white/80 max-w-md">
+            The most high-octane decentralized prediction market. Gamified analytics, real-time odds, and instant payouts.
+          </p>
+          <div className="flex flex-wrap gap-4 justify-center md:justify-start">
+            <button 
+              onClick={() => {
+                document.getElementById("markets-list")?.scrollIntoView({ behavior: "smooth" });
+              }}
+              className="px-6 py-3.5 bg-white text-primary rounded-xl font-bold text-sm shadow-xl hover:scale-105 transition-transform active:scale-95"
+              style={{ border: "none", cursor: "pointer" }}
+            >
+              Explore Markets
+            </button>
+            <button 
+              onClick={() => setFooterModal("whitepaper")}
+              className="px-6 py-3.5 bg-transparent border border-white/30 text-white rounded-xl font-bold text-sm hover:bg-white/10 transition-all active:scale-95"
+              style={{ cursor: "pointer" }}
+            >
+              How it Works
+            </button>
+          </div>
+        </div>
+        <div className="md:w-1/2 mt-8 md:mt-0 relative flex justify-center">
+          <div className="relative z-10 w-full aspect-square max-w-[340px] md:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 transform rotate-3 hover:rotate-0 transition-transform duration-300">
+            <img 
+              className="w-full h-full object-cover" 
+              alt="Futuristic Crystal Ball" 
+              src="/hero_crystal_ball.png" 
+            />
+          </div>
+          {/* Decorative glows */}
+          <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-300 rounded-full blur-3xl opacity-30" />
+          <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-primary rounded-full blur-3xl opacity-40" />
+        </div>
+      </section>
+
+      {/* Bento Stats Grid */}
+      {(() => {
+        const activeTeams = [];
+        if (matches) {
+          for (const m of matches) {
+            if (m.status === 0) {
+              if (m.homeTeam && activeTeams.length < 3 && !activeTeams.some(t => t.name === m.homeTeam)) {
+                activeTeams.push({
+                  name: m.homeTeam,
+                  img: m.homeImage || getCryptoLogo(m.homeTeam) || m.homeCrest,
+                  flag: m.homeFlag
+                });
+              }
+              if (m.awayTeam && activeTeams.length < 3 && !activeTeams.some(t => t.name === m.awayTeam)) {
+                activeTeams.push({
+                  name: m.awayTeam,
+                  img: m.awayImage || getCryptoLogo(m.awayTeam) || m.awayCrest,
+                  flag: m.awayFlag
+                });
+              }
+            }
+            if (activeTeams.length >= 3) break;
+          }
+        }
+        return (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Card 1: Global Vol */}
+            <div className="p-6 rounded-2xl gamified-card flex flex-col justify-between" style={{ background: "var(--surface-container-lowest)", border: "1px solid var(--border)" }}>
+              <div>
+                <span className="text-secondary font-mono uppercase text-[11px] tracking-widest font-semibold" style={{ color: "var(--text-secondary)" }}>Global Vol</span>
+                <h3 className="text-3xl font-bold text-primary mt-1" style={{ color: "var(--primary)", fontFamily: "var(--font-mono)" }}>
+                  <AnimatedStat value={totalPool} prefix="$" />
+                </h3>
+              </div>
+              <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>
+                <Activity size={14} style={{ color: "var(--green)" }} />
+                <span>Real-time pool data</span>
+              </div>
+            </div>
+
+            {/* Card 2: Active Markets */}
+            <div className="p-6 rounded-2xl gamified-card flex flex-col justify-between" style={{ background: "var(--surface-container-lowest)", border: "1px solid var(--border)" }}>
+              <div>
+                <span className="text-secondary font-mono uppercase text-[11px] tracking-widest font-semibold" style={{ color: "var(--text-secondary)" }}>Active Markets</span>
+                <h3 className="text-3xl font-bold text-tertiary mt-1" style={{ color: "var(--purple)", fontFamily: "var(--font-mono)" }}>
+                  <NumberTicker value={matches ? matches.filter(m => m.status === 0).length : 0} />
+                </h3>
+              </div>
+              {/* Dynamic Avatars from Active Markets */}
+              <div className="mt-4 flex -space-x-2 items-center">
+                {activeTeams.map((team, idx) => {
+                  const isToken = !!getCryptoLogo(team.name);
+                  return (
+                    <div key={idx} className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-slate-900 overflow-hidden flex items-center justify-center relative shadow-sm" title={team.name} style={{ width: 32, height: 32 }}>
+                      {team.img ? (
+                        <img src={team.img} alt={team.name} className="w-full h-full object-cover" />
+                      ) : (
+                        <span className="text-[14px]">{team.flag || "⚽"}</span>
+                      )}
+                    </div>
+                  );
+                })}
+                {matches && matches.filter(m => m.status === 0).length > activeTeams.length && (
+                  <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-primary text-white text-[10px] flex items-center justify-center font-bold shadow-sm" style={{ width: 32, height: 32 }}>
+                    +{matches.filter(m => m.status === 0).length - activeTeams.length}
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Card 3: Rank Progress */}
+            <RankProgressBentoCard walletAddress={wallet.address} userBetsState={userBetsState} setTab={setTab} />
+          </div>
+        );
+      })()}
+
+      <div style={{ height: 16 }} />
+
       {/* Controls */}
-      <div className="font-sans" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
+      <div id="markets-list" className="font-sans" style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 32, flexWrap: "wrap", gap: 16 }}>
         <div style={{ display: "flex", alignItems: "center", gap: 14 }}>
           <div style={{
             width: 44, height: 44, borderRadius: 12,
@@ -2431,7 +2558,8 @@ export default function Home() {
   const totalPool = matches ? matches.reduce((a, m) => a + m.totalPool, 0) : 0;
 
   return (
-    <div className="app-root page-enter">
+    <>
+      <div className="app-root page-enter">
       <a href="#main-content" className="skip-link">Skip to content</a>
       <div className="grid-bg" aria-hidden />
       {toast && <Toast {...toast} />}
@@ -2615,131 +2743,8 @@ export default function Home() {
         </div>
       </nav>
 
-      {/* ── Hero Stats (Stitch Vibrant Gamified) ── */}
-      <div style={{ paddingTop: 80, paddingBottom: 24, maxWidth: 1400, margin: "0 auto", paddingLeft: 24, paddingRight: 24 }} className="font-sans">
-        {/* Stitch Hero Section */}
-        <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-container p-8 md:p-12 flex flex-col md:flex-row items-center justify-between text-white shadow-xl mb-8">
-          <div className="z-10 md:w-1/2 space-y-6 text-center md:text-left">
-            <div className="inline-flex items-center gap-2 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm">
-              <span className="pulse-live w-2.5 h-2.5 bg-red-400 rounded-full" />
-              <span className="font-mono text-[11px] uppercase tracking-wider font-semibold">Live &amp; On-Chain</span>
-            </div>
-            <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight" style={{ fontFamily: "var(--font-serif)" }}>
-              Predict the Future, <br/><span className="text-blue-200">Win the Rewards.</span>
-            </h1>
-            <p className="text-sm md:text-base text-white/80 max-w-md">
-              The most high-octane decentralized prediction market. Gamified analytics, real-time odds, and instant payouts.
-            </p>
-            <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-              <button 
-                onClick={() => setTab("matches")}
-                className="px-6 py-3.5 bg-white text-primary rounded-xl font-bold text-sm shadow-xl hover:scale-105 transition-transform active:scale-95"
-                style={{ border: "none", cursor: "pointer" }}
-              >
-                Explore Markets
-              </button>
-              <button 
-                onClick={() => setFooterModal("whitepaper")}
-                className="px-6 py-3.5 bg-transparent border border-white/30 text-white rounded-xl font-bold text-sm hover:bg-white/10 transition-all active:scale-95"
-                style={{ cursor: "pointer" }}
-              >
-                How it Works
-              </button>
-            </div>
-          </div>
-          <div className="md:w-1/2 mt-8 md:mt-0 relative flex justify-center">
-            <div className="relative z-10 w-full aspect-square max-w-[340px] md:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-              <img 
-                className="w-full h-full object-cover" 
-                alt="Futuristic Crystal Ball" 
-                src="/hero_crystal_ball.png" 
-              />
-            </div>
-            {/* Decorative glows */}
-            <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-300 rounded-full blur-3xl opacity-30" />
-            <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-primary rounded-full blur-3xl opacity-40" />
-          </div>
-        </section>
-
-        {/* Bento Stats Grid */}
-        {(() => {
-          const activeTeams = [];
-          if (matches) {
-            for (const m of matches) {
-              if (m.status === 0) {
-                if (m.homeTeam && activeTeams.length < 3 && !activeTeams.some(t => t.name === m.homeTeam)) {
-                  activeTeams.push({
-                    name: m.homeTeam,
-                    img: m.homeImage || getCryptoLogo(m.homeTeam) || m.homeCrest,
-                    flag: m.homeFlag
-                  });
-                }
-                if (m.awayTeam && activeTeams.length < 3 && !activeTeams.some(t => t.name === m.awayTeam)) {
-                  activeTeams.push({
-                    name: m.awayTeam,
-                    img: m.awayImage || getCryptoLogo(m.awayTeam) || m.awayCrest,
-                    flag: m.awayFlag
-                  });
-                }
-              }
-              if (activeTeams.length >= 3) break;
-            }
-          }
-          return (
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-              {/* Card 1: Global Vol */}
-              <div className="p-6 rounded-2xl gamified-card flex flex-col justify-between" style={{ background: "var(--surface-container-lowest)", border: "1px solid var(--border)" }}>
-                <div>
-                  <span className="text-secondary font-mono uppercase text-[11px] tracking-widest font-semibold" style={{ color: "var(--text-secondary)" }}>Global Vol</span>
-                  <h3 className="text-3xl font-bold text-primary mt-1" style={{ color: "var(--primary)", fontFamily: "var(--font-mono)" }}>
-                    <AnimatedStat value={totalPool} prefix="$" />
-                  </h3>
-                </div>
-                <div className="mt-4 flex items-center gap-1.5 text-xs font-semibold" style={{ color: "var(--text-secondary)" }}>
-                  <Activity size={14} style={{ color: "var(--green)" }} />
-                  <span>Real-time pool data</span>
-                </div>
-              </div>
-
-              {/* Card 2: Active Markets */}
-              <div className="p-6 rounded-2xl gamified-card flex flex-col justify-between" style={{ background: "var(--surface-container-lowest)", border: "1px solid var(--border)" }}>
-                <div>
-                  <span className="text-secondary font-mono uppercase text-[11px] tracking-widest font-semibold" style={{ color: "var(--text-secondary)" }}>Active Markets</span>
-                  <h3 className="text-3xl font-bold text-tertiary mt-1" style={{ color: "var(--purple)", fontFamily: "var(--font-mono)" }}>
-                    <NumberTicker value={matches ? matches.filter(m => m.status === 0).length : 0} />
-                  </h3>
-                </div>
-                {/* Dynamic Avatars from Active Markets */}
-                <div className="mt-4 flex -space-x-2 items-center">
-                  {activeTeams.map((team, idx) => {
-                    const isToken = !!getCryptoLogo(team.name);
-                    return (
-                      <div key={idx} className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-slate-900 overflow-hidden flex items-center justify-center relative shadow-sm" title={team.name} style={{ width: 32, height: 32 }}>
-                        {team.img ? (
-                          <img src={team.img} alt={team.name} className="w-full h-full object-cover" />
-                        ) : (
-                          <span className="text-[14px]">{team.flag || "⚽"}</span>
-                        )}
-                      </div>
-                    );
-                  })}
-                  {matches && matches.filter(m => m.status === 0).length > activeTeams.length && (
-                    <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-primary text-white text-[10px] flex items-center justify-center font-bold shadow-sm" style={{ width: 32, height: 32 }}>
-                      +{matches.filter(m => m.status === 0).length - activeTeams.length}
-                    </div>
-                  )}
-                </div>
-              </div>
-
-              {/* Card 3: Rank Progress */}
-              <RankProgressBentoCard walletAddress={wallet.address} userBetsState={userBetsState} setTab={setTab} />
-            </div>
-          );
-        })()}
-      </div>
-
       {/* ── Content ── */}
-      <main id="main-content" className="main-content" role="main">
+      <main id="main-content" className="main-content" role="main" style={{ paddingTop: 100 }}>
         {wallet.isConnected && !usdtLoading && usdtBalance < 0.01 && showSwapWarning && (
           <div className="swap-warning-banner">
             <div className="swap-warning-content">
@@ -2781,6 +2786,8 @@ export default function Home() {
             onNotif={notify}
             addNotif={addNotification}
             theme={theme}
+            userBetsState={userBetsState}
+            setFooterModal={setFooterModal}
           />
         )}
         {tab === "agent" && (
@@ -2811,13 +2818,24 @@ export default function Home() {
       </main>
 
       {/* ── Footer ── */}
-      <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--surface-container)", borderColor: "var(--border)", padding: "24px" }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }} className="font-sans">
-          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-            <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>ArcMarkets</div>
-            <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>© 2026 ArcMarkets · Secured by Arc Testnet</span>
+      <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--surface-container)", borderColor: "var(--border)", padding: "32px 24px" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }} className="font-sans">
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>ArcMarkets</div>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>© 2026 ArcMarkets · Secured by Arc Testnet</span>
+            </div>
+            
+            {/* Support Links */}
+            <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+              <button onClick={() => setFooterModal("whitepaper")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Whitepaper</button>
+              <button onClick={() => setFooterModal("verification")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Verification</button>
+              <button onClick={() => setFooterModal("odds")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Odds API</button>
+              <button onClick={() => setFooterModal("privacy")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Privacy</button>
+            </div>
           </div>
-          <div>
+
+          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12, display: "flex", justifyContent: "flex-end" }}>
             <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
               Built by{" "}
               <a href="https://github.com/Ritesh59697" target="_blank" rel="noopener noreferrer" className="developer-link" style={{ color: "var(--primary)", fontWeight: 600 }}>Ritesh59697</a>
@@ -2835,6 +2853,7 @@ export default function Home() {
             <span style={{ fontSize: 9 }}>{t.label}</span>
           </button>
         ))}
+      </div>
       </div>
 
       {/* ── Info Modal ── */}
@@ -2881,6 +2900,6 @@ export default function Home() {
           }}
         />
       )}
-    </div>
+    </>
   );
 }

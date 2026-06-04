@@ -27,7 +27,7 @@ const TEAM_RATINGS = {
 
 export class ArcMarketsAgent {
   constructor(rpcUrl, agentPrivateKey, marketAddress, marketABI) {
-    this.provider = new ethers.JsonRpcProvider(rpcUrl, undefined, { batchMaxCount: 1 });
+    this.provider = new ethers.JsonRpcProvider(rpcUrl, undefined, { batchMaxCount: 100, batchStallTime: 10 });
     this.wallet = new ethers.Wallet(agentPrivateKey, this.provider);
     this.marketABI = marketABI;
     this.marketContract = new ethers.Contract(marketAddress, marketABI, this.wallet);
@@ -216,7 +216,16 @@ export class ArcMarketsAgent {
     const actions = [];
 
     const matchCount = await this.marketContract.getMatchCount();
-    console.log(`📊 Total matches: ${matchCount}`);
+    const count = Number(matchCount);
+    console.log(`📊 Total matches: ${count}`);
+
+    // Pre-fetch all match data and odds in parallel!
+    const matchesData = await Promise.all(
+      Array.from({ length: count }, (_, i) => this.marketContract.getMatch(i))
+    );
+    const matchesOdds = await Promise.all(
+      Array.from({ length: count }, (_, i) => this.marketContract.getOdds(i))
+    );
 
     for (const user of users) {
       if (user.budget < 0.01) {
@@ -224,14 +233,32 @@ export class ArcMarketsAgent {
         continue;
       }
 
-      for (let i = 0; i < Number(matchCount); i++) {
+      for (let i = 0; i < count; i++) {
         if (user.budget < 0.01) {
           console.log(`⏭️  Stopping match run for ${user.address} — budget too low (${user.budget} USDC)`);
           break;
         }
-        const analysis = await this.analyzeMatch(i, user);
-        if (!analysis) continue;
 
+        const matchData = matchesData[i];
+        const { homeTeam, awayTeam, kickoffTime, status } = matchData;
+
+        if (Number(status) !== 0) continue; // Only analyze OPEN markets
+        if (Math.floor(Date.now() / 1000) >= Number(kickoffTime)) continue; // Skip if kickoff has passed
+
+        const historicalData = this.getHistoricalData(homeTeam, awayTeam);
+        const odds = matchesOdds[i];
+
+        const recommendation = this.computeRecommendation(
+          homeTeam,
+          awayTeam,
+          historicalData,
+          Number(odds[0]),
+          Number(odds[1]),
+          Number(odds[2]),
+          user
+        );
+
+        const analysis = { matchIndex: i, homeTeam, awayTeam, recommendation, historicalData };
         const action = await this.executeBet(user, analysis);
         actions.push(action);
 

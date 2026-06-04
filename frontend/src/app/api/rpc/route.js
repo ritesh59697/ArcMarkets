@@ -23,18 +23,49 @@ if (typeof global._rpcCacheCleanupInterval === "undefined") {
   }, 15000);
 }
 
+function getCacheKey(body) {
+  if (Array.isArray(body)) {
+    return JSON.stringify(
+      body.map(req => ({
+        method: req.method,
+        params: req.params,
+        jsonrpc: req.jsonrpc
+      }))
+    );
+  } else {
+    return JSON.stringify({
+      method: body.method,
+      params: body.params,
+      jsonrpc: body.jsonrpc
+    });
+  }
+}
+
 export async function POST(request) {
   try {
     const body = await request.json();
     
-    // Check if the request is read-only and cacheable
-    const isReadOnly = body.method === "eth_call" || body.method === "eth_blockNumber";
-    const cacheKey = JSON.stringify(body);
+    // Check if the request (single or batch array) is read-only and cacheable
+    const isReadOnly = Array.isArray(body)
+      ? body.every(req => req.method === "eth_call" || req.method === "eth_blockNumber")
+      : (body.method === "eth_call" || body.method === "eth_blockNumber");
+    const cacheKey = getCacheKey(body);
     
     if (isReadOnly && cache.has(cacheKey)) {
       const cached = cache.get(cacheKey);
       if (Date.now() - cached.timestamp < CACHE_TTL) {
-        return NextResponse.json(cached.data);
+        // Clone cached data to avoid direct mutation
+        const responseData = JSON.parse(JSON.stringify(cached.data));
+        if (Array.isArray(body)) {
+          if (Array.isArray(responseData) && responseData.length === body.length) {
+            for (let i = 0; i < body.length; i++) {
+              responseData[i].id = body[i].id;
+            }
+          }
+        } else {
+          responseData.id = body.id;
+        }
+        return NextResponse.json(responseData);
       }
     }
     

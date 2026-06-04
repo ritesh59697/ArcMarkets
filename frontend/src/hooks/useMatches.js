@@ -8,6 +8,18 @@ export function useMatches() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
+  useEffect(() => {
+    try {
+      const cached = localStorage.getItem("arc_matches_cache");
+      if (cached) {
+        setMatches(JSON.parse(cached));
+        setLoading(false);
+      }
+    } catch (e) {
+      console.warn("Failed to load cached matches:", e);
+    }
+  }, []);
+
   const fetchMatches = useCallback(async (silent = false) => {
     if (!silent) setLoading(true);
     setError(null);
@@ -71,7 +83,15 @@ export function useMatches() {
           })
         );
 
-        setMatches(results.filter(Boolean));
+        const filteredResults = results.filter(Boolean);
+        setMatches(filteredResults);
+        if (typeof window !== "undefined") {
+          try {
+            localStorage.setItem("arc_matches_cache", JSON.stringify(filteredResults));
+          } catch (e) {
+            console.warn("Failed to write matches cache:", e);
+          }
+        }
       });
     } catch (err) {
       console.error("fetchMatches error:", err);
