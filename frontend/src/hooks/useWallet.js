@@ -24,6 +24,7 @@ function getEthereumProvider() {
 
   const candidates = [
     () => window.rabby,
+    () => window.okxwallet?.ethereum ?? window.okxwallet,
     () => window.phantom?.ethereum,
     () => window.coinbaseWalletExtension,
     () => window.braveEthereum,
@@ -83,7 +84,7 @@ export function useWallet() {
       setState((s) => ({
         ...s,
         isConnecting: false,
-        error: "Wallet extension conflict. Try disabling extra wallet extensions.",
+        error: "Wallet extension conflict. Try disabling extra wallet extensions or use OKX/Rabby only.",
       }));
       return;
     }
@@ -91,7 +92,7 @@ export function useWallet() {
     if (!ethereum) {
       setState((s) => ({
         ...s,
-        error: "No wallet found. Install MetaMask, Rabby, or another EVM wallet.",
+        error: "No wallet found. Install MetaMask, OKX Wallet, Rabby, or another EVM wallet.",
       }));
       return;
     }
