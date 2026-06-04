@@ -2543,6 +2543,12 @@ export default function Home() {
     setTimeout(() => setToast(null), 3500);
   }, []);
 
+  useEffect(() => {
+    if (wallet.error) {
+      notify(wallet.error, "error");
+    }
+  }, [wallet.error, notify]);
+
   const openBet = (match, outcome) => {
     if (!wallet.isConnected) { notify("Connect your wallet first!", "error"); return; }
     setModal({ match, outcome });

@@ -55,24 +55,23 @@ export function useWallet() {
       });
       return true;
     } catch (switchError) {
-      if (switchError?.code === 4902) {
-        try {
-          await ethereum.request({
-            method: "wallet_addEthereumChain",
-            params: [{
-              chainId: ACTIVE_NETWORK.chainIdHex,
-              chainName: ACTIVE_NETWORK.name,
-              rpcUrls: [ACTIVE_NETWORK.rpcUrl],
-              blockExplorerUrls: [ACTIVE_NETWORK.explorerUrl],
-              nativeCurrency: ACTIVE_NETWORK.nativeCurrency,
-            }],
-          });
-          return true;
-        } catch {
-          return false;
-        }
+      // Try to add the chain if switch fails for ANY reason (e.g. not configured yet in wallet)
+      try {
+        await ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: ACTIVE_NETWORK.chainIdHex,
+            chainName: ACTIVE_NETWORK.name,
+            rpcUrls: [ACTIVE_NETWORK.rpcUrl],
+            blockExplorerUrls: [ACTIVE_NETWORK.explorerUrl],
+            nativeCurrency: ACTIVE_NETWORK.nativeCurrency,
+          }],
+        });
+        return true;
+      } catch (addError) {
+        console.error("Failed to add Arc Testnet to wallet:", addError);
+        return false;
       }
-      return false;
     }
   }, []);
 
