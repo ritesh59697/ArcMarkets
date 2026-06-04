@@ -2810,50 +2810,14 @@ export default function Home() {
         {tab === "leaderboard" && <LeaderboardTab />}
       </main>
 
-      {/* ── Footer (Stitch Vibrant Design) ── */}
-      <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--surface-container)", borderColor: "var(--border)", padding: "40px 24px 24px" }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 32 }} className="font-sans">
-          <div style={{ display: "flex", flexDirection: "row", justifyContent: "space-between", flexWrap: "wrap", gap: 32 }}>
-            {/* Logo column */}
-            <div style={{ flex: "1 1 280px" }}>
-              <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 22, fontWeight: 700, letterSpacing: "-0.02em" }}>ArcMarkets</div>
-              <p style={{ fontSize: 12, color: "var(--text-muted)", marginTop: 12, lineHeight: 1.6, maxWidth: 280 }}>
-                © 2026 ArcMarkets. Predict Win On-Chain. The world's fastest gamified parimutuel prediction protocol.
-              </p>
-            </div>
-
-            {/* Links columns */}
-            <div style={{ display: "flex", gap: 48, flexWrap: "wrap" }}>
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)" }}>Platform</span>
-                <button onClick={() => setTab("matches")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Markets</button>
-                <button onClick={() => setTab("agent")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">AI Agent</button>
-                <button onClick={() => setTab("portfolio")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Portfolio</button>
-              </div>
-
-              <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                <span style={{ fontSize: 11, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)" }}>Support</span>
-                <button onClick={() => setFooterModal("whitepaper")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Whitepaper</button>
-                <button onClick={() => setFooterModal("verification")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Verification</button>
-                <button onClick={() => setFooterModal("odds")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Odds API</button>
-                <button onClick={() => setFooterModal("privacy")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 13, color: "var(--text-secondary)", textAlign: "left", padding: 0 }} className="hover:text-primary transition-colors">Privacy</button>
-              </div>
-            </div>
-
-            {/* Social media column */}
-            <div style={{ display: "flex", gap: 12, alignItems: "center" }}>
-              <a href="https://twitter.com/arcmarkets" target="_blank" rel="noopener noreferrer" style={{ width: 44, height: 44, borderRadius: 12, background: "var(--surface-container-lowest)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", padding: 10, cursor: "pointer" }} className="hover:scale-105 transition-transform">
-                <img src="/social_twitter.png" alt="Twitter" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-              </a>
-              <a href="https://discord.gg/arcmarkets" target="_blank" rel="noopener noreferrer" style={{ width: 44, height: 44, borderRadius: 12, background: "var(--surface-container-lowest)", border: "1px solid var(--border)", display: "flex", alignItems: "center", justifyContent: "center", padding: 10, cursor: "pointer" }} className="hover:scale-105 transition-transform">
-                <img src="/social_discord.png" alt="Discord" style={{ width: "100%", height: "100%", objectFit: "contain" }} />
-              </a>
-            </div>
+      {/* ── Footer ── */}
+      <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--surface-container)", borderColor: "var(--border)", padding: "24px" }}>
+        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 12 }} className="font-sans">
+          <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+            <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>ArcMarkets</div>
+            <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>© 2026 ArcMarkets · Secured by Arc Testnet</span>
           </div>
-
-          {/* Credits bottom row */}
-          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 16, display: "flex", justifyContent: "space-between", flexWrap: "wrap", gap: 12 }}>
-            <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>Secured by Arc Testnet</span>
+          <div>
             <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
               Built by{" "}
               <a href="https://github.com/Ritesh59697" target="_blank" rel="noopener noreferrer" className="developer-link" style={{ color: "var(--primary)", fontWeight: 600 }}>Ritesh59697</a>
