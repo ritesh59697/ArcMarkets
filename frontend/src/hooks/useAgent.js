@@ -3,12 +3,12 @@ import { ethers } from "ethers";
 import { CONTRACTS, USDC_DECIMALS, runWithRpcFallback } from "../utils/config";
 import { PREDICTION_MARKET_ABI, ERC20_ABI } from "../utils/abis";
 
-const AGENT_WALLET = process.env.NEXT_PUBLIC_AGENT_ADDRESS || "";
-
 export function useAgent(
   userAddress,
   signer
 ) {
+  const agentWallet = process.env.NEXT_PUBLIC_AGENT_ADDRESS || "";
+
   const [state, setState] = useState({
     isAuthorized: false,
     agentAddress: null,
@@ -52,7 +52,7 @@ export function useAgent(
 
   // ─── Authorize agent with budget ──────────────────────────────────────────
   const authorizeAgent = useCallback(async (budgetUsdc) => {
-    if (!signer || !AGENT_WALLET) {
+    if (!signer || !agentWallet) {
       setState(s => ({ ...s, error: "Wallet not connected or agent address missing" }));
       return false;
     }
@@ -75,14 +75,14 @@ export function useAgent(
       // Step 2: Authorize agent
       setState(s => ({ ...s, txStatus: "authorizing" }));
       const market = new ethers.Contract(CONTRACTS.PREDICTION_MARKET, PREDICTION_MARKET_ABI, signer);
-      const tx = await market.authorizeMyAgent(AGENT_WALLET, budgetWei);
+      const tx = await market.authorizeMyAgent(agentWallet, budgetWei);
       const receipt = await tx.wait();
 
       setState(s => ({
         ...s,
         txStatus: "success",
         isAuthorized: true,
-        agentAddress: AGENT_WALLET,
+        agentAddress: agentWallet,
         remainingBudget: budgetUsdc,
       }));
 
@@ -98,7 +98,7 @@ export function useAgent(
       }));
       return { success: false, error: msg };
     }
-  }, [signer, fetchAgentState]);
+  }, [signer, fetchAgentState, agentWallet]);
 
   // ─── Top up agent budget ──────────────────────────────────────────────────
   const topUpBudget = useCallback(async (additionalUsdc) => {
@@ -163,7 +163,7 @@ export function useAgent(
 
   return {
     ...state,
-    agentWallet: AGENT_WALLET,
+    agentWallet,
     authorizeAgent,
     topUpBudget,
     revokeAgent,
