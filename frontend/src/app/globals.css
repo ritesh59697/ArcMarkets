@@ -50,9 +50,9 @@ html {
   --text-secondary: #a0c4ff;
   --text-muted: #6b8fc7;
 
-  --radius: 20px;
-  --radius-sm: 14px;
-  --radius-xs: 10px;
+  --radius: 14px;
+  --radius-sm: 10px;
+  --radius-xs: 8px;
 
   --navbar-bg: rgba(2, 6, 14, 0.72);
   --navbar-border: rgba(160, 196, 255, 0.1);
@@ -104,8 +104,8 @@ html {
   --pool-draw-bg: rgba(160, 196, 255, 0.18);
   --grid-line-color: rgba(160, 196, 255, 0.04);
   --card-border-top: rgba(224, 240, 255, 0.15);
-  --card-shadow: 0 16px 48px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(160, 196, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.06);
-  --card-hover-shadow: 0 24px 56px rgba(3, 86, 197, 0.25), 0 0 32px rgba(3, 86, 197, 0.12), inset 0 1px 0 rgba(224, 240, 255, 0.12);
+  --card-shadow: 0 18px 44px rgba(0, 0, 0, 0.38), 0 0 0 1px rgba(160, 196, 255, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.06);
+  --card-hover-shadow: 0 22px 50px rgba(3, 86, 197, 0.18), 0 0 0 1px rgba(77, 159, 255, 0.12), inset 0 1px 0 rgba(224, 240, 255, 0.12);
   --terminal-bg: rgba(2, 8, 22, 0.75);
   --terminal-border: var(--border);
   --terminal-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.6);
@@ -138,9 +138,9 @@ html {
   --surface: #02060e;
   --surface-container: rgba(255, 255, 255, 0.04);
   --surface-container-lowest: rgba(2, 10, 28, 0.55);
-  --gamified-card-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.25), 0 4px 20px rgba(0, 0, 0, 0.4);
-  --gamified-card-hover-shadow: 0 12px 0 0 rgba(3, 86, 197, 0.25), 0 8px 32px rgba(3, 86, 197, 0.15);
-  --gamified-card-active-shadow: 0 3px 0 0 rgba(0, 0, 0, 0.25), 0 2px 10px rgba(0, 0, 0, 0.4);
+  --gamified-card-shadow: 0 14px 34px rgba(0, 0, 0, 0.32), inset 0 1px 0 rgba(255, 255, 255, 0.05);
+  --gamified-card-hover-shadow: 0 20px 42px rgba(3, 86, 197, 0.16), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  --gamified-card-active-shadow: 0 8px 20px rgba(0, 0, 0, 0.35);
   --hero-banner-bg: linear-gradient(135deg, #0b1528 0%, rgba(3, 86, 197, 0.95) 50%, #0d0925 100%);
   --hero-banner-border: rgba(160, 196, 255, 0.15);
 }
@@ -259,9 +259,9 @@ html {
   --surface: #f7f9fb;
   --surface-container: #eceef0;
   --surface-container-lowest: #ffffff;
-  --gamified-card-shadow: 0 8px 0 0 rgba(10, 22, 40, 0.06), 0 4px 16px rgba(10, 22, 40, 0.04);
-  --gamified-card-hover-shadow: 0 12px 0 0 rgba(3, 86, 197, 0.1), 0 8px 24px rgba(3, 86, 197, 0.08);
-  --gamified-card-active-shadow: 0 3px 0 0 rgba(10, 22, 40, 0.06), 0 2px 8px rgba(10, 22, 40, 0.04);
+  --gamified-card-shadow: 0 10px 28px rgba(10, 22, 40, 0.06), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --gamified-card-hover-shadow: 0 16px 34px rgba(3, 86, 197, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+  --gamified-card-active-shadow: 0 6px 16px rgba(10, 22, 40, 0.08);
   --hero-banner-bg: linear-gradient(135deg, #0284c7 0%, #0356c5 60%, #4f46e5 100%);
   --hero-banner-border: rgba(255, 255, 255, 0.3);
 }
@@ -279,7 +279,7 @@ body {
 
 h1, h2, h3, .font-serif, .font-headline {
   color: var(--text-primary);
-  text-shadow: 0 1px 24px rgba(3, 86, 197, 0.25);
+  text-shadow: 0 1px 18px rgba(3, 86, 197, 0.18);
 }
 
 /* Mesh gradient reference background */
@@ -393,7 +393,7 @@ body::after {
   border-color: rgba(3, 86, 197, 0.45);
   border-top-color: rgba(224, 240, 255, 0.25);
   box-shadow: var(--card-hover-shadow);
-  transform: translateY(-2px);
+  transform: translateY(-1px);
 }
 
 /* ── Shimmer Button (Magic UI style) ── */
@@ -1035,7 +1035,7 @@ body::after {
 
 @media (max-width: 768px) {
   .main-content {
-    padding: 20px 16px calc(20px + 64px + env(safe-area-inset-bottom)) !important;
+    padding: 18px 14px calc(24px + 68px + env(safe-area-inset-bottom)) !important;
   }
 }
 
@@ -1060,6 +1060,7 @@ body::after {
 
 .mobile-bottom-nav-item {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -1075,6 +1076,13 @@ body::after {
   text-transform: uppercase;
   letter-spacing: 0.05em;
   transition: all 0.2s;
+}
+
+.mobile-bottom-nav-item span {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .mobile-bottom-nav-item:hover {
@@ -1224,6 +1232,7 @@ body::after {
 
 @media (max-width: 768px) {
   .nav-inner {
+    height: 60px !important;
     padding: 0 12px !important;
   }
 

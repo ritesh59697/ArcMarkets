@@ -36,6 +36,15 @@
   color: var(--text-primary);
 }
 
+[data-theme="light"] .hero-title,
+[data-theme="light"] .hero-title span {
+  color: #f8fbff;
+}
+
+[data-theme="light"] .hero-subtitle {
+  color: rgba(248, 251, 255, 0.8);
+}
+
 [data-theme="light"] .grid-bg {
   opacity: 0.2;
 }
@@ -119,6 +128,47 @@
   color: var(--text-muted);
 }
 
+[data-theme="light"] .mac-terminal-window {
+  border-color: rgba(15, 23, 42, 0.18);
+  background: #0b0f17;
+  box-shadow:
+    0 18px 42px rgba(15, 23, 42, 0.16),
+    inset 0 1px 0 rgba(255, 255, 255, 0.08);
+}
+
+[data-theme="light"] .mac-terminal-titlebar {
+  border-bottom-color: rgba(148, 163, 184, 0.16);
+  background: linear-gradient(180deg, #252936 0%, #171b25 100%);
+}
+
+[data-theme="light"] .mac-terminal-title {
+  color: rgba(226, 232, 240, 0.72);
+}
+
+[data-theme="light"] .mac-terminal-body {
+  --terminal-system: #9aa8bc;
+  --terminal-info: #7dd3fc;
+  --terminal-success: #86efac;
+  --terminal-primary: #93c5fd;
+  --terminal-danger: #fca5a5;
+  --text-secondary: #cbd5e1;
+  --text-muted: #7b8798;
+  background:
+    linear-gradient(180deg, rgba(15, 23, 42, 0.92), rgba(3, 7, 18, 0.96)) !important;
+  color: #d7e0ef;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03) !important;
+}
+
+[data-theme="light"] .mac-terminal-prompt {
+  color: #7dd3fc;
+}
+
+[data-theme="light"] .mac-terminal-link {
+  border-color: rgba(96, 165, 250, 0.25);
+  background: rgba(37, 99, 235, 0.12);
+  color: #93c5fd;
+}
+
 [data-theme="light"] *:focus-visible {
   --ring: 0 0 0 2px var(--bg), 0 0 0 4px rgba(3, 86, 197, 0.45);
 }
@@ -182,4 +232,3 @@
   background: rgba(107, 33, 168, 0.04);
   box-shadow: 0 6px 16px rgba(107, 33, 168, 0.06);
 }
-

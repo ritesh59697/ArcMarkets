@@ -170,8 +170,8 @@ function MatchCard({ match, onBet, onSelect }) {
   const awayIsToken = !!getCryptoLogo(match.awayTeam);
 
   return (
-    <div 
-      className="card arc-card gamified-card animate-slide-up" 
+    <div
+      className="card arc-card gamified-card animate-slide-up"
       onClick={() => onSelect && onSelect(match)}
       style={{ padding: 0, overflow: "hidden", display: "flex", flexDirection: "column", justifyContent: "space-between", cursor: "pointer" }}
     >
@@ -870,14 +870,14 @@ function FixturePreviewCard({ fixture }) {
   );
 }
 
-function MatchesTab({ 
-  matches = [], 
-  upcomingFixtures = [], 
-  fixturesLoading, 
-  loading, 
-  onBet, 
-  leaderboardRows = [], 
-  leaderboardLoading = false, 
+function MatchesTab({
+  matches = [],
+  upcomingFixtures = [],
+  fixturesLoading,
+  loading,
+  onBet,
+  leaderboardRows = [],
+  leaderboardLoading = false,
   setTab,
   wallet,
   usdtBalance,
@@ -950,49 +950,46 @@ function MatchesTab({
 
   return (
     <div className="space-y-8">
-      {/* Stitch Hero Section */}
-      <section className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-primary-container p-8 md:p-12 flex flex-col md:flex-row items-center justify-between text-white shadow-xl">
-        <div className="z-10 md:w-1/2 space-y-6 text-center md:text-left">
-          <div className="inline-flex items-center gap-2 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm">
-            <span className="pulse-live w-2.5 h-2.5 bg-red-400 rounded-full" />
+      {/* Hero Section */}
+      <section className="hero-panel">
+        <div className="hero-copy">
+          <div className="hero-status-pill">
+            <span className="live-pulse" />
             <span className="font-mono text-[11px] uppercase tracking-wider font-semibold">Live &amp; On-Chain</span>
           </div>
-          <h1 className="text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-tight" style={{ fontFamily: "var(--font-serif)" }}>
-            Predict the Future, <br/><span className="text-blue-200">Win the Rewards.</span>
+          <h1 className="hero-title" style={{ fontFamily: "var(--font-serif)" }}>
+            Predict the Future, <br /><span className="text-blue-200">Win the Rewards.</span>
           </h1>
-          <p className="text-sm md:text-base text-white/80 max-w-md">
-            The most high-octane decentralized prediction market. Gamified analytics, real-time odds, and instant payouts.
+          <p className="hero-subtitle">
+            A premium prediction market for real-time sports and crypto outcomes, with transparent odds, on-chain settlement, and wallet-native payouts.
           </p>
-          <div className="flex flex-wrap gap-4 justify-center md:justify-start">
-            <button 
+          <div className="hero-actions">
+            <button
               onClick={() => {
                 document.getElementById("markets-list")?.scrollIntoView({ behavior: "smooth" });
               }}
-              className="px-6 py-3.5 bg-white text-primary rounded-xl font-bold text-sm shadow-xl hover:scale-105 transition-transform active:scale-95"
+              className="hero-primary-action"
               style={{ border: "none", cursor: "pointer" }}
             >
               Explore Markets
             </button>
-            <button 
+            <button
               onClick={() => setFooterModal("whitepaper")}
-              className="px-6 py-3.5 bg-transparent border border-white/30 text-white rounded-xl font-bold text-sm hover:bg-white/10 transition-all active:scale-95"
+              className="hero-secondary-action"
               style={{ cursor: "pointer" }}
             >
               How it Works
             </button>
           </div>
         </div>
-        <div className="md:w-1/2 mt-8 md:mt-0 relative flex justify-center">
-          <div className="relative z-10 w-full aspect-square max-w-[340px] md:max-w-[380px] rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 transform rotate-3 hover:rotate-0 transition-transform duration-300">
-            <img 
-              className="w-full h-full object-cover" 
-              alt="Futuristic Crystal Ball" 
-              src="/hero_crystal_ball.png" 
+        <div className="hero-visual">
+          <div className="hero-image-frame">
+            <img
+              className="w-full h-full object-cover"
+              alt="Futuristic Crystal Ball"
+              src="/hero_crystal_ball.png"
             />
           </div>
-          {/* Decorative glows */}
-          <div className="absolute -top-10 -right-10 w-32 h-32 bg-blue-300 rounded-full blur-3xl opacity-30" />
-          <div className="absolute -bottom-10 -left-10 w-48 h-48 bg-primary rounded-full blur-3xl opacity-40" />
         </div>
       </section>
 
@@ -1144,9 +1141,9 @@ function MatchesTab({
               </h3>
               <div className="match-grid" style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", gap: 16, marginBottom: 28 }}>
                 {sorted.map(m => (
-                  <MatchCard 
-                    key={m.index} 
-                    match={m} 
+                  <MatchCard
+                    key={m.index}
+                    match={m}
                     onBet={(match, outcome) => {
                       setSelectedMatch(match);
                       setInitialOutcome(outcome);
@@ -1195,11 +1192,10 @@ function MatchesTab({
                     <button
                       key={opt.id}
                       onClick={() => setChampsSort(opt.id)}
-                      className={`px-4 py-1.5 rounded-lg shadow-sm font-bold text-xs transition-all ${
-                        isActive 
-                          ? "bg-white text-primary dark:bg-slate-800 dark:text-white" 
-                          : "text-secondary hover:text-primary"
-                      }`}
+                      className={`px-4 py-1.5 rounded-lg shadow-sm font-bold text-xs transition-all ${isActive
+                        ? "bg-white text-primary dark:bg-slate-800 dark:text-white"
+                        : "text-secondary hover:text-primary"
+                        }`}
                       style={{ border: "none", cursor: "pointer", background: isActive ? undefined : "none" }}
                     >
                       {opt.label}
@@ -1569,7 +1565,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
               </div>
               <div>
                 <h2 style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.4, lineHeight: 1.1, margin: 0 }}>AI Betting Agent</h2>
-                <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0, marginTop: 3 }}>Autonomous execution · Arc Testnet Mainnet</p>
+                <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0, marginTop: 3 }}>Autonomous execution · Arc Testnet</p>
               </div>
             </div>
           </div>
@@ -1930,30 +1926,34 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
         <div style={{ height: 1, background: "var(--border-bright)", marginBottom: 20 }} />
 
         {/* Terminal — flex:1 fills remaining height */}
-        <div ref={logRef} className="terminal" style={{ flex: 1, minHeight: 0, maxHeight: 440, overflowY: "auto" }}>
-          {logs.map((l, i) => (
-            <div key={i} className="terminal-line" style={{ color: l.col || "var(--text-secondary)", animationDelay: `${i * 0.04}s` }}>
-              <span style={{ color: "var(--text-muted)", marginRight: 8, userSelect: "none", fontSize: 10 }}>›</span>
-              {l.text}
-              {l.txHash && (
-                <a
-                  href={`${ACTIVE_NETWORK.explorerUrl}/tx/${l.txHash}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  style={{
-                    color: "var(--primary)",
-                    marginLeft: 8,
-                    textDecoration: "underline",
-                    fontSize: 10,
-                    fontWeight: 600,
-                    fontFamily: "sans-serif"
-                  }}
-                >
-                  [Verify On-Chain]
-                </a>
-              )}
+        <div className="mac-terminal-window">
+          <div className="mac-terminal-titlebar">
+            <div className="mac-window-controls" aria-hidden>
+              <span className="mac-window-dot mac-window-dot-red" />
+              <span className="mac-window-dot mac-window-dot-yellow" />
+              <span className="mac-window-dot mac-window-dot-green" />
             </div>
-          ))}
+            <div className="mac-terminal-title">arc-agent — zsh — 80x24</div>
+            <div className="mac-terminal-spacer" />
+          </div>
+          <div ref={logRef} className="terminal mac-terminal-body" style={{ flex: 1, minHeight: 0, maxHeight: 440, overflowY: "auto" }}>
+            {logs.map((l, i) => (
+              <div key={i} className="terminal-line mac-terminal-line" style={{ color: l.col || "var(--text-secondary)", animationDelay: `${i * 0.04}s` }}>
+                <span className="mac-terminal-prompt" aria-hidden>arcmarkets%</span>
+                <span className="mac-terminal-output">{l.text}</span>
+                {l.txHash && (
+                  <a
+                    href={`${ACTIVE_NETWORK.explorerUrl}/tx/${l.txHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mac-terminal-link"
+                  >
+                    verify
+                  </a>
+                )}
+              </div>
+            ))}
+          </div>
         </div>
 
         {/* Footer bar */}
@@ -1961,7 +1961,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
             <Globe size={11} style={{ color: "var(--text-muted)" }} />
-            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Arc Testnet Mainnet</span>
+            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Arc Testnet</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
             <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace" }}>Latency: <span style={{ color: "var(--green)" }}>12ms</span></span>
@@ -2071,13 +2071,13 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                   borderRadius: 7,
                   fontSize: 12,
                   fontWeight: activeSubTab === tab.id ? 700 : 500,
-                  color: activeSubTab === tab.id 
-                    ? "var(--text-primary)" 
-                    : tab.highlight 
-                      ? "var(--gold)" 
+                  color: activeSubTab === tab.id
+                    ? "var(--text-primary)"
+                    : tab.highlight
+                      ? "var(--gold)"
                       : "var(--text-secondary)",
-                  background: activeSubTab === tab.id 
-                    ? "rgba(255, 255, 255, 0.08)" 
+                  background: activeSubTab === tab.id
+                    ? "rgba(255, 255, 255, 0.08)"
                     : "transparent",
                   border: "none",
                   cursor: "pointer",
@@ -2092,15 +2092,15 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                   fontSize: 10,
                   padding: "1px 5px",
                   borderRadius: 99,
-                  background: activeSubTab === tab.id 
-                    ? "var(--primary)" 
-                    : tab.highlight 
-                      ? "rgba(212, 175, 55, 0.15)" 
+                  background: activeSubTab === tab.id
+                    ? "var(--primary)"
+                    : tab.highlight
+                      ? "rgba(212, 175, 55, 0.15)"
                       : "rgba(255, 255, 255, 0.05)",
-                  color: activeSubTab === tab.id 
-                    ? "#000" 
-                    : tab.highlight 
-                      ? "var(--gold)" 
+                  color: activeSubTab === tab.id
+                    ? "#000"
+                    : tab.highlight
+                      ? "var(--gold)"
                       : "var(--text-muted)",
                   fontWeight: 700
                 }}>
@@ -2147,7 +2147,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
           ) : (
             filteredBets.map(bet => {
               const estMultiplier = bet.amount > 0 ? (bet.potentialPayout / bet.amount).toFixed(2) : "0.00";
-              
+
               // Determine card state visuals
               let cardBorderLeft = "4px solid rgba(255, 255, 255, 0.05)";
               let cardBoxShadow = "0 16px 40px rgba(0, 0, 0, 0.75)";
@@ -2233,7 +2233,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
               return (
                 <div key={bet.betId} className="card" style={{ padding: "16px 20px", borderLeft: cardBorderLeft, boxShadow: cardBoxShadow }}>
                   <div className="font-sans" style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-                    
+
                     {/* Teams Avatar Group */}
                     <div style={{ display: "flex", alignItems: "center", position: "relative", width: 44, height: 26, flexShrink: 0 }}>
                       <div style={{ position: "absolute", left: 0, zIndex: 2 }}>
@@ -2269,9 +2269,9 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                             <Bot size={9} /> Agent
                           </span>
                         )}
-                        
+
                         <div style={{ width: 1, height: 10, background: "var(--border)", margin: "0 4px" }} />
-                        
+
                         {bet.txHash && (
                           <a
                             href={`${ACTIVE_NETWORK.explorerUrl}/tx/${bet.txHash}`}
@@ -2566,300 +2566,300 @@ export default function Home() {
   return (
     <>
       <div className="app-root page-enter">
-      <a href="#main-content" className="skip-link">Skip to content</a>
-      <div className="grid-bg" aria-hidden />
-      {toast && <Toast {...toast} />}
+        <a href="#main-content" className="skip-link">Skip to content</a>
+        <div className="grid-bg" aria-hidden />
+        {toast && <Toast {...toast} />}
 
-      {/* ── Navbar ── */}
-      <nav className="navbar">
-        <div className="nav-inner">
-          {/* Logo */}
-          <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <div className="arc-nav-mark" style={{ overflow: "hidden", padding: 0, borderRadius: 8 }}>
-              <img src="/logo.jpg" alt="AM Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+        {/* ── Navbar ── */}
+        <nav className="navbar">
+          <div className="nav-inner">
+            {/* Logo */}
+            <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <div className="arc-nav-mark" style={{ overflow: "hidden", padding: 0, borderRadius: 8 }}>
+                <img src="/logo.jpg" alt="AM Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              </div>
+              <div>
+                <div className="text-gradient-logo" style={{
+                  fontFamily: "var(--font-serif)",
+                  fontSize: 20,
+                  fontWeight: 400,
+                  letterSpacing: "-0.01em",
+                  lineHeight: 1
+                }}>ArcMarkets</div>
+                <div style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1.8, textTransform: "uppercase", fontWeight: 700, marginTop: 2 }}>Sports · Crypto · Arc</div>
+              </div>
             </div>
-            <div>
-              <div className="text-gradient-logo" style={{
-                fontFamily: "var(--font-serif)",
-                fontSize: 20,
-                fontWeight: 400,
-                letterSpacing: "-0.01em",
-                lineHeight: 1
-              }}>ArcMarkets</div>
-              <div style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1.8, textTransform: "uppercase", fontWeight: 700, marginTop: 2 }}>Sports · Crypto · Arc</div>
+
+            {/* Desktop tabs */}
+            <div className="desktop-only" style={{ display: "flex", gap: 4, alignItems: "center" }}>
+              {TABS.map(t => (
+                <button key={t.id} onClick={() => setTab(t.id)}
+                  className={`tab-item ${tab === t.id ? "active" : ""}`}>
+                  {t.icon}{t.label}
+                </button>
+              ))}
             </div>
-          </div>
 
-          {/* Desktop tabs */}
-          <div className="desktop-only" style={{ display: "flex", gap: 4, alignItems: "center" }}>
-            {TABS.map(t => (
-              <button key={t.id} onClick={() => setTab(t.id)}
-                className={`tab-item ${tab === t.id ? "active" : ""}`}>
-                {t.icon}{t.label}
-              </button>
-            ))}
-          </div>
-
-          {/* Right actions */}
-          <div className="nav-right">
-            <button
-              type="button"
-              onClick={toggleTheme}
-              className="theme-toggle"
-              aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
-              title={theme === "dark" ? "Light mode" : "Dark mode"}
-            >
-              {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
-            </button>
-            <div ref={notifRef} style={{ position: "relative" }}>
+            {/* Right actions */}
+            <div className="nav-right">
               <button
-                onClick={toggleNotifications}
-                className="btn-ghost"
-                style={{
-                  padding: "7px 10px",
-                  borderRadius: 8,
-                  position: "relative",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center"
-                }}
+                type="button"
+                onClick={toggleTheme}
+                className="theme-toggle"
+                aria-label={theme === "dark" ? "Switch to light mode" : "Switch to dark mode"}
+                title={theme === "dark" ? "Light mode" : "Dark mode"}
               >
-                <Bell size={15} />
-                {unreadCount > 0 && (
-                  <span style={{
-                    position: "absolute",
-                    top: 2,
-                    right: 2,
-                    width: 7,
-                    height: 7,
-                    borderRadius: "50%",
-                    background: "var(--primary)",
-                    boxShadow: "0 0 6px var(--primary)",
-                    border: "1px solid var(--bg)"
-                  }} />
-                )}
+                {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
               </button>
+              <div ref={notifRef} style={{ position: "relative" }}>
+                <button
+                  onClick={toggleNotifications}
+                  className="btn-ghost"
+                  style={{
+                    padding: "7px 10px",
+                    borderRadius: 8,
+                    position: "relative",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center"
+                  }}
+                >
+                  <Bell size={15} />
+                  {unreadCount > 0 && (
+                    <span style={{
+                      position: "absolute",
+                      top: 2,
+                      right: 2,
+                      width: 7,
+                      height: 7,
+                      borderRadius: "50%",
+                      background: "var(--primary)",
+                      boxShadow: "0 0 6px var(--primary)",
+                      border: "1px solid var(--bg)"
+                    }} />
+                  )}
+                </button>
 
-              {showNotifDropdown && (
-                <div className="card notif-panel animate-fade-in" style={{
-                  position: "absolute",
-                  top: "calc(100% + 8px)",
-                  right: 0,
-                  width: 320,
-                  maxHeight: 400,
-                  overflowY: "auto",
-                  zIndex: 200,
-                  padding: "16px",
-                  background: "var(--bg-card)",
-                  backdropFilter: "blur(28px)",
-                  WebkitBackdropFilter: "blur(28px)",
-                  border: "1px solid var(--border)",
-                  boxShadow: "0 20px 40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255,255,255,0.02)",
-                  display: "flex",
-                  flexDirection: "column",
-                  gap: 12
-                }}>
-                  <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", paddingBottom: 8 }}>
-                    <span style={{ fontSize: 13, fontWeight: 700 }}>Notifications</span>
-                    {notifications.length > 0 && (
-                      <button
-                        onClick={() => {
-                          setNotifications([]);
-                          localStorage.setItem("arcmarkets_notifications", "[]");
-                        }}
-                        style={{
-                          background: "none",
-                          border: "none",
-                          color: "var(--text-muted)",
-                          fontSize: 11,
-                          fontWeight: 500,
-                          cursor: "pointer"
-                        }}
-                        onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
-                        onMouseLeave={e => e.currentTarget.style.color = "var(--text-muted)"}
-                      >
-                        Clear All
-                      </button>
+                {showNotifDropdown && (
+                  <div className="card notif-panel animate-fade-in" style={{
+                    position: "absolute",
+                    top: "calc(100% + 8px)",
+                    right: 0,
+                    width: 320,
+                    maxHeight: 400,
+                    overflowY: "auto",
+                    zIndex: 200,
+                    padding: "16px",
+                    background: "var(--bg-card)",
+                    backdropFilter: "blur(28px)",
+                    WebkitBackdropFilter: "blur(28px)",
+                    border: "1px solid var(--border)",
+                    boxShadow: "0 20px 40px rgba(0, 0, 0, 0.85), inset 0 1px 0 rgba(255,255,255,0.02)",
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: 12
+                  }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderBottom: "1px solid var(--border)", paddingBottom: 8 }}>
+                      <span style={{ fontSize: 13, fontWeight: 700 }}>Notifications</span>
+                      {notifications.length > 0 && (
+                        <button
+                          onClick={() => {
+                            setNotifications([]);
+                            localStorage.setItem("arcmarkets_notifications", "[]");
+                          }}
+                          style={{
+                            background: "none",
+                            border: "none",
+                            color: "var(--text-muted)",
+                            fontSize: 11,
+                            fontWeight: 500,
+                            cursor: "pointer"
+                          }}
+                          onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
+                          onMouseLeave={e => e.currentTarget.style.color = "var(--text-muted)"}
+                        >
+                          Clear All
+                        </button>
+                      )}
+                    </div>
+
+                    {notifications.length === 0 ? (
+                      <div style={{ padding: "24px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
+                        No notifications yet
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
+                        {notifications.map(n => (
+                          <div key={n.id} style={{
+                            padding: "10px",
+                            borderRadius: 8,
+                            background: "var(--card-header-bg)",
+                            border: "1px solid var(--border)",
+                            display: "flex",
+                            flexDirection: "column",
+                            gap: 4
+                          }}>
+                            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+                              <span style={{ fontSize: 12, fontWeight: 750, color: "var(--text-primary)" }}>{n.title}</span>
+                              <span style={{ fontSize: 9, color: "var(--text-muted)" }}>{formatTimeAgo(n.timestamp)}</span>
+                            </div>
+                            <p style={{ fontSize: 11, color: "var(--text-secondary)", lineHeight: 1.3 }}>{n.message}</p>
+                            {n.txHash && (
+                              <a
+                                href={`${ACTIVE_NETWORK.explorerUrl}/tx/${n.txHash}`}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                style={{
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: 4,
+                                  fontSize: 10,
+                                  color: "var(--primary)",
+                                  textDecoration: "underline",
+                                  marginTop: 4,
+                                  fontWeight: 600
+                                }}
+                              >
+                                Verify On-Chain <ExternalLink size={8} />
+                              </a>
+                            )}
+                          </div>
+                        ))}
+                      </div>
                     )}
                   </div>
-
-                  {notifications.length === 0 ? (
-                    <div style={{ padding: "24px 0", textAlign: "center", color: "var(--text-secondary)", fontSize: 12 }}>
-                      No notifications yet
-                    </div>
-                  ) : (
-                    <div style={{ display: "flex", flexDirection: "column", gap: 10 }}>
-                      {notifications.map(n => (
-                        <div key={n.id} style={{
-                          padding: "10px",
-                          borderRadius: 8,
-                          background: "var(--card-header-bg)",
-                          border: "1px solid var(--border)",
-                          display: "flex",
-                          flexDirection: "column",
-                          gap: 4
-                        }}>
-                          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
-                            <span style={{ fontSize: 12, fontWeight: 750, color: "var(--text-primary)" }}>{n.title}</span>
-                            <span style={{ fontSize: 9, color: "var(--text-muted)" }}>{formatTimeAgo(n.timestamp)}</span>
-                          </div>
-                          <p style={{ fontSize: 11, color: "var(--text-secondary)", lineHeight: 1.3 }}>{n.message}</p>
-                          {n.txHash && (
-                            <a
-                              href={`${ACTIVE_NETWORK.explorerUrl}/tx/${n.txHash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 4,
-                                fontSize: 10,
-                                color: "var(--primary)",
-                                textDecoration: "underline",
-                                marginTop: 4,
-                                fontWeight: 600
-                              }}
-                            >
-                              Verify On-Chain <ExternalLink size={8} />
-                            </a>
-                          )}
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
+                )}
+              </div>
+              <div className="desktop-only" style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)", borderRadius: 7 }}>
+                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 6px var(--primary)" }} />
+                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--primary)", fontFamily: "'JetBrains Mono', monospace" }}>{ACTIVE_NETWORK.name}</span>
+              </div>
+              {wallet.isConnected ? (
+                <button type="button" className="wallet-pill connected" onClick={wallet.disconnect}>
+                  <span className="status-dot" />
+                  <span>{shortAddr(wallet.address)}</span>
+                  <LogOut size={12} aria-hidden />
+                </button>
+              ) : (
+                <ShimmerBtn variant="primary" onClick={wallet.connect}>
+                  <Wallet size={14} /> {wallet.isConnecting ? "Connecting…" : <>Connect<span className="desktop-only"> Wallet</span></>}
+                </ShimmerBtn>
               )}
             </div>
-            <div className="desktop-only" style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)", borderRadius: 7 }}>
-              <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 6px var(--primary)" }} />
-              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--primary)", fontFamily: "'JetBrains Mono', monospace" }}>{ACTIVE_NETWORK.name}</span>
-            </div>
-            {wallet.isConnected ? (
-              <button type="button" className="wallet-pill connected" onClick={wallet.disconnect}>
-                <span className="status-dot" />
-                <span>{shortAddr(wallet.address)}</span>
-                <LogOut size={12} aria-hidden />
-              </button>
-            ) : (
-              <ShimmerBtn variant="primary" onClick={wallet.connect}>
-                <Wallet size={14} /> {wallet.isConnecting ? "Connecting…" : <>Connect<span className="desktop-only"> Wallet</span></>}
-              </ShimmerBtn>
-            )}
           </div>
-        </div>
-      </nav>
+        </nav>
 
-      {/* ── Content ── */}
-      <main id="main-content" className="main-content" role="main" style={{ paddingTop: 100 }}>
-        {wallet.isConnected && !usdtLoading && usdtBalance < 0.01 && showSwapWarning && (
-          <div className="swap-warning-banner">
-            <div className="swap-warning-content">
-              <AlertCircle className="swap-warning-icon" size={18} />
-              <span className="swap-warning-text">
-                Your wallet needs USDC on Arc Testnet to place bets.
-                <a
-                  href="https://faucet.circle.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="swap-warning-link"
-                >
-                  Get testnet USDC <ArrowUpRight size={14} />
-                </a>
+        {/* ── Content ── */}
+        <main id="main-content" className="main-content" role="main" style={{ paddingTop: 100 }}>
+          {wallet.isConnected && !usdtLoading && usdtBalance < 0.01 && showSwapWarning && (
+            <div className="swap-warning-banner">
+              <div className="swap-warning-content">
+                <AlertCircle className="swap-warning-icon" size={18} />
+                <span className="swap-warning-text">
+                  Your wallet needs USDC on Arc Testnet to place bets.
+                  <a
+                    href="https://faucet.circle.com/"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="swap-warning-link"
+                  >
+                    Get testnet USDC <ArrowUpRight size={14} />
+                  </a>
+                </span>
+              </div>
+              <button
+                className="swap-warning-close"
+                onClick={() => setShowSwapWarning(false)}
+                aria-label="Dismiss warning"
+              >
+                <X size={16} />
+              </button>
+            </div>
+          )}
+          {tab === "matches" && (
+            <MatchesTab
+              matches={matches}
+              upcomingFixtures={upcomingFixtures}
+              fixturesLoading={fixturesLoading}
+              loading={matchesLoading}
+              onBet={openBet}
+              leaderboardRows={leaderboardRows}
+              leaderboardLoading={leaderboardLoading}
+              setTab={setTab}
+              wallet={wallet}
+              usdtBalance={usdtBalance}
+              refetchUsdt={refetchUsdt}
+              onNotif={notify}
+              addNotif={addNotification}
+              theme={theme}
+              userBetsState={userBetsState}
+              setFooterModal={setFooterModal}
+            />
+          )}
+          {tab === "agent" && (
+            <AgentTab
+              address={wallet.address}
+              signer={wallet.signer}
+              matches={matches}
+              usdtBalance={usdtBalance}
+              refetchUsdt={refetchUsdt}
+              onNotif={notify}
+              addNotif={addNotification}
+              theme={theme}
+              refetchBets={userBetsState.refetch}
+            />
+          )}
+          {tab === "portfolio" && (
+            <PortfolioTab
+              address={wallet.address}
+              signer={wallet.signer}
+              refetchUsdt={refetchUsdt}
+              onNotif={notify}
+              addNotif={addNotification}
+              onGoLeaderboard={() => setTab("leaderboard")}
+              userBetsState={userBetsState}
+            />
+          )}
+          {tab === "leaderboard" && <LeaderboardTab />}
+        </main>
+
+        {/* ── Footer ── */}
+        <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--surface-container)", borderColor: "var(--border)", padding: "32px 24px" }}>
+          <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }} className="font-sans">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
+              <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+                <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>ArcMarkets</div>
+                <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>© 2026 ArcMarkets · Secured by Arc Testnet</span>
+              </div>
+
+              {/* Support Links */}
+              <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
+                <button onClick={() => setFooterModal("whitepaper")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Whitepaper</button>
+                <button onClick={() => setFooterModal("verification")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Verification</button>
+                <button onClick={() => setFooterModal("odds")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Odds API</button>
+                <button onClick={() => setFooterModal("privacy")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Privacy</button>
+              </div>
+            </div>
+
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12, display: "flex", justifyContent: "flex-end" }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
+                Built by{" "}
+                <a href="https://github.com/Ritesh59697" target="_blank" rel="noopener noreferrer" className="developer-link" style={{ color: "var(--primary)", fontWeight: 600 }}>Ritesh59697</a>
               </span>
             </div>
-            <button
-              className="swap-warning-close"
-              onClick={() => setShowSwapWarning(false)}
-              aria-label="Dismiss warning"
-            >
-              <X size={16} />
+          </div>
+        </footer>
+
+        {/* ── Sticky Mobile Navigation ── */}
+        <div className="mobile-only mobile-bottom-nav">
+          {TABS.map(t => (
+            <button key={t.id} onClick={() => setTab(t.id)}
+              className={`mobile-bottom-nav-item ${tab === t.id ? "active" : ""}`}>
+              {t.icon}
+              <span style={{ fontSize: 9 }}>{t.label}</span>
             </button>
-          </div>
-        )}
-        {tab === "matches" && (
-          <MatchesTab
-            matches={matches}
-            upcomingFixtures={upcomingFixtures}
-            fixturesLoading={fixturesLoading}
-            loading={matchesLoading}
-            onBet={openBet}
-            leaderboardRows={leaderboardRows}
-            leaderboardLoading={leaderboardLoading}
-            setTab={setTab}
-            wallet={wallet}
-            usdtBalance={usdtBalance}
-            refetchUsdt={refetchUsdt}
-            onNotif={notify}
-            addNotif={addNotification}
-            theme={theme}
-            userBetsState={userBetsState}
-            setFooterModal={setFooterModal}
-          />
-        )}
-        {tab === "agent" && (
-          <AgentTab
-            address={wallet.address}
-            signer={wallet.signer}
-            matches={matches}
-            usdtBalance={usdtBalance}
-            refetchUsdt={refetchUsdt}
-            onNotif={notify}
-            addNotif={addNotification}
-            theme={theme}
-            refetchBets={userBetsState.refetch}
-          />
-        )}
-        {tab === "portfolio" && (
-          <PortfolioTab
-            address={wallet.address}
-            signer={wallet.signer}
-            refetchUsdt={refetchUsdt}
-            onNotif={notify}
-            addNotif={addNotification}
-            onGoLeaderboard={() => setTab("leaderboard")}
-            userBetsState={userBetsState}
-          />
-        )}
-        {tab === "leaderboard" && <LeaderboardTab />}
-      </main>
-
-      {/* ── Footer ── */}
-      <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--surface-container)", borderColor: "var(--border)", padding: "32px 24px" }}>
-        <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }} className="font-sans">
-          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-              <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>ArcMarkets</div>
-              <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>© 2026 ArcMarkets · Secured by Arc Testnet</span>
-            </div>
-            
-            {/* Support Links */}
-            <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-              <button onClick={() => setFooterModal("whitepaper")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Whitepaper</button>
-              <button onClick={() => setFooterModal("verification")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Verification</button>
-              <button onClick={() => setFooterModal("odds")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Odds API</button>
-              <button onClick={() => setFooterModal("privacy")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Privacy</button>
-            </div>
-          </div>
-
-          <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12, display: "flex", justifyContent: "flex-end" }}>
-            <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
-              Built by{" "}
-              <a href="https://github.com/Ritesh59697" target="_blank" rel="noopener noreferrer" className="developer-link" style={{ color: "var(--primary)", fontWeight: 600 }}>Ritesh59697</a>
-            </span>
-          </div>
+          ))}
         </div>
-      </footer>
-
-      {/* ── Sticky Mobile Navigation ── */}
-      <div className="mobile-only mobile-bottom-nav">
-        {TABS.map(t => (
-          <button key={t.id} onClick={() => setTab(t.id)}
-            className={`mobile-bottom-nav-item ${tab === t.id ? "active" : ""}`}>
-            {t.icon}
-            <span style={{ fontSize: 9 }}>{t.label}</span>
-          </button>
-        ))}
-      </div>
       </div>
 
       {/* ── Info Modal ── */}
