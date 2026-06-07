@@ -97,14 +97,14 @@
   gap: clamp(24px, 5vw, 60px);
   min-height: clamp(340px, 46vh, 450px);
   padding: clamp(24px, 4vw, 42px);
-  border: 1px solid rgba(160, 196, 255, 0.18);
-  border-top-color: rgba(224, 240, 255, 0.24);
+  border: 1px solid rgba(245, 192, 24, 0.2);
+  border-top-color: rgba(255, 255, 255, 0.28);
   border-radius: 24px;
-  color: #f8fbff;
+  color: #ffffff;
   background:
-    linear-gradient(135deg, rgba(3, 86, 197, 0.94) 0%, rgba(5, 34, 83, 0.96) 56%, rgba(2, 6, 14, 0.98) 100%);
+    linear-gradient(135deg, rgba(0, 79, 210, 0.95) 0%, rgba(4, 31, 74, 0.97) 56%, rgba(1, 10, 24, 0.98) 100%);
   box-shadow:
-    0 26px 70px rgba(0, 0, 0, 0.36),
+    0 26px 70px rgba(0, 0, 0, 0.38),
     inset 0 1px 0 rgba(255, 255, 255, 0.12);
   isolation: isolate;
 }
@@ -156,7 +156,7 @@
 }
 
 .hero-title span {
-  color: #cfe2ff;
+  color: var(--accent);
 }
 
 .hero-subtitle {
@@ -186,9 +186,9 @@
 }
 
 .hero-primary-action {
-  background: #ffffff;
-  color: #034aa6;
-  box-shadow: 0 12px 26px rgba(0, 0, 0, 0.22);
+  background: var(--accent);
+  color: var(--navy-deep);
+  box-shadow: 0 12px 26px rgba(245, 192, 24, 0.22);
 }
 
 .hero-secondary-action {
@@ -208,27 +208,43 @@
 
 .hero-visual {
   justify-self: center;
-  width: min(100%, 350px);
+  width: min(100%, 420px);
 }
 
 .hero-image-frame {
-  aspect-ratio: 1.08;
+  aspect-ratio: 1.5; /* 3:2 matching the soccer ball image aspect ratio */
   overflow: hidden;
   border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.2);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   background: rgba(2, 6, 14, 0.28);
   box-shadow:
     0 22px 50px rgba(0, 0, 0, 0.34),
-    0 0 0 8px rgba(255, 255, 255, 0.05);
+    0 0 24px rgba(0, 212, 255, 0.15); /* matching cyan neon glow */
   transform: perspective(900px) rotateY(-5deg) rotateX(2deg);
   transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
 }
 
+.hero-image-frame img {
+  animation: float-soccer 6s ease-in-out infinite;
+}
+
 .hero-image-frame:hover {
-  transform: perspective(900px) rotateY(0deg) rotateX(0deg) translateY(-2px);
+  transform: perspective(900px) rotateY(0deg) rotateX(0deg) translateY(-3px);
   box-shadow:
     0 28px 62px rgba(0, 0, 0, 0.38),
-    0 0 0 8px rgba(255, 255, 255, 0.06);
+    0 0 35px rgba(0, 212, 255, 0.28);
+}
+
+@keyframes float-soccer {
+  0% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.02);
+  }
+  100% {
+    transform: translateY(0px) scale(1);
+  }
 }
 
 /* ── Wallet / network pills ── */

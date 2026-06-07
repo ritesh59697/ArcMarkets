@@ -958,7 +958,7 @@ function MatchesTab({
             <span className="font-mono text-[11px] uppercase tracking-wider font-semibold">Live &amp; On-Chain</span>
           </div>
           <h1 className="hero-title" style={{ fontFamily: "var(--font-serif)" }}>
-            Predict the Future, <br /><span className="text-blue-200">Win the Rewards.</span>
+            Predict the Future, <br /><span>Win the Rewards.</span>
           </h1>
           <p className="hero-subtitle">
             A premium prediction market for real-time sports and crypto outcomes, with transparent odds, on-chain settlement, and wallet-native payouts.
@@ -986,8 +986,8 @@ function MatchesTab({
           <div className="hero-image-frame">
             <img
               className="w-full h-full object-cover"
-              alt="Futuristic Crystal Ball"
-              src="/hero_crystal_ball.png"
+              alt="On-Chain Soccer Prediction"
+              src="/hero_soccer_ball.png"
             />
           </div>
         </div>

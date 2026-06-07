@@ -22,82 +22,82 @@ html {
 [data-theme="dark"] {
   color-scheme: dark;
 
-  /* Midnight Blue palette */
-  --navy-deep: #02060e;
-  --navy-mid: #001a3d;
-  --royal: #0356c5;
-  --royal-bright: #007bff;
-  --ice: #e0f0ff;
-  --sky-muted: #a0c4ff;
+  /* Midnight Blue & Gold Sports Award palette */
+  --navy-deep: #020d20;
+  --navy-mid: #041f4a;
+  --royal: #004fd2;
+  --royal-bright: #2979ff;
+  --ice: #eef5ff;
+  --sky-muted: #cfe2ff;
 
-  --primary: #0356c5;
-  --primary-glow: rgba(3, 86, 197, 0.45);
-  --primary-dim: #024a9e;
-  --accent: #4d9fff;
-  --accent-glow: rgba(77, 159, 255, 0.35);
-  --purple: #5b8def;
-  --purple-glow: rgba(91, 141, 239, 0.3);
-  --green: #3dd68c;
-  --red: #ff6b8a;
-  --gold: #e8c56a;
+  --primary: #004fd2;
+  --primary-glow: rgba(0, 79, 210, 0.45);
+  --primary-dim: #003ba0;
+  --accent: #f5c018; /* Sports Award gold/yellow */
+  --accent-glow: rgba(245, 192, 24, 0.35);
+  --purple: #709fff;
+  --purple-glow: rgba(112, 159, 255, 0.3);
+  --green: #2ecc71;
+  --red: #ff527b;
+  --gold: #f5c018;
 
-  --bg: #02060e;
-  --bg-card: rgba(2, 10, 28, 0.55);
-  --bg-card-hover: rgba(3, 30, 70, 0.65);
-  --border: rgba(160, 196, 255, 0.12);
-  --border-bright: rgba(224, 240, 255, 0.22);
-  --text-primary: #f8fbff;
-  --text-secondary: #a0c4ff;
-  --text-muted: #6b8fc7;
+  --bg: #010a18;
+  --bg-card: rgba(4, 25, 62, 0.65);
+  --bg-card-hover: rgba(6, 36, 88, 0.75);
+  --border: rgba(207, 226, 255, 0.15);
+  --border-bright: rgba(255, 255, 255, 0.25);
+  --text-primary: #ffffff;
+  --text-secondary: #cfe2ff;
+  --text-muted: #84a9e3;
 
   --radius: 14px;
   --radius-sm: 10px;
   --radius-xs: 8px;
 
-  --navbar-bg: rgba(2, 6, 14, 0.72);
-  --navbar-border: rgba(160, 196, 255, 0.1);
-  --navbar-shadow: 0 10px 40px rgba(0, 0, 0, 0.45);
+  --navbar-bg: rgba(1, 10, 24, 0.76);
+  --navbar-border: rgba(207, 226, 255, 0.12);
+  --navbar-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
 
   --font-sans: 'Outfit', system-ui, sans-serif;
   --font-serif: 'Syne', system-ui, sans-serif;
   --font-display: 'Syne', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
-  --avatar-border-grad: linear-gradient(135deg, rgba(3, 86, 197, 0.5), rgba(77, 159, 255, 0.35));
+  --avatar-border-grad: linear-gradient(135deg, rgba(0, 79, 210, 0.5), rgba(245, 192, 24, 0.4));
   --avatar-shadow: 0 8px 28px rgba(0, 0, 0, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --avatar-inner-bg: rgba(2, 12, 32, 0.85);
-  --card-header-bg: rgba(255, 255, 255, 0.03);
-  --vs-badge-bg: rgba(3, 86, 197, 0.15);
-  --vs-badge-border: rgba(77, 159, 255, 0.35);
-  --vs-badge-shadow: 0 0 16px rgba(3, 86, 197, 0.25);
-  --dot-draw: rgba(160, 196, 255, 0.4);
-  --primary-alpha-border: rgba(3, 86, 197, 0.45);
-  --primary-alpha-bg: rgba(3, 86, 197, 0.12);
-  --red-alpha-border: rgba(255, 107, 138, 0.35);
-  --red-alpha-bg: rgba(255, 107, 138, 0.08);
-  --btn-amount-bg: rgba(3, 86, 197, 0.12);
-  --purple-alpha-bg: rgba(91, 141, 239, 0.1);
-  --purple-alpha-border: rgba(91, 141, 239, 0.3);
+  --avatar-inner-bg: rgba(2, 20, 52, 0.9);
+  --card-header-bg: rgba(255, 255, 255, 0.04);
+  --vs-badge-bg: rgba(0, 79, 210, 0.18);
+  --vs-badge-border: rgba(245, 192, 24, 0.35);
+  --vs-badge-shadow: 0 0 16px rgba(0, 79, 210, 0.25);
+  --dot-draw: rgba(207, 226, 255, 0.45);
+  --primary-alpha-border: rgba(0, 79, 210, 0.45);
+  --primary-alpha-bg: rgba(0, 79, 210, 0.12);
+  --red-alpha-border: rgba(255, 82, 123, 0.35);
+  --red-alpha-bg: rgba(255, 82, 123, 0.08);
+  --btn-amount-bg: rgba(0, 79, 210, 0.12);
+  --purple-alpha-bg: rgba(112, 159, 255, 0.1);
+  --purple-alpha-border: rgba(112, 159, 255, 0.3);
 
-  --success-bg: rgba(61, 214, 140, 0.08);
-  --success-border: rgba(61, 214, 140, 0.28);
-  --success-text: #6ee7b7;
+  --success-bg: rgba(46, 204, 113, 0.08);
+  --success-border: rgba(46, 204, 113, 0.28);
+  --success-text: #2ecc71;
 
-  --danger-bg: rgba(255, 107, 138, 0.08);
-  --danger-border: rgba(255, 107, 138, 0.25);
-  --danger-text: #ff8fa8;
+  --danger-bg: rgba(255, 82, 123, 0.08);
+  --danger-border: rgba(255, 82, 123, 0.25);
+  --danger-text: #ff7695;
 
-  --toast-success-bg: rgba(2, 20, 14, 0.92);
-  --toast-success-border: rgba(61, 214, 140, 0.3);
+  --toast-success-bg: rgba(1, 20, 10, 0.92);
+  --toast-success-border: rgba(46, 204, 113, 0.3);
   --toast-error-bg: rgba(24, 4, 10, 0.92);
-  --toast-error-border: rgba(255, 107, 138, 0.3);
-  --toast-info-bg: rgba(2, 12, 32, 0.94);
-  --toast-info-border: rgba(3, 86, 197, 0.4);
+  --toast-error-border: rgba(255, 82, 123, 0.3);
+  --toast-info-bg: rgba(1, 15, 36, 0.94);
+  --toast-info-border: rgba(0, 79, 210, 0.4);
   --toast-shadow: rgba(0, 0, 0, 0.65);
-  --hero-bg: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(3, 86, 197, 0.35), transparent 65%);
+  --hero-bg: radial-gradient(ellipse 90% 60% at 50% 0%, rgba(245, 192, 24, 0.18), transparent 65%);
 
-  --logo-grad: linear-gradient(135deg, #ffffff 0%, #a0c4ff 40%, #0356c5 100%);
-  --hero-grad: linear-gradient(135deg, #e0f0ff 0%, #4d9fff 45%, #0356c5 100%);
+  --logo-grad: linear-gradient(135deg, #ffffff 0%, #cfe2ff 40%, #f5c018 100%);
+  --hero-grad: linear-gradient(135deg, #ffffff 0%, #f5c018 45%, #004fd2 100%);
   --hero-glow: drop-shadow(0 0 24px rgba(3, 86, 197, 0.35));
 
   --pool-track-bg: rgba(160, 196, 255, 0.06);
