@@ -6,7 +6,7 @@ import {
   Clock, Users, BarChart3, ChevronRight, Shield, Globe, Star, X,
   Play, Pause, RefreshCw, CheckCircle2, AlertCircle, ArrowUpRight,
   Target, Flame, Layers, Activity, Coins, CircleDot, Search,
-  LogOut, Copy, ExternalLink, Info, Lock, Unlock, Timer, Sun, Moon
+  LogOut, Copy, ExternalLink, Info, Lock, Unlock, Timer, Sun, Moon, Menu
 } from "lucide-react";
 import { useWalletContext } from "./providers";
 import { ACTIVE_NETWORK, TEAM_FLAGS, CONTRACTS } from "../utils/config";
@@ -2322,7 +2322,11 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
             border: "1px solid var(--border)",
             padding: 3,
             borderRadius: 10,
-          }}>
+            overflowX: "auto",
+            WebkitOverflowScrolling: "touch",
+            scrollbarWidth: "none",
+            msOverflowStyle: "none",
+          }} className="no-scrollbar">
             {[
               { id: "all", label: "All", count: (bets || []).length },
               { id: "active", label: "Active & Live", count: (pendingBets || []).length },
@@ -2352,6 +2356,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                   alignItems: "center",
                   gap: 5,
                   transition: "all 0.15s ease",
+                  flexShrink: 0,
                 }}
               >
                 {tab.label}
@@ -2714,6 +2719,7 @@ export default function Home() {
   const [toast, setToast] = useState(null);
   const [theme, setTheme] = useState("dark");
   const [footerModal, setFooterModal] = useState(null);
+  const [showMobileMenu, setShowMobileMenu] = useState(false);
 
   // Notification history state
   const [notifications, setNotifications] = useState([]);
@@ -2851,6 +2857,27 @@ export default function Home() {
           <div className="nav-inner">
             {/* Logo */}
             <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+              <button
+                className="mobile-only"
+                onClick={() => setShowMobileMenu(!showMobileMenu)}
+                aria-label="Toggle navigation menu"
+                style={{
+                  background: "none",
+                  border: "none",
+                  color: "var(--text-secondary)",
+                  cursor: "pointer",
+                  padding: "6px",
+                  marginRight: -4,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  borderRadius: 6
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
+                onMouseLeave={e => e.currentTarget.style.color = "var(--text-secondary)"}
+              >
+                {showMobileMenu ? <X size={18} /> : <Menu size={18} />}
+              </button>
               <div className="arc-nav-mark" style={{ overflow: "hidden", padding: 0, borderRadius: 8 }}>
                 <img src="/logo.jpg" alt="AM Logo" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
               </div>
@@ -2862,7 +2889,7 @@ export default function Home() {
                   letterSpacing: "-0.01em",
                   lineHeight: 1
                 }}>ArcMarkets</div>
-                <div style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1.8, textTransform: "uppercase", fontWeight: 700, marginTop: 2 }}>Sports · Crypto · Arc</div>
+                <div className="nav-tagline" style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1.8, textTransform: "uppercase", fontWeight: 700, marginTop: 2 }}>Sports · Crypto · Arc</div>
               </div>
             </div>
 
@@ -3025,6 +3052,56 @@ export default function Home() {
           </div>
         </nav>
 
+        {/* Mobile Dropdown Navigation Menu */}
+        {showMobileMenu && (
+          <div className="mobile-only mobile-menu-overlay animate-fade-in" style={{
+            position: "fixed",
+            top: 70,
+            left: 0,
+            right: 0,
+            background: "var(--bg-card)",
+            backdropFilter: "blur(32px)",
+            WebkitBackdropFilter: "blur(32px)",
+            borderBottom: "1px solid var(--border)",
+            padding: "16px 20px",
+            zIndex: 1040,
+            display: "flex",
+            flexDirection: "column",
+            gap: 10,
+            boxShadow: "0 15px 35px rgba(0, 0, 0, 0.45)"
+          }}>
+            {TABS.map(t => (
+              <button
+                key={t.id}
+                onClick={() => {
+                  setTab(t.id);
+                  setShowMobileMenu(false);
+                }}
+                className={`mobile-menu-item ${tab === t.id ? "active" : ""}`}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: 12,
+                  padding: "12px 16px",
+                  borderRadius: 8,
+                  background: tab === t.id ? "var(--primary-alpha-bg)" : "transparent",
+                  border: "none",
+                  color: tab === t.id ? "var(--primary)" : "var(--text-secondary)",
+                  fontSize: 14,
+                  fontWeight: 600,
+                  cursor: "pointer",
+                  textAlign: "left",
+                  width: "100%",
+                  transition: "all 0.2s ease"
+                }}
+              >
+                {t.icon}
+                <span style={{ fontSize: 13, textTransform: "none", letterSpacing: "normal" }}>{t.label}</span>
+              </button>
+            ))}
+          </div>
+        )}
+
         {/* ── Content ── */}
         <main id="main-content" className="main-content" role="main" style={{ paddingTop: 100 }}>
           {wallet.isConnected && !usdtLoading && usdtBalance < 0.01 && showSwapWarning && (
@@ -3101,7 +3178,7 @@ export default function Home() {
         </main>
 
         {/* ── Footer ── */}
-        <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--footer-bg)", borderColor: "var(--border)", padding: "32px 24px", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
+        <footer className="w-full mt-12 border-t border-outline-variant footer-section" style={{ background: "var(--footer-bg)", borderColor: "var(--border)", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
           <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }} className="font-sans">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
@@ -3127,16 +3204,7 @@ export default function Home() {
           </div>
         </footer>
 
-        {/* ── Sticky Mobile Navigation ── */}
-        <div className="mobile-only mobile-bottom-nav">
-          {TABS.map(t => (
-            <button key={t.id} onClick={() => setTab(t.id)}
-              className={`mobile-bottom-nav-item ${tab === t.id ? "active" : ""}`}>
-              {t.icon}
-              <span style={{ fontSize: 9 }}>{t.label}</span>
-            </button>
-          ))}
-        </div>
+        {/* Sticky Mobile Navigation (replaced by top hamburger menu) */}
       </div>
 
       {/* ── Info Modal ── */}

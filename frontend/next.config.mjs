@@ -1,5 +1,9 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  devIndicators: {
+    appIsrStatus: false,
+    buildActivity: false,
+  },
   turbopack: {
     root: import.meta.dirname,
   },

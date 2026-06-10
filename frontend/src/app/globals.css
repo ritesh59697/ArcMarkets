@@ -1041,7 +1041,7 @@ body::after {
 
 @media (max-width: 768px) {
   .main-content {
-    padding: 18px 14px calc(24px + 68px + env(safe-area-inset-bottom)) !important;
+    padding: 80px 14px 32px !important;
   }
 }
 
@@ -1216,7 +1216,7 @@ body::after {
 /* Footer Section */
 .footer-section {
   border-top: 1px solid var(--border);
-  padding: 24px;
+  padding: 32px 24px;
   background: var(--footer-bg);
 }
 
@@ -1255,7 +1255,7 @@ body::after {
   }
 
   .footer-section {
-    padding-bottom: calc(32px + 60px + env(safe-area-inset-bottom)) !important;
+    padding: 32px 24px !important;
   }
 
   .footer-inner {
@@ -1729,4 +1729,38 @@ body::after {
 }
 .bento-card-gradient h3 {
   color: #ffffff !important;
+}
+
+/* ── Mobile Layout Polish & Fixes ── */
+
+/* Utility to hide scrollbar on horizontally scrollable containers */
+.no-scrollbar::-webkit-scrollbar {
+  display: none !important;
+}
+.no-scrollbar {
+  -ms-overflow-style: none !important;  /* IE and Edge */
+  scrollbar-width: none !important;  /* Firefox */
+}
+
+/* Hide Next.js 15+ static route build/ISR indicators */
+nextjs-portal {
+  display: none !important;
+}
+
+/* Navbar tagline display rules */
+@media (max-width: 480px) {
+  .nav-tagline {
+    display: none !important;
+  }
+}
+
+/* Compact mobile bottom nav items on smaller viewports */
+@media (max-width: 375px) {
+  .mobile-bottom-nav-item {
+    gap: 2px !important;
+  }
+  .mobile-bottom-nav-item span {
+    font-size: 8px !important;
+    letter-spacing: 0.02em !important;
+  }
 }
