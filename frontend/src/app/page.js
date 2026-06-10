@@ -15,7 +15,7 @@ import { useUserBets } from "../hooks/useUserBets";
 import { useUSDT } from "../hooks/useUSDT";
 import { useBetting } from "../hooks/useBetting";
 import { useAgent } from "../hooks/useAgent";
-import { getCryptoLogo, isCryptoMarket } from "../utils/marketAssets";
+import { getCryptoLogo, isCryptoMarket, getMatchQuestion } from "../utils/marketAssets";
 import { LeaderboardSidebar, LeaderboardTab } from "../components/LeaderboardView";
 import { useLeaderboard } from "../hooks/useLeaderboard";
 import MatchProDashboard from "../components/MatchProDashboard";
@@ -205,11 +205,27 @@ function MatchCard({ match, onBet, onSelect }) {
         )}
         <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
           <Globe size={11} style={{ color: "var(--text-secondary)" }} />
-          <span style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 500 }}>{match.league || match.category || "Football"}</span>
+          <span style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 500 }}>
+            {isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId) ? "Crypto" : (match.league || match.category || "Football")}
+          </span>
         </div>
         <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "var(--text-secondary)", fontWeight: 600 }}>
           <Coins size={11} style={{ color: "var(--primary)" }} />${fmtK(match.totalPool)}
         </div>
+      </div>
+
+      {/* Primary Question Title */}
+      <div style={{
+        padding: "18px 20px 10px 20px",
+        fontSize: "14.5px",
+        fontWeight: "750",
+        color: "var(--text-primary)",
+        lineHeight: "1.4",
+        fontFamily: "var(--font-sans, sans-serif)",
+        borderBottom: "1px solid var(--border)",
+        background: "rgba(255, 255, 255, 0.01)"
+      }}>
+        {getMatchQuestion(match.homeTeam, match.awayTeam, match.matchId)}
       </div>
 
       {/* Question Description */}
@@ -239,39 +255,53 @@ function MatchCard({ match, onBet, onSelect }) {
       </div>
 
       {/* Teams */}
-      <div style={{ padding: "26px 20px 20px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-        <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <TeamAvatar emoji={match.homeFlag} img={homeImg} size={64} borderColor="rgba(3, 86, 197, 0.55)" isToken={homeIsToken} />
-          <div className="font-sans" style={{ marginTop: 12, fontSize: 14.5, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>{match.homeTeam}</div>
-          <div style={{ fontSize: 9.5, color: "var(--text-secondary)", marginTop: 2, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{match.homeFlag} Home</div>
-        </div>
+      <div style={{ padding: "22px 20px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+        {(() => {
+          const isCrypto = isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId);
+          const homeSub = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Above" : "Yes") : "Home";
+          const awaySub = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Below" : "No") : "Away";
+          return (
+            <>
+              <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <TeamAvatar emoji={match.homeFlag} img={homeImg} size={60} borderColor="rgba(3, 86, 197, 0.55)" isToken={homeIsToken} />
+                <div className="font-sans" style={{ marginTop: 10, fontSize: 14, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>{match.homeTeam}</div>
+                <div style={{ fontSize: 9, color: "var(--text-secondary)", marginTop: 2, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{match.homeFlag} {homeSub}</div>
+              </div>
 
-        <div style={{ textAlign: "center", padding: "0 12px", display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <div style={{
-            fontSize: 9, fontWeight: 800, color: "var(--primary)",
-            letterSpacing: "0.1em", padding: "4px 10px", background: "var(--vs-badge-bg)",
-            border: "1px solid var(--vs-badge-border)", borderRadius: 12,
-            marginBottom: 4
-          }}>VS</div>
-          <div style={{ fontSize: 8.5, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: "0.06em" }}>
-            POOL
-          </div>
-        </div>
+              <div style={{ textAlign: "center", padding: "0 12px", display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <div style={{
+                  fontSize: 9, fontWeight: 800, color: "var(--primary)",
+                  letterSpacing: "0.1em", padding: "3px 9px", background: "var(--vs-badge-bg)",
+                  border: "1px solid var(--vs-badge-border)", borderRadius: 12,
+                  marginBottom: 4
+                }}>VS</div>
+                <div style={{ fontSize: 8, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700, letterSpacing: "0.06em" }}>
+                  POOL
+                </div>
+              </div>
 
-        <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
-          <TeamAvatar emoji={match.awayFlag} img={awayImg} size={64} borderColor="rgba(77, 159, 255, 0.5)" isToken={awayIsToken} />
-          <div className="font-sans" style={{ marginTop: 12, fontSize: 14.5, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>{match.awayTeam}</div>
-          <div style={{ fontSize: 9.5, color: "var(--text-secondary)", marginTop: 2, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{match.awayFlag} Away</div>
-        </div>
+              <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <TeamAvatar emoji={match.awayFlag} img={awayImg} size={60} borderColor="rgba(77, 159, 255, 0.5)" isToken={awayIsToken} />
+                <div className="font-sans" style={{ marginTop: 10, fontSize: 14, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>{match.awayTeam}</div>
+                <div style={{ fontSize: 9, color: "var(--text-secondary)", marginTop: 2, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>{match.awayFlag} {awaySub}</div>
+              </div>
+            </>
+          );
+        })()}
       </div>
 
       {/* Odds */}
       <div style={{ padding: "0 20px 16px", display: "flex", gap: 8 }}>
-        {[
-          { label: "Home", odds: match.odds.home, o: 1, cls: "odds-btn-home" },
-          { label: "Draw", odds: match.odds.draw, o: 2, cls: "odds-btn-draw" },
-          { label: "Away", odds: match.odds.away, o: 3, cls: "odds-btn-away" },
-        ].map(opt => {
+        {(() => {
+          const isCrypto = isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId);
+          const homeLabel = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Above" : "Yes") : "Home";
+          const awayLabel = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Below" : "No") : "Away";
+          return [
+            { label: homeLabel, odds: match.odds.home, o: 1, cls: "odds-btn-home" },
+            { label: "Draw", odds: match.odds.draw, o: 2, cls: "odds-btn-draw" },
+            { label: awayLabel, odds: match.odds.away, o: 3, cls: "odds-btn-away" },
+          ];
+        })().map(opt => {
           const isWinner = match.status === 2 && match.result === opt.o;
           const isLoser = match.status === 2 && match.result !== opt.o;
           const statusClass = match.status === 2 ? (isWinner ? "outcome-won" : "outcome-lost") : "";

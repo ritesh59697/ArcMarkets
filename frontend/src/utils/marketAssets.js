@@ -48,9 +48,15 @@ export function isCryptoMarket(homeTeam, awayTeam, matchId = "") {
     blob.includes("btc") ||
     blob.includes("eth") ||
     blob.includes("sol") ||
+    blob.includes("bnb") ||
+    blob.includes("doge") ||
+    blob.includes("pepe") ||
+    blob.includes("xrp") ||
+    blob.includes("link") ||
     blob.includes("token") ||
     blob.includes("above") ||
-    blob.includes("outperform")
+    blob.includes("outperform") ||
+    blob.includes("cr_")
   );
 }
 
@@ -67,4 +73,18 @@ export function resolveSideImage(teamName, enrichedCrest) {
 export function shortAddress(addr) {
   if (!addr) return "";
   return `${addr.slice(0, 6)}…${addr.slice(-4)}`;
+}
+
+export function getMatchQuestion(homeTeam, awayTeam, matchId = "") {
+  const isCrypto = isCryptoMarket(homeTeam, awayTeam, matchId);
+  if (isCrypto) {
+    if (homeTeam.toLowerCase().includes("above") || homeTeam.toLowerCase().includes("below")) {
+      return `Will BTC price resolve Above or Below target ranges at kickoff?`;
+    }
+    if (homeTeam.toLowerCase().includes("outperforms")) {
+      return `Will ETH outperform SOL in price gains by kickoff?`;
+    }
+    return `Will ${homeTeam} outperform ${awayTeam} in price gains by kickoff?`;
+  }
+  return `Who will win: ${homeTeam} vs ${awayTeam}?`;
 }

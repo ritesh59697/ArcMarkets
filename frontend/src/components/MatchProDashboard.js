@@ -5,7 +5,7 @@ import {
   ArrowLeft, TrendingUp, Clock, Coins, Globe, 
   Activity, AlertCircle, CheckCircle2, Sliders, Zap, RefreshCw, Info 
 } from "lucide-react";
-import { getCryptoLogo, isCryptoMarket } from "../utils/marketAssets";
+import { getCryptoLogo, isCryptoMarket, getMatchQuestion } from "../utils/marketAssets";
 import { useBetting } from "../hooks/useBetting";
 import { ACTIVE_NETWORK } from "../utils/config";
 
@@ -36,9 +36,15 @@ export default function MatchProDashboard({
 
   const { status, error, lastResult, placeBet, simulatePayout, reset } = useBetting(wallet.signer);
 
+  const isCrypto = isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId);
+  const homeLabel = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Above" : "Yes") : "Home Win";
+  const awayLabel = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Below" : "No") : "Away Win";
+  const homeName = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Above" : "Yes") : match.homeTeam;
+  const awayName = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Below" : "No") : match.awayTeam;
+
   const odds = { 1: match.odds.home, 2: match.odds.draw, 3: match.odds.away };
-  const OUTCOME_NAMES = { 1: match.homeTeam, 2: "Draw", 3: match.awayTeam };
-  const OUTCOME_LABELS = { 1: "Home Win", 2: "Draw", 3: "Away Win" };
+  const OUTCOME_NAMES = { 1: homeName, 2: "Draw", 3: awayName };
+  const OUTCOME_LABELS = { 1: homeLabel, 2: "Draw", 3: awayLabel };
 
   // Generate realistic smooth parimutuel odds and volume simulation
   const [chartData, setChartData] = useState([]);
@@ -157,7 +163,7 @@ export default function MatchProDashboard({
         </button>
         <div style={{ display: "flex", alignItems: "center", gap: 6, fontSize: 11, color: "var(--text-muted)", fontWeight: 600 }}>
           <Globe size={13} style={{ color: "var(--primary)" }} />
-          <span>Category: {match.league || match.category || "FIFA World Cup"}</span>
+          <span>Category: {isCrypto ? "Crypto" : (match.league || match.category || "Football")}</span>
           <span style={{ margin: "0 4px" }}>•</span>
           <Clock size={13} />
           <span>Kickoff: {new Date(match.kickoffTime).toLocaleString()}</span>
@@ -165,36 +171,43 @@ export default function MatchProDashboard({
       </div>
 
       {/* Match title header */}
-      <div className="card" style={{ padding: "24px 30px", display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20 }}>
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--avatar-inner-bg)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
-              {homeImg ? <img src={homeImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>⚽</span>}
-            </div>
-            <span style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>{match.homeTeam}</span>
-          </div>
-          <span style={{ fontSize: 13, fontWeight: 800, color: "var(--primary)", padding: "4px 10px", background: "var(--vs-badge-bg)", border: "1px solid var(--vs-badge-border)", borderRadius: 12 }}>VS</span>
-          <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <span style={{ fontSize: 22, fontWeight: 800, color: "var(--text-primary)" }}>{match.awayTeam}</span>
-            <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--avatar-inner-bg)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
-              {awayImg ? <img src={awayImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>⚽</span>}
-            </div>
-          </div>
-        </div>
+      <div className="card" style={{ padding: "24px 30px", display: "flex", flexDirection: "column", gap: 20 }}>
+        {/* Polymarket Question Title */}
+        <h1 style={{ fontSize: 24, fontWeight: 850, color: "var(--text-primary)", margin: 0, lineHeight: 1.35, letterSpacing: "-0.02em" }}>
+          {getMatchQuestion(match.homeTeam, match.awayTeam, match.matchId)}
+        </h1>
 
-        <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-          <div style={{ textAlign: "right" }}>
-            <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Total Pool</div>
-            <div style={{ fontSize: 20, fontWeight: 800, color: "var(--primary)", fontFamily: "var(--font-mono)" }}>${fmt(match.totalPool || 0)}</div>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--avatar-inner-bg)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
+                {homeImg ? <img src={homeImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>⚽</span>}
+              </div>
+              <span style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)" }}>{match.homeTeam}</span>
+            </div>
+            <span style={{ fontSize: 11, fontWeight: 800, color: "var(--primary)", padding: "3px 8px", background: "var(--vs-badge-bg)", border: "1px solid var(--vs-badge-border)", borderRadius: 12 }}>VS</span>
+            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+              <span style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)" }}>{match.awayTeam}</span>
+              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--avatar-inner-bg)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
+                {awayImg ? <img src={awayImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>⚽</span>}
+              </div>
+            </div>
           </div>
-          <div style={{ width: 1, height: 32, background: "var(--border)" }} />
-          <div>
-            <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Status</div>
-            {match.status === 0 ? (
-              <span className="badge badge-open" style={{ marginTop: 4 }}><Clock size={10} /> Active</span>
-            ) : (
-              <span className="badge" style={{ marginTop: 4, background: "var(--border)" }}><Lock size={10} /> Locked</span>
-            )}
+
+          <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
+            <div style={{ textAlign: "right" }}>
+              <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Total Pool</div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: "var(--primary)", fontFamily: "var(--font-mono)" }}>${fmt(match.totalPool || 0)}</div>
+            </div>
+            <div style={{ width: 1, height: 32, background: "var(--border)" }} />
+            <div>
+              <div style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>Status</div>
+              {match.status === 0 ? (
+                <span className="badge badge-open" style={{ marginTop: 4 }}><Clock size={10} /> Active</span>
+              ) : (
+                <span className="badge" style={{ marginTop: 4, background: "var(--border)" }}><Lock size={10} /> Locked</span>
+              )}
+            </div>
           </div>
         </div>
       </div>
@@ -396,9 +409,9 @@ export default function MatchProDashboard({
                 </thead>
                 <tbody className="divide-y divide-outline-variant" style={{ borderColor: "var(--border)" }}>
                   {[
-                    { id: 1, name: match.homeTeam, type: "Match Winner", pool: match.homePool, odds: match.odds.home },
-                    { id: 2, name: "Draw", type: "Match Winner", pool: match.drawPool, odds: match.odds.draw },
-                    { id: 3, name: match.awayTeam, type: "Match Winner", pool: match.awayPool, odds: match.odds.away }
+                    { id: 1, name: OUTCOME_NAMES[1], type: isCrypto ? "Market Outcome" : "Match Winner", pool: match.homePool, odds: match.odds.home },
+                    { id: 2, name: "Draw", type: isCrypto ? "Market Outcome" : "Match Winner", pool: match.drawPool, odds: match.odds.draw },
+                    { id: 3, name: OUTCOME_NAMES[3], type: isCrypto ? "Market Outcome" : "Match Winner", pool: match.awayPool, odds: match.odds.away }
                   ].map(row => (
                     <tr key={row.id} className="hover:bg-primary/5 transition-colors">
                       <td style={{ padding: "14px 0", fontWeight: 700, fontSize: 13.5 }}>{row.name}</td>
