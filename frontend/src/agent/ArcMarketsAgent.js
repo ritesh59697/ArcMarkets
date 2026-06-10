@@ -110,11 +110,11 @@ export class ArcMarketsAgent {
     outcomes.sort((a, b) => b.ev - a.ev);
     const best = outcomes[0];
 
+    const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
     let suggestedAmount;
     if (profile.sizingMethod === "custom") {
       suggestedAmount = Number(profile.customBetSize) || 10;
     } else {
-      const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
       const maxBet = profile.budget * riskConfig.maxBetPercent;
       suggestedAmount = Math.min(
         Math.round(profile.budget * kellyFraction * 100) / 100,
@@ -315,11 +315,11 @@ export async function getAgentAnalysis(
 
   const best = outcomes[0];
   
+  const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
   let suggestedAmount;
   if (sizingMethod === "custom") {
     suggestedAmount = Number(customBetSize) || 10;
   } else {
-    const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
     suggestedAmount = Math.min(
       Math.round(budget * kellyFraction * 100) / 100,
       budget * riskConfig.maxBetPercent,
