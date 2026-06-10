@@ -870,6 +870,300 @@ function FixturePreviewCard({ fixture }) {
   );
 }
 
+function NeuralConnector({ theme }) {
+  const canvasRef = useRef(null);
+  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (canvasRef.current) {
+        const parent = canvasRef.current.parentElement;
+        canvasRef.current.width = parent.clientWidth;
+        canvasRef.current.height = parent.clientHeight;
+        setWindowSize({ width: parent.clientWidth, height: parent.clientHeight });
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize();
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+
+    let animationId;
+    
+    const updateNodes = () => {
+      const panel = canvas.parentElement;
+      const titleEl = panel.querySelector(".hero-title");
+      const cardEl = panel.querySelector(".hero-image-frame");
+      if (!titleEl || !cardEl) return null;
+
+      const panelRect = panel.getBoundingClientRect();
+      const titleRect = titleEl.getBoundingClientRect();
+      const cardRect = cardEl.getBoundingClientRect();
+
+      const titleCenter = {
+        x: titleRect.left - panelRect.left + titleRect.width / 2,
+        y: titleRect.top - panelRect.top + titleRect.height / 2
+      };
+      
+      const cardCenter = {
+        x: cardRect.left - panelRect.left + cardRect.width / 2,
+        y: cardRect.top - panelRect.top + cardRect.height / 2
+      };
+
+      return { titleCenter, cardCenter };
+    };
+
+    const particles = [];
+    const particleCount = 24;
+
+    const pulses = [
+      { progress: 0, speed: 0.006, lineIndex: 0 },
+      { progress: 0.35, speed: 0.005, lineIndex: 1 },
+      { progress: 0.7, speed: 0.007, lineIndex: 2 }
+    ];
+
+    let mouse = { x: null, y: null, radius: 100 };
+
+    const handleMouseMove = (e) => {
+      const rect = canvas.getBoundingClientRect();
+      mouse.x = e.clientX - rect.left;
+      mouse.y = e.clientY - rect.top;
+    };
+
+    const handleMouseLeave = () => {
+      mouse.x = null;
+      mouse.y = null;
+    };
+
+    canvas.parentElement.addEventListener("mousemove", handleMouseMove);
+    canvas.parentElement.addEventListener("mouseleave", handleMouseLeave);
+
+    const initParticles = (centers) => {
+      if (!centers) return;
+      particles.length = 0;
+      for (let i = 0; i < particleCount; i++) {
+        const ratio = Math.random();
+        const startX = centers.titleCenter.x + (centers.cardCenter.x - centers.titleCenter.x) * ratio;
+        const startY = centers.titleCenter.y + (centers.cardCenter.y - centers.titleCenter.y) * ratio + (Math.random() - 0.5) * 80;
+        
+        particles.push({
+          x: startX,
+          y: startY,
+          baseX: startX,
+          baseY: startY,
+          size: Math.random() * 1.8 + 0.8,
+          density: (Math.random() * 15) + 5,
+          color: theme === "light" ? "rgba(15, 79, 172, 0.22)" : "rgba(0, 212, 255, 0.25)",
+          angle: Math.random() * Math.PI * 2,
+          speed: Math.random() * 0.4 + 0.1
+        });
+      }
+    };
+
+    let centers = updateNodes();
+    initParticles(centers);
+
+    const animate = () => {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      centers = updateNodes();
+      if (!centers) {
+        animationId = requestAnimationFrame(animate);
+        return;
+      }
+
+      const { titleCenter, cardCenter } = centers;
+
+      const controlPoints = [
+        { x: (titleCenter.x + cardCenter.x) / 2, y: titleCenter.y - 40 },
+        { x: (titleCenter.x + cardCenter.x) / 2, y: (titleCenter.y + cardCenter.y) / 2 + 40 },
+        { x: (titleCenter.x + cardCenter.x) / 2, y: cardCenter.y - 30 }
+      ];
+
+      ctx.lineWidth = 1;
+      controlPoints.forEach((cp, idx) => {
+        ctx.beginPath();
+        ctx.moveTo(titleCenter.x, titleCenter.y);
+        ctx.quadraticCurveTo(cp.x, cp.y, cardCenter.x, cardCenter.y);
+        
+        const grad = ctx.createLinearGradient(titleCenter.x, titleCenter.y, cardCenter.x, cardCenter.y);
+        if (theme === "light") {
+          grad.addColorStop(0, "rgba(15, 79, 172, 0.01)");
+          grad.addColorStop(0.5, "rgba(15, 79, 172, 0.1)");
+          grad.addColorStop(1, "rgba(15, 79, 172, 0.01)");
+        } else {
+          grad.addColorStop(0, "rgba(0, 212, 255, 0.02)");
+          grad.addColorStop(0.5, "rgba(0, 212, 255, 0.18)");
+          grad.addColorStop(1, "rgba(0, 212, 255, 0.02)");
+        }
+        ctx.strokeStyle = grad;
+        ctx.stroke();
+      });
+
+      pulses.forEach((p) => {
+        p.progress += p.speed;
+        if (p.progress > 1) {
+          p.progress = 0;
+          p.lineIndex = Math.floor(Math.random() * controlPoints.length);
+        }
+
+        const cp = controlPoints[p.lineIndex];
+        const t = p.progress;
+        
+        const pulseX = (1 - t) * (1 - t) * titleCenter.x + 2 * (1 - t) * t * cp.x + t * t * cardCenter.x;
+        const pulseY = (1 - t) * (1 - t) * titleCenter.y + 2 * (1 - t) * t * cp.y + t * t * cardCenter.y;
+
+        ctx.beginPath();
+        const rad = ctx.createRadialGradient(pulseX, pulseY, 0, pulseX, pulseY, 6);
+        if (theme === "light") {
+          rad.addColorStop(0, "rgba(15, 79, 172, 0.8)");
+          rad.addColorStop(1, "rgba(15, 79, 172, 0)");
+        } else {
+          rad.addColorStop(0, "rgba(0, 212, 255, 0.9)");
+          rad.addColorStop(1, "rgba(0, 212, 255, 0)");
+        }
+        ctx.fillStyle = rad;
+        ctx.arc(pulseX, pulseY, 6, 0, Math.PI * 2);
+        ctx.fill();
+      });
+
+      particles.forEach((p) => {
+        p.angle += p.speed * 0.02;
+        p.x = p.baseX + Math.sin(p.angle) * 6;
+        p.y = p.baseY + Math.cos(p.angle) * 9;
+
+        if (mouse.x !== null && mouse.y !== null) {
+          const dx = mouse.x - p.x;
+          const dy = mouse.y - p.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < mouse.radius) {
+            const force = (mouse.radius - dist) / mouse.radius;
+            const dirX = dx / dist;
+            const dirY = dy / dist;
+            p.x -= dirX * force * 24;
+            p.y -= dirY * force * 24;
+          }
+        }
+
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+        ctx.fillStyle = p.color;
+        ctx.fill();
+        
+        particles.forEach((other) => {
+          const dx = p.x - other.x;
+          const dy = p.y - other.y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+          if (dist < 48) {
+            ctx.beginPath();
+            ctx.moveTo(p.x, p.y);
+            ctx.lineTo(other.x, other.y);
+            const alpha = (1 - (dist / 48)) * (theme === "light" ? 0.05 : 0.1);
+            ctx.strokeStyle = theme === "light" 
+              ? `rgba(15, 79, 172, ${alpha})` 
+              : `rgba(0, 212, 255, ${alpha})`;
+            ctx.lineWidth = 0.5;
+            ctx.stroke();
+          }
+        });
+      });
+
+      animationId = requestAnimationFrame(animate);
+    };
+
+    animate();
+
+    return () => {
+      cancelAnimationFrame(animationId);
+      canvas.parentElement.removeEventListener("mousemove", handleMouseMove);
+      canvas.parentElement.removeEventListener("mouseleave", handleMouseLeave);
+    };
+  }, [windowSize, theme]);
+
+  return (
+    <canvas
+      ref={canvasRef}
+      style={{
+        position: "absolute",
+        inset: 0,
+        zIndex: -1,
+        pointerEvents: "none",
+      }}
+    />
+  );
+}
+
+function HeroVisualCard({ src, theme }) {
+  const cardRef = useRef(null);
+  const [coords, setCoords] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    setCoords({ x, y });
+  };
+
+  const handleMouseEnter = () => setIsHovered(true);
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+    setCoords({ x: 0, y: 0 });
+  };
+
+  const rotateX = isHovered ? -coords.y * 18 : 0;
+  const rotateY = isHovered ? coords.x * 18 : 0;
+  const ballTranslateX = isHovered ? -coords.x * 12 : 0;
+  const ballTranslateY = isHovered ? -coords.y * 12 : 0;
+
+  const shimmerX = isHovered ? (coords.x + 0.5) * 100 : 50;
+  const shimmerY = isHovered ? (coords.y + 0.5) * 100 : 50;
+
+  return (
+    <div
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      className="hero-image-frame"
+      style={{
+        transform: `rotateX(${rotateX}deg) rotateY(${rotateY}deg) translateY(${isHovered ? -6 : 0}px)`,
+        transformStyle: "preserve-3d",
+        transition: "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+      }}
+    >
+      <div
+        style={{
+          position: "absolute",
+          inset: 0,
+          background: `radial-gradient(circle at ${shimmerX}% ${shimmerY}%, rgba(255, 255, 255, ${theme === "light" ? 0.22 : 0.12}) 0%, transparent 60%)`,
+          pointerEvents: "none",
+          zIndex: 5,
+          borderRadius: "inherit",
+          mixBlendMode: "overlay",
+        }}
+      />
+      <img
+        alt="On-Chain Soccer Prediction"
+        src={src}
+        style={{
+          transform: `translate3d(${ballTranslateX}px, ${ballTranslateY}px, 20px) scale(1.04)`,
+          transition: "transform 0.35s cubic-bezier(0.16, 1, 0.3, 1)",
+          zIndex: 3,
+        }}
+      />
+    </div>
+  );
+}
+
 function MatchesTab({
   matches = [],
   upcomingFixtures = [],
@@ -952,11 +1246,10 @@ function MatchesTab({
     <div className="space-y-8">
       {/* Hero Section */}
       <section className="hero-panel">
+        {/* Neural constellation connector bridging text and card */}
+        <NeuralConnector theme={theme} />
+
         <div className="hero-copy">
-          <div className="hero-status-pill">
-            <span className="live-pulse" />
-            <span className="font-mono text-[11px] uppercase tracking-wider font-semibold">Live &amp; On-Chain</span>
-          </div>
           <h1 className="hero-title" style={{ fontFamily: "var(--font-serif)" }}>
             Predict the Future, <br /><span>Win the Rewards.</span>
           </h1>
@@ -983,13 +1276,7 @@ function MatchesTab({
           </div>
         </div>
         <div className="hero-visual">
-          <div className="hero-image-frame">
-            <img
-              className="w-full h-full object-cover"
-              alt="On-Chain Soccer Prediction"
-              src="/hero_soccer_ball.png"
-            />
-          </div>
+          <HeroVisualCard src="/hero_soccer_ball_shared.png" theme={theme} />
         </div>
       </section>
 

@@ -351,18 +351,19 @@ body::after {
   display: inline-block;
 }
 
-/* Subtle grid over mesh */
+/* Subtle halftone dot grid over mesh */
 .grid-bg {
   position: fixed;
   inset: 0;
   z-index: -1;
   pointer-events: none;
   background-image:
-    linear-gradient(var(--grid-line-color) 1px, transparent 1px),
-    linear-gradient(90deg, var(--grid-line-color) 1px, transparent 1px);
-  background-size: 72px 72px;
-  mask-image: radial-gradient(ellipse at center, black 20%, transparent 75%);
-  opacity: 0.35;
+    radial-gradient(rgba(0, 188, 255, 0.15) 1.5px, transparent 1.5px),
+    radial-gradient(rgba(0, 188, 255, 0.06) 4px, transparent 4px);
+  background-size: 24px 24px, 72px 72px;
+  mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+  -webkit-mask-image: radial-gradient(ellipse at center, black 40%, transparent 85%);
+  opacity: 0.55;
 }
 
 /* ── Glass Card ── */

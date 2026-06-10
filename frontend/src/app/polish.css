@@ -92,35 +92,16 @@
   position: relative;
   overflow: hidden;
   display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.78fr);
+  grid-template-columns: 1fr auto; /* Right card takes exactly its space, copy column stretches */
   align-items: center;
-  gap: clamp(24px, 5vw, 60px);
+  gap: clamp(32px, 6vw, 80px); /* Generous aligned gap */
   min-height: clamp(340px, 46vh, 450px);
-  padding: clamp(24px, 4vw, 42px);
-  border: 1px solid rgba(245, 192, 24, 0.2);
-  border-top-color: rgba(255, 255, 255, 0.28);
-  border-radius: 24px;
+  padding: clamp(24px, 4vw, 42px) 0; /* Align seamlessly with navbar and rest of page */
+  border: none;
+  background: transparent;
+  box-shadow: none;
   color: #ffffff;
-  background:
-    linear-gradient(135deg, rgba(0, 79, 210, 0.95) 0%, rgba(4, 31, 74, 0.97) 56%, rgba(1, 10, 24, 0.98) 100%);
-  box-shadow:
-    0 26px 70px rgba(0, 0, 0, 0.38),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
   isolation: isolate;
-}
-
-.hero-panel::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  pointer-events: none;
-  background:
-    linear-gradient(90deg, rgba(255, 255, 255, 0.06) 1px, transparent 1px),
-    linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px);
-  background-size: 56px 56px;
-  mask-image: linear-gradient(90deg, black, transparent 74%);
-  opacity: 0.42;
 }
 
 .hero-copy {
@@ -137,10 +118,10 @@
   gap: 8px;
   min-height: 32px;
   padding: 7px 12px;
-  border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  background: rgba(255, 255, 255, 0.1);
-  color: rgba(248, 251, 255, 0.88);
+  border-radius: 99px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.03);
+  color: #889ec4;
   backdrop-filter: blur(16px);
 }
 
@@ -156,13 +137,13 @@
 }
 
 .hero-title span {
-  color: var(--accent);
+  color: #00d4ff; /* Electric brand cyan-blue */
 }
 
 .hero-subtitle {
   max-width: 58ch;
   margin: 0;
-  color: rgba(248, 251, 255, 0.78);
+  color: #889ec4;
   font-size: clamp(0.95rem, 1.4vw, 1.075rem);
   line-height: 1.65;
 }
@@ -186,53 +167,118 @@
 }
 
 .hero-primary-action {
-  background: var(--accent);
-  color: var(--navy-deep);
-  box-shadow: 0 12px 26px rgba(245, 192, 24, 0.22);
+  background: var(--primary);
+  color: #ffffff;
+  box-shadow: 0 12px 26px rgba(0, 79, 210, 0.35);
 }
 
 .hero-secondary-action {
-  border: 1px solid rgba(255, 255, 255, 0.24);
-  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  background: transparent;
   color: #ffffff;
 }
 
 .hero-primary-action:hover,
 .hero-secondary-action:hover {
-  transform: translateY(-1px);
+  transform: translateY(-2px);
+}
+
+.hero-primary-action:hover {
+  background: var(--royal-bright);
+  box-shadow: 0 16px 36px rgba(0, 79, 210, 0.5);
 }
 
 .hero-secondary-action:hover {
-  background: rgba(255, 255, 255, 0.13);
+  background: rgba(255, 255, 255, 0.04);
+  border-color: rgba(255, 255, 255, 0.24);
 }
 
 .hero-visual {
-  justify-self: center;
+  position: relative;
+  justify-self: end; /* Align perfectly to the right margin of content container */
   width: min(100%, 420px);
+  perspective: 1200px;
+}
+
+.hero-visual::before {
+  content: "";
+  position: absolute;
+  width: 700px;
+  height: 700px;
+  left: 50%;
+  top: 50%;
+  transform: translate(-30%, -50%) rotateX(55deg) rotateY(0deg) rotateZ(-35deg);
+  background-image: 
+    linear-gradient(rgba(0, 188, 255, 0.38) 1.5px, transparent 1.5px),
+    linear-gradient(90deg, rgba(0, 188, 255, 0.38) 1.5px, transparent 1.5px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, transparent 68%);
+  -webkit-mask-image: radial-gradient(circle at center, rgba(0, 0, 0, 0.95) 0%, transparent 68%);
+  opacity: 0.8;
+  z-index: -1;
+  pointer-events: none;
 }
 
 .hero-image-frame {
-  aspect-ratio: 1.5; /* 3:2 matching the soccer ball image aspect ratio */
-  overflow: hidden;
-  border-radius: 18px;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-  background: rgba(2, 6, 14, 0.28);
+  aspect-ratio: 1; /* 1:1 square ratio matches light mode mockup */
+  position: relative;
+  padding: 0; /* full bleed makes the border single and clean */
+  border-radius: 32px; /* rounded corners */
+  border: 1px solid rgba(255, 255, 255, 0.1); /* thin, single clean border */
+  background: linear-gradient(135deg, rgba(16, 28, 54, 0.75) 0%, rgba(4, 12, 30, 0.88) 100%);
   box-shadow:
-    0 22px 50px rgba(0, 0, 0, 0.34),
-    0 0 24px rgba(0, 212, 255, 0.15); /* matching cyan neon glow */
-  transform: perspective(900px) rotateY(-5deg) rotateX(2deg);
+    0 24px 60px rgba(0, 0, 0, 0.4),
+    0 0 45px rgba(0, 79, 210, 0.12); /* blue glow behind the ball */
+  overflow: visible; /* allow stacked cards to show */
+  z-index: 2;
   transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
 }
 
 .hero-image-frame img {
+  border-radius: inherit; /* inherit the 32px rounded corners from parent */
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
   animation: float-soccer 6s ease-in-out infinite;
 }
 
+/* Stacked background cards for dark mode */
+.hero-image-frame::before,
+.hero-image-frame::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 32px;
+  background: linear-gradient(135deg, rgba(16, 28, 54, 0.75) 0%, rgba(4, 12, 30, 0.88) 100%);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  transition: transform 0.35s var(--ease-out);
+}
+
+.hero-image-frame::before {
+  z-index: -1;
+  transform: translate(10px, 10px);
+}
+
+.hero-image-frame::after {
+  z-index: -2;
+  transform: translate(20px, 20px);
+  opacity: 0.55;
+}
+
 .hero-image-frame:hover {
-  transform: perspective(900px) rotateY(0deg) rotateX(0deg) translateY(-3px);
   box-shadow:
-    0 28px 62px rgba(0, 0, 0, 0.38),
-    0 0 35px rgba(0, 212, 255, 0.28);
+    0 30px 70px rgba(0, 0, 0, 0.5),
+    0 0 55px rgba(0, 79, 210, 0.22);
+}
+
+.hero-image-frame:hover::before {
+  transform: translate(14px, 14px) rotate(0.5deg);
+}
+
+.hero-image-frame:hover::after {
+  transform: translate(28px, 28px) rotate(1deg);
 }
 
 @keyframes float-soccer {
