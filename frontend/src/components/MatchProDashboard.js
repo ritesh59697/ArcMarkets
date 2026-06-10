@@ -56,8 +56,11 @@ export default function MatchProDashboard({
     const prefix = timeframe === "1H" ? "Min" : timeframe === "1D" ? "Hr" : timeframe === "1W" ? "Day" : "Wk";
     
     // Start with a price slightly offset from the live target odds
-    let currentOdds = Math.max(1.15, baseOdds - (Math.random() - 0.5) * 0.5);
+    let currentOdds = Math.max(1.01, baseOdds - (Math.random() - 0.5) * 0.5);
     
+    const outcomePool = outcome === 1 ? (match.homePool || 0) : outcome === 2 ? (match.drawPool || 0) : (match.awayPool || 0);
+    const avgVol = outcomePool / count;
+
     for (let i = 0; i < count; i++) {
       const progress = i / (count - 1);
       
@@ -65,13 +68,14 @@ export default function MatchProDashboard({
         // Soft drift back to target, plus tiny random noise to keep it smooth and continuous
         const drift = (baseOdds - currentOdds) * 0.12;
         const change = (Math.random() - 0.5) * 0.08;
-        currentOdds = Math.max(1.15, currentOdds + drift + change);
+        currentOdds = Math.max(1.01, currentOdds + drift + change);
       }
       
-      // Volume remains clean and spikey but matches the smooth timeline
-      let vol = Math.round(Math.random() * 12 + 4);
-      if (Math.random() < 0.2) {
-        vol = Math.round(Math.random() * 80 + 30);
+      // Volume scales realistically based on the outcome's actual pool size
+      let vol = 0;
+      if (outcomePool > 0.05) {
+        const factor = Math.random() < 0.2 ? (Math.random() * 2 + 1.5) : (Math.random() * 0.8 + 0.6);
+        vol = parseFloat((avgVol * factor).toFixed(2));
       }
       
       points.push({
@@ -383,7 +387,7 @@ export default function MatchProDashboard({
                     </div>
                     <div>
                       <span style={{ fontSize: 14, fontWeight: 700, color: "var(--text-primary)", fontFamily: "var(--font-mono)" }}>
-                        ${fmt(activePoint.volume, 1)}K
+                        {activePoint.volume >= 1000 ? `$${fmtK(activePoint.volume)}` : `$${fmt(activePoint.volume, 2)}`}
                       </span>
                       <span style={{ fontSize: 10, color: "var(--text-secondary)", marginLeft: 4 }}>vol</span>
                     </div>

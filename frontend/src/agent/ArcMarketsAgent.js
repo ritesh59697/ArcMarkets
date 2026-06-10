@@ -110,13 +110,18 @@ export class ArcMarketsAgent {
     outcomes.sort((a, b) => b.ev - a.ev);
     const best = outcomes[0];
 
-    const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
-    const maxBet = profile.budget * riskConfig.maxBetPercent;
-    let suggestedAmount = Math.min(
-      Math.round(profile.budget * kellyFraction * 100) / 100,
-      maxBet,
-      100
-    );
+    let suggestedAmount;
+    if (profile.sizingMethod === "custom") {
+      suggestedAmount = Number(profile.customBetSize) || 10;
+    } else {
+      const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
+      const maxBet = profile.budget * riskConfig.maxBetPercent;
+      suggestedAmount = Math.min(
+        Math.round(profile.budget * kellyFraction * 100) / 100,
+        maxBet,
+        100
+      );
+    }
 
     // Ensure suggestedAmount satisfies MIN_BET (0.01 USDT) but doesn't exceed user's remaining budget
     if (suggestedAmount < 0.01 && profile.budget >= 0.01) {
@@ -284,7 +289,9 @@ export async function getAgentAnalysis(
   awayTeam,
   riskLevel,
   budget,
-  contractOdds
+  contractOdds,
+  sizingMethod = "kelly",
+  customBetSize = 10
 ) {
   const riskConfig = RISK_PROFILES[riskLevel] || RISK_PROFILES.moderate;
 
@@ -307,12 +314,19 @@ export async function getAgentAnalysis(
   ].sort((a, b) => b.ev - a.ev);
 
   const best = outcomes[0];
-  const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
-  let suggestedAmount = Math.min(
-    Math.round(budget * kellyFraction * 100) / 100,
-    budget * riskConfig.maxBetPercent,
-    100
-  );
+  
+  let suggestedAmount;
+  if (sizingMethod === "custom") {
+    suggestedAmount = Number(customBetSize) || 10;
+  } else {
+    const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
+    suggestedAmount = Math.min(
+      Math.round(budget * kellyFraction * 100) / 100,
+      budget * riskConfig.maxBetPercent,
+      100
+    );
+  }
+
   if (suggestedAmount < 0.01 && budget >= 0.01) {
     suggestedAmount = 0.01;
   } else if (suggestedAmount > budget) {

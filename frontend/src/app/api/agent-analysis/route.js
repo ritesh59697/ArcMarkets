@@ -8,14 +8,21 @@ import { NextResponse } from "next/server";
  */
 export async function POST(request) {
   const body = await request.json();
-  const { matchIndex, homeTeam, awayTeam, riskLevel, budget, contractOdds } = body;
+  const { matchIndex, homeTeam, awayTeam, riskLevel, budget, sizingMethod, customBetSize, contractOdds } = body;
 
   try {
     // Dynamic import to keep ArcMarketsAgent server-side only
     const { getAgentAnalysis } = await import("../../../agent/ArcMarketsAgent.js");
 
     const analysis = await getAgentAnalysis(
-      matchIndex ?? 0, homeTeam, awayTeam, riskLevel, Number(budget), contractOdds
+      matchIndex ?? 0, 
+      homeTeam, 
+      awayTeam, 
+      riskLevel, 
+      Number(budget), 
+      contractOdds,
+      sizingMethod,
+      Number(customBetSize)
     );
     return NextResponse.json({ success: true, analysis });
   } catch (err) {

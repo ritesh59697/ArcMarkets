@@ -19,7 +19,7 @@ const RISK_PROFILES = {
 
 export async function POST(req) {
   try {
-    const { userAddress, riskLevel } = await req.json();
+    const { userAddress, riskLevel, sizingMethod, customBetSize } = await req.json();
 
     if (!userAddress) {
       return NextResponse.json({ error: "Missing userAddress" }, { status: 400 });
@@ -161,14 +161,18 @@ export async function POST(req) {
         continue;
       }
 
-      // Sizing via Kelly Criterion
-      const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
-      const maxBet = userBudget * riskConfig.maxBetPercent;
-      let suggestedAmount = Math.min(
-        Math.round(userBudget * kellyFraction * 100) / 100,
-        maxBet,
-        100 // Cap at 100 USDC per bet
-      );
+      let suggestedAmount;
+      if (sizingMethod === "custom") {
+        suggestedAmount = Number(customBetSize) || 10;
+      } else {
+        const kellyFraction = Math.max(0, best.ev) * riskConfig.outcomeMultiplier * 0.25;
+        const maxBet = userBudget * riskConfig.maxBetPercent;
+        suggestedAmount = Math.min(
+          Math.round(userBudget * kellyFraction * 100) / 100,
+          maxBet,
+          100 // Cap at 100 USDC per bet
+        );
+      }
 
       // Ensure suggestedAmount satisfies MIN_BET (0.01 USDC) but doesn't exceed user's remaining budget
       if (suggestedAmount < 0.01 && userBudget >= 0.01) {

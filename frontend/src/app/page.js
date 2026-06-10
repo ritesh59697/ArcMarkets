@@ -1631,6 +1631,8 @@ function MatchesTab({
 // ─── AI Agent Tab ─────────────────────────────────────────────────────────────
 function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif, addNotif, theme, refetchBets }) {
   const [risk, setRisk] = useState("moderate");
+  const [sizingMethod, setSizingMethod] = useState("kelly"); // "kelly" or "custom"
+  const [customBetSize, setCustomBetSize] = useState("10"); // default 10 USDC
   const [budget, setBudget] = useState("100");
   const [analysing, setAn] = useState(false);
   const [analyses, setAns] = useState([]);
@@ -1699,6 +1701,8 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
             awayTeam: m.awayTeam,
             riskLevel: risk,
             budget: currentBudget,
+            sizingMethod: sizingMethod,
+            customBetSize: parseFloat(customBetSize) || 10,
             contractOdds: {
               home: Math.round(m.odds.home * 10000),
               draw: Math.round(m.odds.draw * 10000),
@@ -1735,7 +1739,13 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
           "x-cron-secret": process.env.NEXT_PUBLIC_CRON_SECRET || "some_random_string",
         },
         body: JSON.stringify({
-          users: [{ address, riskLevel: risk, budget: remainingBudget }],
+          users: [{ 
+            address, 
+            riskLevel: risk, 
+            budget: remainingBudget,
+            sizingMethod: sizingMethod,
+            customBetSize: parseFloat(customBetSize) || 10
+          }],
         }),
       });
       const data = await res.json();
@@ -1854,7 +1864,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
     <div className="agent-tab-container font-sans">
 
       {/* ── Left: Config panel ── */}
-      <div className="card" style={{
+      <div className="card agent-config-card" style={{
         padding: "32px",
         display: "flex",
         flexDirection: "column",
@@ -1877,19 +1887,14 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
               </div>
               <div>
                 <h2 style={{ fontSize: 20, fontWeight: 700, letterSpacing: -0.4, lineHeight: 1.1, margin: 0 }}>AI Betting Agent</h2>
-                <p style={{ fontSize: 12, color: "var(--text-muted)", margin: 0, marginTop: 3 }}>Autonomous execution · Arc Testnet</p>
+                <p style={{ fontSize: 12, color: "var(--text-secondary)", margin: 0, marginTop: 3 }}>Autonomous execution · Arc Testnet</p>
               </div>
             </div>
           </div>
           <div style={{ display: "flex", flexDirection: "column", alignItems: "flex-end", gap: 4 }}>
-            <div style={{
-              padding: "4px 10px", borderRadius: 20,
-              background: isAuthorized ? "var(--success-bg)" : "var(--border-bright)",
-              border: `1px solid ${isAuthorized ? "var(--success-border)" : "var(--border)"}`,
-              display: "flex", alignItems: "center", gap: 5,
-            }}>
+            <div className={`agent-status-badge ${isAuthorized ? "active" : "standby"}`}>
               <div style={{ width: 6, height: 6, borderRadius: "50%", background: isAuthorized ? "var(--success-text)" : "var(--dot-draw)" }} />
-              <span style={{ fontSize: 10, fontWeight: 700, color: isAuthorized ? "var(--success-text)" : "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>{isAuthorized ? "Active" : "Standby"}</span>
+              <span>{isAuthorized ? "Active" : "Standby"}</span>
             </div>
           </div>
         </div>
@@ -1906,8 +1911,8 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
         {/* Risk Profile */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Risk Profile</span>
-            <span style={{ fontSize: 11, color: RISK[risk].color, fontWeight: 600, display: "flex", alignItems: "center", gap: 4 }}>
+            <span className="agent-section-label">Risk Profile</span>
+            <span className={`risk-label-indicator ${risk}`}>
               {RISK[risk].icon} {risk.charAt(0).toUpperCase() + risk.slice(1)}
             </span>
           </div>
@@ -1916,39 +1921,74 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
               const cfg = RISK[r];
               const sel = risk === r;
               return (
-                <button key={r} onClick={() => setRisk(r)} style={{
-                  padding: "14px 8px", borderRadius: 10, cursor: "pointer",
-                  border: sel ? `1px solid ${cfg.border}` : "1px solid var(--border)",
-                  background: sel ? cfg.bg : "var(--card-header-bg)",
-                  textAlign: "center", transition: "all 0.2s",
-                  boxShadow: sel ? `0 0 20px ${cfg.bg}, inset 0 1px 0 ${cfg.border}` : "none"
-                }}>
-                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, marginBottom: 5, color: sel ? cfg.color : "var(--text-muted)" }}>
+                <button
+                  key={r}
+                  onClick={() => setRisk(r)}
+                  className={`risk-btn ${r} ${sel ? "selected" : ""}`}
+                >
+                  <div style={{ display: "flex", alignItems: "center", justifyContent: "center", gap: 5, marginBottom: 5 }}>
                     {cfg.icon}
                     <span style={{ fontSize: 12, fontWeight: 700, textTransform: "capitalize" }}>{r}</span>
                   </div>
-                  <div style={{ fontSize: 10, color: "var(--text-muted)", lineHeight: 1.3 }}>
+                  <div className="risk-btn-desc">
                     {r === "conservative" ? "Low yield" : r === "moderate" ? "Balanced" : "High variance"}
                   </div>
                 </button>
               );
             })}
           </div>
-          <div style={{
-            marginTop: 10, fontSize: 11, color: RISK[risk].color,
-            display: "flex", alignItems: "center", gap: 6,
-            padding: "8px 12px",
-            background: RISK[risk].bg,
-            borderRadius: 7, border: `1px solid ${RISK[risk].border}`
-          }}>
+          <div className={`risk-summary-box ${risk}`}>
             {RISK[risk].icon} <span>{RISK[risk].desc}</span>
           </div>
+        </div>
+
+        {/* Bet Sizing Configuration */}
+        <div style={{ marginBottom: 28 }}>
+          <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
+            <span className="agent-section-label">Bet Sizing</span>
+            <span style={{ fontSize: 11, color: "var(--primary)", fontWeight: 700 }}>
+              {sizingMethod === "kelly" ? "Kelly Criterion (Auto)" : `Fixed Size: $${customBetSize} USDC`}
+            </span>
+          </div>
+          <div style={{ display: "flex", gap: 8, marginBottom: 12 }}>
+            <button
+              type="button"
+              onClick={() => setSizingMethod("kelly")}
+              className={`sizing-btn ${sizingMethod === "kelly" ? "selected" : ""}`}
+            >
+              Kelly Auto Sizing
+            </button>
+            <button
+              type="button"
+              onClick={() => setSizingMethod("custom")}
+              className={`sizing-btn ${sizingMethod === "custom" ? "selected" : ""}`}
+            >
+              Custom Sizing
+            </button>
+          </div>
+
+          {sizingMethod === "custom" && (
+            <div style={{ position: "relative" }}>
+              <Coins size={14} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "var(--text-secondary)" }} />
+              <input
+                type="number"
+                value={customBetSize}
+                min={0.01}
+                step={0.01}
+                onChange={e => setCustomBetSize(e.target.value)}
+                className="input font-mono"
+                style={{ paddingLeft: 36, paddingRight: 60, height: 40, fontSize: 14 }}
+                placeholder="Custom bet size amount"
+              />
+              <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 11, fontWeight: 700, color: "var(--primary)", fontFamily: "'JetBrains Mono', monospace" }}>USDC</span>
+            </div>
+          )}
         </div>
 
         {/* Escrow Budget */}
         <div style={{ marginBottom: 28 }}>
           <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: 14 }}>
-            <span style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em" }}>Escrow Budget</span>
+            <span className="agent-section-label">Escrow Budget</span>
             {!isAuthorized && (
               <button onClick={() => setBudget(usdtBalance.toString())} style={{
                 fontSize: 11, color: "var(--primary)", background: "var(--primary-alpha-bg)",
@@ -1958,29 +1998,26 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
             )}
           </div>
           {isAuthorized ? (
-            <div style={{
-              background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)",
-              borderRadius: 10, padding: "16px 20px"
-            }}>
-              <div style={{ fontSize: 11, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 4 }}>Authorized Escrow</div>
+            <div className="authorized-escrow-box">
+              <div className="label">Authorized Escrow</div>
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "baseline" }}>
-                <span style={{ fontSize: 28, fontWeight: 800, color: "var(--primary)", fontFamily: "'JetBrains Mono', monospace" }}>
+                <span className="value">
                   {fmt(remainingBudget)} <span style={{ fontSize: 14 }}>USDC</span>
                 </span>
-                <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Agent authorized</span>
+                <span className="sub-label">Agent authorized</span>
               </div>
             </div>
           ) : (
             <div style={{ position: "relative" }}>
-              <Wallet size={14} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "var(--text-muted)" }} />
+              <Wallet size={14} style={{ position: "absolute", left: 13, top: "50%", transform: "translateY(-50%)", color: "var(--text-secondary)" }} />
               <input type="number" value={budget} min={0.01} step={0.01} onChange={e => setBudget(e.target.value)}
                 className="input font-mono" style={{ paddingLeft: 36, paddingRight: 60, height: 46, fontSize: 15 }} />
               <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 12, fontWeight: 700, color: "var(--primary)", fontFamily: "'JetBrains Mono', monospace", letterSpacing: "0.05em" }}>USDC</span>
             </div>
           )}
           <div style={{ display: "flex", alignItems: "center", gap: 6, marginTop: 8 }}>
-            <Coins size={11} style={{ color: "var(--text-muted)" }} />
-            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Available Balance: <span style={{ color: "var(--text-primary)", fontFamily: "'JetBrains Mono', monospace" }}>{fmt(usdtBalance)} USDC</span></span>
+            <Coins size={11} className="agent-info-icon" />
+            <span className="agent-info-text">Available Balance: <span style={{ color: "var(--text-primary)", fontWeight: 600, fontFamily: "'JetBrains Mono', monospace" }}>{fmt(usdtBalance)} USDC</span></span>
           </div>
 
           {isAuthorized && (
@@ -2042,18 +2079,14 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
         {/* Analysis preview — only when populated */}
         {analyses.length > 0 && (
           <div style={{ marginBottom: 28 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.1em", marginBottom: 12 }}>Agent Analysis Preview</div>
+            <div className="agent-section-label" style={{ marginBottom: 12 }}>Agent Analysis Preview</div>
             <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {analyses.map((a, i) => a?.recommendation && (
-                <div key={i} style={{
-                  display: "flex", alignItems: "center", gap: 12, padding: "10px 14px",
-                  background: "var(--card-header-bg)", border: "1px solid var(--border)",
-                  borderRadius: 8
-                }}>
+                <div key={i} className="analysis-preview-item">
                   <span style={{ fontSize: 18 }}>{a.match.homeFlag}{a.match.awayFlag}</span>
                   <div style={{ flex: 1, minWidth: 0 }}>
                     <div style={{ fontSize: 12, fontWeight: 600, marginBottom: 2 }}>{a.match.homeTeam} vs {a.match.awayTeam}</div>
-                    <div style={{ fontSize: 10, color: "var(--text-muted)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap" }}>{a.recommendation.reasoning?.slice(0, 72)}…</div>
+                    <div className="desc">{a.recommendation.reasoning?.slice(0, 72)}…</div>
                   </div>
                   <div style={{ textAlign: "right", flexShrink: 0 }}>
                     {a.recommendation.confidence >= (risk === "conservative" ? 70 : risk === "moderate" ? 55 : 40) ? (
@@ -2062,7 +2095,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
                         <div style={{ fontSize: 10, color: "var(--green)" }}>{a.recommendation.confidence}% conf</div>
                       </>
                     ) : (
-                      <span className="badge" style={{ background: "var(--border-bright)", color: "var(--text-muted)", border: "1px solid var(--border)" }}>SKIP</span>
+                      <span className="badge" style={{ background: "var(--border-bright)", color: "var(--text-secondary)", border: "1px solid var(--border)" }}>SKIP</span>
                     )}
                   </div>
                 </div>
@@ -2241,7 +2274,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
                 background: isAuthorized ? "var(--success-text)" : "var(--dot-draw)",
                 boxShadow: isAuthorized ? "0 0 8px var(--success-text)" : "none"
               }} />
-              <span style={{ fontSize: 10, fontWeight: 700, color: isAuthorized ? "var(--success-text)" : "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
+              <span style={{ fontSize: 10, fontWeight: 700, color: isAuthorized ? "var(--success-text)" : "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
                 {isAuthorized ? "Active" : "Idle"}
               </span>
             </div>
@@ -2286,13 +2319,13 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
         <div style={{ height: 1, background: "var(--border)", marginTop: 20, marginBottom: 16 }} />
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-            <Globe size={11} style={{ color: "var(--text-muted)" }} />
-            <span style={{ fontSize: 11, color: "var(--text-muted)" }}>Arc Testnet</span>
+            <Globe size={11} style={{ color: "var(--text-secondary)" }} />
+            <span style={{ fontSize: 11, color: "var(--text-secondary)" }}>Arc Testnet</span>
           </div>
           <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
-            <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace" }}>Latency: <span style={{ color: "var(--green)" }}>12ms</span></span>
+            <span style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}>Latency: <span style={{ color: "var(--green)" }}>12ms</span></span>
             <div style={{ width: 1, height: 12, background: "var(--border)" }} />
-            <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace" }}>{logs.length} events</span>
+            <span style={{ fontSize: 11, color: "var(--text-secondary)", fontFamily: "'JetBrains Mono', monospace" }}>{logs.length} events</span>
           </div>
         </div>
       </div>

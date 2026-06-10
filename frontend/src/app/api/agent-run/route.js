@@ -42,6 +42,8 @@ export async function POST(request) {
       riskLevel: u.riskLevel || "moderate",
       budget: Number(u.budget) || 0,
       maxBetPercent: u.riskLevel === "aggressive" ? 0.2 : u.riskLevel === "conservative" ? 0.05 : 0.1,
+      sizingMethod: u.sizingMethod || "kelly",
+      customBetSize: Number(u.customBetSize) || 10,
     }));
 
     const actions = await agent.runCycle(userProfiles);
