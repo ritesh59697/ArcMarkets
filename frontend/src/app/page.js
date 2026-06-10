@@ -1,5 +1,6 @@
 "use client";
 import { useState, useCallback, useEffect, useRef } from "react";
+import * as THREE from "three";
 import {
   Trophy, Zap, Bot, Wallet, Bell, Settings, TrendingUp, TrendingDown,
   Clock, Users, BarChart3, ChevronRight, Shield, Globe, Star, X,
@@ -870,211 +871,163 @@ function FixturePreviewCard({ fixture }) {
   );
 }
 
-function NeuralConnector({ theme }) {
+function GlobalBackgroundAnimation({ theme }) {
   const canvasRef = useRef(null);
-  const [windowSize, setWindowSize] = useState({ width: 0, height: 0 });
-
-  useEffect(() => {
-    const handleResize = () => {
-      if (canvasRef.current) {
-        const parent = canvasRef.current.parentElement;
-        canvasRef.current.width = parent.clientWidth;
-        canvasRef.current.height = parent.clientHeight;
-        setWindowSize({ width: parent.clientWidth, height: parent.clientHeight });
-      }
-    };
-
-    window.addEventListener("resize", handleResize);
-    handleResize();
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
 
   useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
-    const ctx = canvas.getContext("2d");
-    if (!ctx) return;
 
-    let animationId;
-    
-    const updateNodes = () => {
-      const panel = canvas.parentElement;
-      const titleEl = panel.querySelector(".hero-title");
-      const cardEl = panel.querySelector(".hero-image-frame");
-      if (!titleEl || !cardEl) return null;
+    const width = window.innerWidth;
+    const height = window.innerHeight;
 
-      const panelRect = panel.getBoundingClientRect();
-      const titleRect = titleEl.getBoundingClientRect();
-      const cardRect = cardEl.getBoundingClientRect();
+    const scene = new THREE.Scene();
 
-      const titleCenter = {
-        x: titleRect.left - panelRect.left + titleRect.width / 2,
-        y: titleRect.top - panelRect.top + titleRect.height / 2
-      };
-      
-      const cardCenter = {
-        x: cardRect.left - panelRect.left + cardRect.width / 2,
-        y: cardRect.top - panelRect.top + cardRect.height / 2
-      };
+    const camera = new THREE.PerspectiveCamera(75, width / height, 0.1, 1000);
+    camera.position.z = 150;
+    camera.position.y = 55; // Lower camera angle for flat, infinite mesh perspective
 
-      return { titleCenter, cardCenter };
+    const renderer = new THREE.WebGLRenderer({
+      canvas: canvas,
+      alpha: true,
+      antialias: true,
+      powerPreference: "high-performance"
+    });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+    renderer.setSize(width, height);
+
+    // Expanded grid size to span the entire screen background
+    const numX = 90;
+    const numZ = 90;
+    const numParticles = numX * numZ;
+
+    const positions = new Float32Array(numParticles * 3);
+    const colors = new Float32Array(numParticles * 3);
+
+    // Wider spacing spreads the particles across the entire viewport
+    const spacing = 9.0;
+    const offsetLeft = -(numX * spacing) / 2;
+    const offsetTop = -(numZ * spacing) / 2;
+
+    // Harmonized colors for dark and light themes
+    const color1 = new THREE.Color(theme === "dark" ? 0x00d4ff : 0x0356c5); // glowing cyan or royal blue
+    const color2 = new THREE.Color(theme === "dark" ? 0x7928ca : 0x4f46e5); // deep purple or indigo
+
+    for (let i = 0; i < numParticles; i++) {
+      const ix = i % numX;
+      const iz = Math.floor(i / numX);
+
+      positions[i * 3] = offsetLeft + ix * spacing;
+      positions[i * 3 + 1] = 0; // calculated dynamically
+      positions[i * 3 + 2] = offsetTop + iz * spacing;
+
+      // Elegant gradient mapping
+      const ratio = (ix + iz) / (numX + numZ);
+      const lerpedColor = new THREE.Color().copy(color1).lerp(color2, ratio);
+      colors[i * 3] = lerpedColor.r;
+      colors[i * 3 + 1] = lerpedColor.g;
+      colors[i * 3 + 2] = lerpedColor.b;
+    }
+
+    const geometry = new THREE.BufferGeometry();
+    geometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    geometry.setAttribute("color", new THREE.BufferAttribute(colors, 3));
+
+    // Programmatically draw smooth circular alpha mask texture
+    const createCircleTexture = () => {
+      const size = 64;
+      const canvasTex = document.createElement("canvas");
+      canvasTex.width = size;
+      canvasTex.height = size;
+      const ctx = canvasTex.getContext("2d");
+
+      const grad = ctx.createRadialGradient(size / 2, size / 2, 0, size / 2, size / 2, size / 2);
+      grad.addColorStop(0, "rgba(255, 255, 255, 1)");
+      grad.addColorStop(0.2, "rgba(255, 255, 255, 0.9)");
+      grad.addColorStop(0.5, "rgba(255, 255, 255, 0.25)");
+      grad.addColorStop(1, "rgba(255, 255, 255, 0)");
+
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, size, size);
+
+      return new THREE.CanvasTexture(canvasTex);
     };
 
-    const particles = [];
-    const particleCount = 24;
+    const texture = createCircleTexture();
 
-    const pulses = [
-      { progress: 0, speed: 0.006, lineIndex: 0 },
-      { progress: 0.35, speed: 0.005, lineIndex: 1 },
-      { progress: 0.7, speed: 0.007, lineIndex: 2 }
-    ];
+    const material = new THREE.PointsMaterial({
+      size: theme === "dark" ? 3.0 : 2.5,
+      vertexColors: true,
+      map: texture,
+      transparent: true,
+      opacity: theme === "dark" ? 0.45 : 0.25,
+      blending: theme === "dark" ? THREE.AdditiveBlending : THREE.NormalBlending,
+      depthWrite: false
+    });
 
-    let mouse = { x: null, y: null, radius: 100 };
+    const particles = new THREE.Points(geometry, material);
+    scene.add(particles);
+
+    // Mouse positions
+    let targetMouseX = 0;
+    let targetMouseY = 0;
+    let currentMouseX = 0;
+    let currentMouseY = 0;
 
     const handleMouseMove = (e) => {
-      const rect = canvas.getBoundingClientRect();
-      mouse.x = e.clientX - rect.left;
-      mouse.y = e.clientY - rect.top;
+      targetMouseX = (e.clientX / window.innerWidth) * 2 - 1;
+      targetMouseY = (e.clientY / window.innerHeight) * 2 - 1;
     };
 
-    const handleMouseLeave = () => {
-      mouse.x = null;
-      mouse.y = null;
+    window.addEventListener("mousemove", handleMouseMove);
+
+    const handleResize = () => {
+      const w = window.innerWidth;
+      const h = window.innerHeight;
+      camera.aspect = w / h;
+      camera.updateProjectionMatrix();
+      renderer.setSize(w, h);
     };
 
-    canvas.parentElement.addEventListener("mousemove", handleMouseMove);
-    canvas.parentElement.addEventListener("mouseleave", handleMouseLeave);
+    window.addEventListener("resize", handleResize);
 
-    const initParticles = (centers) => {
-      if (!centers) return;
-      particles.length = 0;
-      for (let i = 0; i < particleCount; i++) {
-        const ratio = Math.random();
-        const startX = centers.titleCenter.x + (centers.cardCenter.x - centers.titleCenter.x) * ratio;
-        const startY = centers.titleCenter.y + (centers.cardCenter.y - centers.titleCenter.y) * ratio + (Math.random() - 0.5) * 80;
-        
-        particles.push({
-          x: startX,
-          y: startY,
-          baseX: startX,
-          baseY: startY,
-          size: Math.random() * 1.8 + 0.8,
-          density: (Math.random() * 15) + 5,
-          color: theme === "light" ? "rgba(15, 79, 172, 0.22)" : "rgba(0, 212, 255, 0.25)",
-          angle: Math.random() * Math.PI * 2,
-          speed: Math.random() * 0.4 + 0.1
-        });
-      }
-    };
-
-    let centers = updateNodes();
-    initParticles(centers);
+    let count = 0;
+    let animationId;
 
     const animate = () => {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      
-      centers = updateNodes();
-      if (!centers) {
-        animationId = requestAnimationFrame(animate);
-        return;
+      count += 0.005; // Slightly slower flow rate for a calmer background presence
+
+      const positionAttr = geometry.attributes.position;
+      const array = positionAttr.array;
+
+      for (let i = 0; i < numParticles; i++) {
+        const ix = i % numX;
+        const iz = Math.floor(i / numX);
+
+        const xVal = ix * 0.12;
+        const zVal = iz * 0.12;
+
+        // Expanded wave dimensions to match the wider grid layout
+        const yVal =
+          Math.sin(xVal + count) * 11.0 +
+          Math.cos(zVal + count * 0.8) * 11.0 +
+          Math.sin((xVal + zVal) * 0.4 + count * 1.0) * 6.0;
+
+        array[i * 3 + 1] = yVal;
       }
 
-      const { titleCenter, cardCenter } = centers;
+      positionAttr.needsUpdate = true;
 
-      const controlPoints = [
-        { x: (titleCenter.x + cardCenter.x) / 2, y: titleCenter.y - 40 },
-        { x: (titleCenter.x + cardCenter.x) / 2, y: (titleCenter.y + cardCenter.y) / 2 + 40 },
-        { x: (titleCenter.x + cardCenter.x) / 2, y: cardCenter.y - 30 }
-      ];
+      // Interpolate mouse movement to prevent visual snapping
+      currentMouseX += (targetMouseX - currentMouseX) * 0.04;
+      currentMouseY += (targetMouseY - currentMouseY) * 0.04;
 
-      ctx.lineWidth = 1;
-      controlPoints.forEach((cp, idx) => {
-        ctx.beginPath();
-        ctx.moveTo(titleCenter.x, titleCenter.y);
-        ctx.quadraticCurveTo(cp.x, cp.y, cardCenter.x, cardCenter.y);
-        
-        const grad = ctx.createLinearGradient(titleCenter.x, titleCenter.y, cardCenter.x, cardCenter.y);
-        if (theme === "light") {
-          grad.addColorStop(0, "rgba(15, 79, 172, 0.01)");
-          grad.addColorStop(0.5, "rgba(15, 79, 172, 0.1)");
-          grad.addColorStop(1, "rgba(15, 79, 172, 0.01)");
-        } else {
-          grad.addColorStop(0, "rgba(0, 212, 255, 0.02)");
-          grad.addColorStop(0.5, "rgba(0, 212, 255, 0.18)");
-          grad.addColorStop(1, "rgba(0, 212, 255, 0.02)");
-        }
-        ctx.strokeStyle = grad;
-        ctx.stroke();
-      });
+      // Parallax shifts on mesh rotation and camera tracking
+      particles.rotation.y = count * 0.02 + currentMouseX * 0.08;
+      particles.rotation.x = 0.3 + currentMouseY * 0.05;
+      particles.rotation.z = Math.sin(count * 0.01) * 0.03;
 
-      pulses.forEach((p) => {
-        p.progress += p.speed;
-        if (p.progress > 1) {
-          p.progress = 0;
-          p.lineIndex = Math.floor(Math.random() * controlPoints.length);
-        }
-
-        const cp = controlPoints[p.lineIndex];
-        const t = p.progress;
-        
-        const pulseX = (1 - t) * (1 - t) * titleCenter.x + 2 * (1 - t) * t * cp.x + t * t * cardCenter.x;
-        const pulseY = (1 - t) * (1 - t) * titleCenter.y + 2 * (1 - t) * t * cp.y + t * t * cardCenter.y;
-
-        ctx.beginPath();
-        const rad = ctx.createRadialGradient(pulseX, pulseY, 0, pulseX, pulseY, 6);
-        if (theme === "light") {
-          rad.addColorStop(0, "rgba(15, 79, 172, 0.8)");
-          rad.addColorStop(1, "rgba(15, 79, 172, 0)");
-        } else {
-          rad.addColorStop(0, "rgba(0, 212, 255, 0.9)");
-          rad.addColorStop(1, "rgba(0, 212, 255, 0)");
-        }
-        ctx.fillStyle = rad;
-        ctx.arc(pulseX, pulseY, 6, 0, Math.PI * 2);
-        ctx.fill();
-      });
-
-      particles.forEach((p) => {
-        p.angle += p.speed * 0.02;
-        p.x = p.baseX + Math.sin(p.angle) * 6;
-        p.y = p.baseY + Math.cos(p.angle) * 9;
-
-        if (mouse.x !== null && mouse.y !== null) {
-          const dx = mouse.x - p.x;
-          const dy = mouse.y - p.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < mouse.radius) {
-            const force = (mouse.radius - dist) / mouse.radius;
-            const dirX = dx / dist;
-            const dirY = dy / dist;
-            p.x -= dirX * force * 24;
-            p.y -= dirY * force * 24;
-          }
-        }
-
-        ctx.beginPath();
-        ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
-        ctx.fillStyle = p.color;
-        ctx.fill();
-        
-        particles.forEach((other) => {
-          const dx = p.x - other.x;
-          const dy = p.y - other.y;
-          const dist = Math.sqrt(dx * dx + dy * dy);
-          if (dist < 48) {
-            ctx.beginPath();
-            ctx.moveTo(p.x, p.y);
-            ctx.lineTo(other.x, other.y);
-            const alpha = (1 - (dist / 48)) * (theme === "light" ? 0.05 : 0.1);
-            ctx.strokeStyle = theme === "light" 
-              ? `rgba(15, 79, 172, ${alpha})` 
-              : `rgba(0, 212, 255, ${alpha})`;
-            ctx.lineWidth = 0.5;
-            ctx.stroke();
-          }
-        });
-      });
-
+      renderer.render(scene, camera);
       animationId = requestAnimationFrame(animate);
     };
 
@@ -1082,23 +1035,30 @@ function NeuralConnector({ theme }) {
 
     return () => {
       cancelAnimationFrame(animationId);
-      canvas.parentElement.removeEventListener("mousemove", handleMouseMove);
-      canvas.parentElement.removeEventListener("mouseleave", handleMouseLeave);
+      window.removeEventListener("mousemove", handleMouseMove);
+      window.removeEventListener("resize", handleResize);
+      geometry.dispose();
+      material.dispose();
+      texture.dispose();
+      renderer.dispose();
     };
-  }, [windowSize, theme]);
+  }, [theme]);
 
   return (
     <canvas
       ref={canvasRef}
       style={{
-        position: "absolute",
+        position: "fixed",
         inset: 0,
-        zIndex: -1,
+        zIndex: -2,
         pointerEvents: "none",
+        width: "100vw",
+        height: "100vh",
       }}
     />
   );
 }
+
 
 function HeroVisualCard({ src, theme }) {
   const cardRef = useRef(null);
@@ -1246,12 +1206,9 @@ function MatchesTab({
     <div className="space-y-8">
       {/* Hero Section */}
       <section className="hero-panel">
-        {/* Neural constellation connector bridging text and card */}
-        <NeuralConnector theme={theme} />
-
         <div className="hero-copy">
           <h1 className="hero-title" style={{ fontFamily: "var(--font-serif)" }}>
-            Predict the Future, <br /><span>Win the Rewards.</span>
+            Predict the Future, <br /><span>Win the Rewards</span>
           </h1>
           <p className="hero-subtitle">
             A premium prediction market for real-time sports and crypto outcomes, with transparent odds, on-chain settlement, and wallet-native payouts.
@@ -2855,6 +2812,7 @@ export default function Home() {
       <div className="app-root page-enter">
         <a href="#main-content" className="skip-link">Skip to content</a>
         <div className="grid-bg" aria-hidden />
+        <GlobalBackgroundAnimation theme={theme} />
         {toast && <Toast {...toast} />}
 
         {/* ── Navbar ── */}

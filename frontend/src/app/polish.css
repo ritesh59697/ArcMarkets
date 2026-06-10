@@ -227,9 +227,9 @@
   border: 1px solid rgba(255, 255, 255, 0.1); /* thin, single clean border */
   background: linear-gradient(135deg, rgba(16, 28, 54, 0.75) 0%, rgba(4, 12, 30, 0.88) 100%);
   box-shadow:
-    0 24px 60px rgba(0, 0, 0, 0.4),
-    0 0 45px rgba(0, 79, 210, 0.12); /* blue glow behind the ball */
-  overflow: visible; /* allow stacked cards to show */
+    0 30px 80px rgba(0, 0, 0, 0.45),
+    0 0 50px rgba(0, 79, 210, 0.08);
+  overflow: hidden; /* clip image to exact rounded corners, no bleed */
   z-index: 2;
   transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
 }
@@ -242,44 +242,13 @@
   animation: float-soccer 6s ease-in-out infinite;
 }
 
-/* Stacked background cards for dark mode */
-.hero-image-frame::before,
-.hero-image-frame::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  border-radius: 32px;
-  background: linear-gradient(135deg, rgba(16, 28, 54, 0.75) 0%, rgba(4, 12, 30, 0.88) 100%);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
-  pointer-events: none;
-  transition: transform 0.35s var(--ease-out);
-}
-
-.hero-image-frame::before {
-  z-index: -1;
-  transform: translate(10px, 10px);
-}
-
-.hero-image-frame::after {
-  z-index: -2;
-  transform: translate(20px, 20px);
-  opacity: 0.55;
-}
 
 .hero-image-frame:hover {
   box-shadow:
-    0 30px 70px rgba(0, 0, 0, 0.5),
-    0 0 55px rgba(0, 79, 210, 0.22);
+    0 36px 90px rgba(0, 0, 0, 0.5),
+    0 0 60px rgba(0, 79, 210, 0.18);
 }
 
-.hero-image-frame:hover::before {
-  transform: translate(14px, 14px) rotate(0.5deg);
-}
-
-.hero-image-frame:hover::after {
-  transform: translate(28px, 28px) rotate(1deg);
-}
 
 @keyframes float-soccer {
   0% {
