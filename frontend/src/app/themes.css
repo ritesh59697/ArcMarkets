@@ -46,6 +46,11 @@
   color: var(--text-secondary);
 }
 
+/* "AI Agents" strong text — white in dark mode but needs dark color in light mode */
+[data-theme="light"] .hero-subtitle strong {
+  color: #0c1527; /* dark navy, clearly visible on light background */
+}
+
 [data-theme="light"] .grid-bg {
   opacity: 0.75;
   background-image:

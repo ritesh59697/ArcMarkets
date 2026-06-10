@@ -13,8 +13,13 @@ export default function RootLayout({ children }) {
         <title>ArcMarkets — On-Chain Predictions on Arc</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
+        <link rel="preconnect" href="https://api.fontshare.com" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Syne:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
+          href="https://api.fontshare.com/v2/css?f[]=clash-display@400,500,600,700&display=swap"
+          rel="stylesheet"
+        />
+        <link
+          href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@300;400;500;600;700;800&family=Syne:wght@500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap"
           rel="stylesheet"
         />
         <script

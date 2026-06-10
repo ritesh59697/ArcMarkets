@@ -161,7 +161,10 @@ export function LeaderboardSidebar({ onViewAll }) {
           <span style={{ textAlign: "right" }}>Profit</span>
         </div>
         {loading ? (
-          <div style={{ padding: 24, textAlign: "center", color: "var(--text-muted)" }}>Indexing chain…</div>
+          <div style={{ padding: "32px 16px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 10, color: "var(--text-secondary)" }}>
+            <RefreshCw size={18} className="animate-spin" style={{ color: "var(--primary)" }} />
+            <span style={{ fontSize: 12, fontWeight: 500 }}>Indexing chain…</span>
+          </div>
         ) : (
           <LeaderboardRows rows={top} compact />
         )}
@@ -180,7 +183,7 @@ export function LeaderboardSidebar({ onViewAll }) {
   );
 }
 
-export function LeaderboardTab() {
+export function LeaderboardTab({ theme }) {
   const { rows, loading, error, meta, refetch } = useLeaderboard(50);
   const podium = rows.slice(0, 3);
 
@@ -208,8 +211,14 @@ export function LeaderboardTab() {
       )}
 
       {loading ? (
-        <div className="card" style={{ padding: 40, textAlign: "center", color: "var(--text-muted)" }}>
-          Scanning BetPlaced & WinningsClaimed events…
+        <div className="card" style={{ padding: "64px 32px", display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", gap: 14, color: "var(--text-secondary)", minHeight: 220 }}>
+          <div style={{ width: 48, height: 48, borderRadius: "50%", background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)", display: "flex", alignItems: "center", justifyContent: "center", marginBottom: 4 }}>
+            <RefreshCw size={22} className="animate-spin" style={{ color: "var(--primary)" }} />
+          </div>
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>Scanning Events</div>
+            <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Scanning BetPlaced & WinningsClaimed events on-chain…</div>
+          </div>
         </div>
       ) : (
         <>

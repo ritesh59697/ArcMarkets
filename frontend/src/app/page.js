@@ -1207,11 +1207,16 @@ function MatchesTab({
       {/* Hero Section */}
       <section className="hero-panel">
         <div className="hero-copy">
-          <h1 className="hero-title" style={{ fontFamily: "var(--font-serif)" }}>
-            Predict the Future, <br /><span>Win the Rewards</span>
+          {/* AI Agent badge */}
+          <div className="hero-ai-badge">
+            <Bot size={13} />
+            <span>Powered by AI Agents</span>
+          </div>
+          <h1 className="hero-title">
+            Predict the Future, <span>Win the Rewards</span>
           </h1>
           <p className="hero-subtitle">
-            A premium prediction market for real-time sports and crypto outcomes, with transparent odds, on-chain settlement, and wallet-native payouts.
+            The first prediction market with built-in <strong> AI Agents </strong> that analyze live sports &amp; crypto data, place smart bets on your behalf, and settle on-chain transparently, automatically, 24/7 on <span className="hero-arc">Arc</span>
           </p>
           <div className="hero-actions">
             <button
@@ -1232,9 +1237,11 @@ function MatchesTab({
             </button>
           </div>
         </div>
+        {/* TEMP: hero football card hidden for testing
         <div className="hero-visual">
           <HeroVisualCard src="/hero_soccer_ball_shared.png" theme={theme} />
         </div>
+        */}
       </section>
 
       {/* Bento Stats Grid */}
@@ -2110,6 +2117,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
         display: "flex",
         flexDirection: "column",
         minHeight: 620,
+        alignSelf: "flex-start",
       }}>
         {/* Log header */}
         <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 20 }}>
@@ -2132,17 +2140,30 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
                 onClick={executeManualCycle}
                 disabled={runningCycle}
                 style={{
-                  fontSize: 11,
-                  padding: "4px 10px",
-                  borderRadius: 6,
-                  fontWeight: 600,
+                  fontSize: 11.5,
+                  padding: "6px 14px",
+                  borderRadius: 8,
+                  fontWeight: 700,
                   display: "flex",
                   alignItems: "center",
                   gap: 5,
-                  background: "var(--primary-alpha-bg)",
-                  border: "1px solid var(--primary-alpha-border)",
-                  color: "var(--primary)",
+                  background: "linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%)",
+                  border: "none",
+                  color: "#ffffff",
+                  boxShadow: theme === "dark" 
+                    ? "0 4px 14px rgba(112, 159, 255, 0.35)" 
+                    : "0 4px 12px rgba(3, 86, 197, 0.25)",
                   cursor: "pointer",
+                  transition: "all 0.2s ease",
+                  scale: "1",
+                }}
+                onMouseEnter={e => {
+                  e.currentTarget.style.scale = "1.04";
+                  e.currentTarget.style.filter = "brightness(1.1)";
+                }}
+                onMouseLeave={e => {
+                  e.currentTarget.style.scale = "1";
+                  e.currentTarget.style.filter = "none";
                 }}
               >
                 {runningCycle ? <RefreshCw size={11} className="animate-spin" /> : <Play size={11} />}
@@ -2219,7 +2240,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
 }
 
 // ─── Portfolio Tab ────────────────────────────────────────────────────────────
-function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLeaderboard, userBetsState }) {
+function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLeaderboard, userBetsState, theme }) {
   const { bets, loading, totalPnl, totalBetAmount, pendingBets, claimableBets, settledBets, refetch: refetchBets } = userBetsState;
   const { claimWinnings, status: claimStatus } = useBetting(signer);
   const [activeSubTab, setActiveSubTab] = useState("all");
@@ -2248,9 +2269,9 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
         {/* Stats */}
         <div className="portfolio-stats-container">
           {[
-            { label: "Total Wagered", value: `$${fmt(totalBetAmount)}`, icon: <Coins size={16} />, color: "var(--primary)" },
-            { label: "Profit / Loss", value: `${totalPnl >= 0 ? "+" : ""}$${fmt(totalPnl)}`, icon: <TrendingUp size={16} />, color: totalPnl >= 0 ? "var(--green)" : "var(--red)" },
-            { label: "Claimable", value: `$${fmt(claimable)}`, icon: <Unlock size={16} />, color: "var(--gold)" },
+            { label: "Total Wagered", value: `$${fmt(totalBetAmount)}`, icon: <Coins size={16} />, color: "var(--primary)", valueColor: "var(--text-wager)" },
+            { label: "Profit / Loss", value: `${totalPnl >= 0 ? "+" : ""}$${fmt(totalPnl)}`, icon: <TrendingUp size={16} />, color: totalPnl >= 0 ? "var(--green)" : "var(--red)", valueColor: totalPnl >= 0 ? "var(--green)" : "var(--red)" },
+            { label: "Claimable", value: `$${fmt(claimable)}`, icon: <Unlock size={16} />, color: "var(--gold)", valueColor: "var(--gold)" },
           ].map(s => (
             <div key={s.label} className="stat-card" style={{
               background: "var(--bg-card)",
@@ -2263,7 +2284,9 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
               display: "flex",
               flexDirection: "column",
               alignItems: "flex-start",
-              textAlign: "left"
+              textAlign: "left",
+              backdropFilter: "blur(40px) saturate(1.4)",
+              WebkitBackdropFilter: "blur(40px) saturate(1.4)"
             }}>
               <div style={{
                 position: "absolute",
@@ -2281,7 +2304,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                 <span style={{ fontSize: 11, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.08em" }}>{s.label}</span>
                 <span style={{ color: s.color }}>{s.icon}</span>
               </div>
-              <div className="font-mono" style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.8, color: s.color }}>{s.value}</div>
+              <div className="font-mono" style={{ fontSize: 24, fontWeight: 800, letterSpacing: -0.8, color: s.valueColor }}>{s.value}</div>
             </div>
           ))}
         </div>
@@ -2355,7 +2378,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
           </div>
         </div>
 
-        <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
+        <div style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 400 }}>
           {loading ? (
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: 150, color: "var(--primary)", gap: 8 }}>
               <RefreshCw size={18} className="animate-spin" />
@@ -2392,9 +2415,11 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
             filteredBets.map(bet => {
               const estMultiplier = bet.amount > 0 ? (bet.potentialPayout / bet.amount).toFixed(2) : "0.00";
 
+              const isLight = theme === "light";
+
               // Determine card state visuals
-              let cardBorderLeft = "4px solid rgba(255, 255, 255, 0.05)";
-              let cardBoxShadow = "0 16px 40px rgba(0, 0, 0, 0.75)";
+              let cardBorderLeft = isLight ? "4px solid rgba(10, 22, 40, 0.12)" : "4px solid rgba(255, 255, 255, 0.12)";
+              let cardBoxShadow = "var(--card-shadow)";
               let statusBadge = null;
               let payoutColor = "var(--text-primary)";
               let payoutLabel = "Est. Payout";
@@ -2405,7 +2430,9 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
               if (bet.canClaim) {
                 // Claimable / Won but unclaimed
                 cardBorderLeft = "4px solid var(--success-text)"; // Neon/emerald green
-                cardBoxShadow = "0 16px 40px rgba(0, 0, 0, 0.75), inset 4px 0 10px var(--success-bg)";
+                cardBoxShadow = isLight
+                  ? "0 8px 24px rgba(4, 120, 87, 0.08), inset 4px 0 10px rgba(4, 120, 87, 0.03)"
+                  : "0 16px 40px rgba(0, 0, 0, 0.55), inset 4px 0 10px var(--success-bg)";
                 payoutColor = "var(--success-text)";
                 payoutLabel = "Winnings";
                 statusBadge = (
@@ -2416,7 +2443,9 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
               } else if (isClaimed) {
                 // Won and Claimed
                 cardBorderLeft = "4px solid var(--gold)";
-                cardBoxShadow = "0 16px 40px rgba(0, 0, 0, 0.75), inset 4px 0 10px rgba(212, 175, 55, 0.04)";
+                cardBoxShadow = isLight
+                  ? "0 8px 24px rgba(161, 98, 7, 0.08), inset 4px 0 10px rgba(161, 98, 7, 0.03)"
+                  : "0 16px 40px rgba(0, 0, 0, 0.55), inset 4px 0 10px rgba(245, 192, 24, 0.04)";
                 payoutColor = "var(--gold)";
                 payoutLabel = "Claimed Winnings";
                 statusBadge = (
@@ -2426,7 +2455,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                 );
               } else if (isLost) {
                 // Lost
-                cardBorderLeft = "4px solid rgba(255, 255, 255, 0.05)";
+                cardBorderLeft = isLight ? "4px solid rgba(10, 22, 40, 0.15)" : "4px solid rgba(255, 255, 255, 0.15)";
                 payoutColor = "var(--text-muted)";
                 payoutLabel = "Potential Payout";
                 statusBadge = (
@@ -2447,7 +2476,9 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                 } else {
                   // Live Now
                   cardBorderLeft = "4px solid #ff4757"; // Pulsing red
-                  cardBoxShadow = "0 16px 40px rgba(0, 0, 0, 0.75), inset 4px 0 10px rgba(255, 71, 87, 0.08)";
+                  cardBoxShadow = isLight
+                    ? "0 8px 24px rgba(185, 28, 28, 0.08), inset 4px 0 10px rgba(185, 28, 28, 0.03)"
+                    : "0 16px 40px rgba(0, 0, 0, 0.55), inset 4px 0 10px rgba(255, 71, 87, 0.08)";
                   statusBadge = (
                     <span className="badge badge-live" style={{ gap: 5, padding: "4px 10px" }}>
                       <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff4757", boxShadow: "0 0 8px #ff4757", animation: "pulse-glow 2s infinite" }} /> Live Now
@@ -2464,7 +2495,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                 );
               } else if (bet.matchStatus === 3) {
                 // Cancelled
-                cardBorderLeft = "4px solid rgba(255, 255, 255, 0.1)";
+                cardBorderLeft = isLight ? "4px solid rgba(10, 22, 40, 0.15)" : "4px solid rgba(255, 255, 255, 0.15)";
                 payoutColor = "var(--text-primary)";
                 payoutLabel = "Refundable";
                 statusBadge = (
@@ -2562,7 +2593,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
 
                     {/* Amount */}
                     <div style={{ textAlign: "right", paddingRight: 8, minWidth: 60 }}>
-                      <div style={{ fontSize: 9.5, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 2 }}>Wager</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>Wager</div>
                       <div style={{ fontSize: 14.5, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: "var(--text-primary)" }}>${fmt(bet.amount)}</div>
                     </div>
 
@@ -2570,7 +2601,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
 
                     {/* Payout */}
                     <div style={{ textAlign: "right", paddingLeft: 8, paddingRight: 12, minWidth: 80 }}>
-                      <div style={{ fontSize: 9.5, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.04em", marginBottom: 2 }}>{payoutLabel}</div>
+                      <div style={{ fontSize: 10.5, fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>{payoutLabel}</div>
                       <div style={{ fontSize: 14.5, fontWeight: 800, color: payoutColor, fontFamily: "'JetBrains Mono', monospace" }}>${fmt(bet.potentialPayout)}</div>
                     </div>
 
@@ -2660,7 +2691,7 @@ function RankProgressBentoCard({ walletAddress, userBetsState, setTab }) {
     >
       {/* Decorative background glow */}
       <div className="absolute right-0 bottom-0 w-32 h-32 bg-white/5 rounded-full blur-xl pointer-events-none" />
-      <div className="space-y-2 z-10 w-full pr-12">
+      <div className="space-y-2 z-10 w-full pr-24">
         <span className="font-mono uppercase text-[10px] tracking-widest text-white/70 font-semibold">Your Rank Progress</span>
         <h3 className="text-xl md:text-2xl font-bold font-sans tracking-tight text-white">{tier}</h3>
         <div className="w-full h-3 bg-white/20 rounded-full overflow-hidden mt-4">
@@ -2668,7 +2699,7 @@ function RankProgressBentoCard({ walletAddress, userBetsState, setTab }) {
         </div>
         <p className="text-[11px] text-white/70 font-medium group-hover:text-white transition-colors">{text} · View details →</p>
       </div>
-      <div className="absolute right-6 flex items-center justify-center pointer-events-none opacity-20 md:opacity-30">
+      <div className="absolute right-6 top-1/2 -translate-y-1/2 flex items-center justify-center pointer-events-none opacity-20 md:opacity-30">
         <Trophy size={72} style={{ strokeWidth: 1 }} />
       </div>
     </div>
@@ -3063,13 +3094,14 @@ export default function Home() {
               addNotif={addNotification}
               onGoLeaderboard={() => setTab("leaderboard")}
               userBetsState={userBetsState}
+              theme={theme}
             />
           )}
-          {tab === "leaderboard" && <LeaderboardTab />}
+          {tab === "leaderboard" && <LeaderboardTab theme={theme} />}
         </main>
 
         {/* ── Footer ── */}
-        <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--surface-container)", borderColor: "var(--border)", padding: "32px 24px" }}>
+        <footer className="w-full mt-12 border-t border-outline-variant" style={{ background: "var(--footer-bg)", borderColor: "var(--border)", padding: "32px 24px", backdropFilter: "blur(20px)", WebkitBackdropFilter: "blur(20px)" }}>
           <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }} className="font-sans">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>

@@ -27,6 +27,7 @@
 }
 
 @media (prefers-reduced-motion: reduce) {
+
   *,
   *::before,
   *::after {
@@ -52,6 +53,7 @@
     opacity: 0;
     transform: translateY(8px);
   }
+
   to {
     opacity: 1;
     transform: translateY(0);
@@ -91,12 +93,13 @@
 .hero-panel {
   position: relative;
   overflow: hidden;
-  display: grid;
-  grid-template-columns: 1fr auto; /* Right card takes exactly its space, copy column stretches */
+  display: flex;
+  flex-direction: column;
   align-items: center;
-  gap: clamp(32px, 6vw, 80px); /* Generous aligned gap */
-  min-height: clamp(340px, 46vh, 450px);
-  padding: clamp(24px, 4vw, 42px) 0; /* Align seamlessly with navbar and rest of page */
+  justify-content: center;
+  text-align: center;
+  min-height: clamp(300px, 42vh, 420px);
+  padding: clamp(8px, 2vw, 20px) 0 clamp(32px, 5vw, 60px);
   border: none;
   background: transparent;
   box-shadow: none;
@@ -107,9 +110,61 @@
 .hero-copy {
   display: flex;
   flex-direction: column;
-  align-items: flex-start;
-  max-width: 640px;
+  align-items: center;
+  max-width: 780px;
   gap: 16px;
+}
+
+/* ── AI Agent badge ── */
+.hero-ai-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 7px 14px 7px 10px;
+  border-radius: 99px;
+  border: 1px solid rgba(0, 212, 255, 0.35);
+  background: rgba(0, 212, 255, 0.06);
+  color: #00d4ff;
+  font-size: 12.5px;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 0 20px rgba(0, 212, 255, 0.12), inset 0 1px 0 rgba(0, 212, 255, 0.1);
+}
+
+.hero-ai-badge-dot {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: #00d4ff;
+  box-shadow: 0 0 8px rgba(0, 212, 255, 0.9);
+  animation: badge-pulse 2s ease-in-out infinite;
+}
+
+@keyframes badge-pulse {
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.5;
+    transform: scale(0.75);
+  }
+}
+
+.hero-subtitle strong {
+  color: #ffffff;
+  font-weight: 700;
+}
+
+/* "Arc" brand highlight — gold accent color */
+.hero-arc {
+  color: var(--accent);        /* #f5c018 — brand gold */
+  font-weight: 700;
 }
 
 .hero-status-pill {
@@ -127,30 +182,45 @@
 
 .hero-title {
   margin: 0;
-  max-width: 11ch;
+  max-width: 22ch;
   color: #ffffff;
-  font-size: clamp(2.5rem, 5vw, 4rem);
+  font-family: 'ClashDisplay-Variable', 'Clash Display', system-ui, sans-serif;
+  font-size: clamp(3rem, 5.5vw, 5.5rem);
   font-weight: 700;
-  letter-spacing: 0;
-  line-height: 1.02;
+  letter-spacing: -0.03em;
+  line-height: 1.04;
   text-wrap: balance;
+  -webkit-font-smoothing: antialiased;
+  text-shadow:
+    0 1.5px 3px rgba(0, 0, 0, 0.85),
+    0 4px 16px rgba(0, 0, 0, 0.55),
+    0 0 24px rgba(0, 0, 0, 0.3);
+  -webkit-text-stroke: 0.4px rgba(255, 255, 255, 0.4);
 }
 
 .hero-title span {
-  color: #00d4ff; /* Electric brand cyan-blue */
+  color: #00d4ff;
+  -webkit-text-stroke: 0.4px rgba(0, 212, 255, 0.5);
+  text-shadow:
+    0 1.5px 3px rgba(0, 0, 0, 0.85),
+    0 0 24px rgba(0, 212, 255, 0.45),
+    0 0 48px rgba(0, 212, 255, 0.2);
 }
 
 .hero-subtitle {
-  max-width: 58ch;
+  max-width: 64ch;
   margin: 0;
-  color: #889ec4;
-  font-size: clamp(0.95rem, 1.4vw, 1.075rem);
+  color: #cbe0ff; /* Brightened from #889ec4 for much better legibility */
+  font-size: clamp(0.95rem, 1.3vw, 1.05rem);
   line-height: 1.65;
+  text-align: center;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.75);
 }
 
 .hero-actions {
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   gap: 12px;
   padding-top: 4px;
@@ -195,7 +265,8 @@
 
 .hero-visual {
   position: relative;
-  justify-self: end; /* Align perfectly to the right margin of content container */
+  justify-self: end;
+  /* Align perfectly to the right margin of content container */
   width: min(100%, 420px);
   perspective: 1200px;
 }
@@ -208,7 +279,7 @@
   left: 50%;
   top: 50%;
   transform: translate(-30%, -50%) rotateX(55deg) rotateY(0deg) rotateZ(-35deg);
-  background-image: 
+  background-image:
     linear-gradient(rgba(0, 188, 255, 0.38) 1.5px, transparent 1.5px),
     linear-gradient(90deg, rgba(0, 188, 255, 0.38) 1.5px, transparent 1.5px);
   background-size: 32px 32px;
@@ -220,22 +291,28 @@
 }
 
 .hero-image-frame {
-  aspect-ratio: 1; /* 1:1 square ratio matches light mode mockup */
+  aspect-ratio: 1;
+  /* 1:1 square ratio matches light mode mockup */
   position: relative;
-  padding: 0; /* full bleed makes the border single and clean */
-  border-radius: 32px; /* rounded corners */
-  border: 1px solid rgba(255, 255, 255, 0.1); /* thin, single clean border */
+  padding: 0;
+  /* full bleed makes the border single and clean */
+  border-radius: 32px;
+  /* rounded corners */
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  /* thin, single clean border */
   background: linear-gradient(135deg, rgba(16, 28, 54, 0.75) 0%, rgba(4, 12, 30, 0.88) 100%);
   box-shadow:
     0 30px 80px rgba(0, 0, 0, 0.45),
     0 0 50px rgba(0, 79, 210, 0.08);
-  overflow: hidden; /* clip image to exact rounded corners, no bleed */
+  overflow: hidden;
+  /* clip image to exact rounded corners, no bleed */
   z-index: 2;
   transition: transform 0.35s var(--ease-out), box-shadow 0.35s var(--ease-out);
 }
 
 .hero-image-frame img {
-  border-radius: inherit; /* inherit the 32px rounded corners from parent */
+  border-radius: inherit;
+  /* inherit the 32px rounded corners from parent */
   width: 100%;
   height: 100%;
   object-fit: cover;
@@ -254,9 +331,11 @@
   0% {
     transform: translateY(0px) scale(1);
   }
+
   50% {
     transform: translateY(-5px) scale(1.02);
   }
+
   100% {
     transform: translateY(0px) scale(1);
   }
@@ -631,6 +710,15 @@
 }
 
 @keyframes live-pulse {
-  0%, 100% { opacity: 1; transform: scale(1); }
-  50% { opacity: 0.55; transform: scale(0.85); }
+
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  50% {
+    opacity: 0.55;
+    transform: scale(0.85);
+  }
 }
