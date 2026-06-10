@@ -40,10 +40,12 @@
 [data-theme="light"] .hero-title span {
   color: #0c1527 !important;
   text-shadow: none !important;
+  -webkit-text-stroke: none !important;
 }
 
 [data-theme="light"] .hero-subtitle {
   color: var(--text-secondary);
+  text-shadow: none !important;
 }
 
 /* "AI Agents" strong text — white in dark mode but needs dark color in light mode */

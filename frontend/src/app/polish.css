@@ -600,14 +600,14 @@
   }
 
   .hero-title {
-    max-width: 12ch;
-    font-size: clamp(2.55rem, 14vw, 4rem);
-    line-height: 1;
+    max-width: 15ch;
+    font-size: clamp(1.8rem, 9.5vw, 2.4rem);
+    line-height: 1.1;
   }
 
   .hero-subtitle {
-    font-size: 0.95rem;
-    line-height: 1.55;
+    font-size: 0.86rem;
+    line-height: 1.45;
   }
 
   .hero-actions {

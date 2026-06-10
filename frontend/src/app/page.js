@@ -1037,9 +1037,12 @@ function GlobalBackgroundAnimation({ theme }) {
 
     window.addEventListener("mousemove", handleMouseMove);
 
+    let lastWidth = window.innerWidth;
     const handleResize = () => {
       const w = window.innerWidth;
       const h = window.innerHeight;
+      if (w === lastWidth) return;
+      lastWidth = w;
       camera.aspect = w / h;
       camera.updateProjectionMatrix();
       renderer.setSize(w, h);
@@ -1108,8 +1111,8 @@ function GlobalBackgroundAnimation({ theme }) {
         inset: 0,
         zIndex: -2,
         pointerEvents: "none",
-        width: "100vw",
-        height: "100vh",
+        width: "100%",
+        height: "100%",
       }}
     />
   );
