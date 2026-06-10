@@ -15,7 +15,7 @@ import { useUserBets } from "../hooks/useUserBets";
 import { useUSDT } from "../hooks/useUSDT";
 import { useBetting } from "../hooks/useBetting";
 import { useAgent } from "../hooks/useAgent";
-import { getCryptoLogo } from "../utils/marketAssets";
+import { getCryptoLogo, isCryptoMarket } from "../utils/marketAssets";
 import { LeaderboardSidebar, LeaderboardTab } from "../components/LeaderboardView";
 import { useLeaderboard } from "../hooks/useLeaderboard";
 import MatchProDashboard from "../components/MatchProDashboard";
@@ -210,6 +210,32 @@ function MatchCard({ match, onBet, onSelect }) {
         <div style={{ display: "flex", alignItems: "center", gap: 4, fontSize: 11, color: "var(--text-secondary)", fontWeight: 600 }}>
           <Coins size={11} style={{ color: "var(--primary)" }} />${fmtK(match.totalPool)}
         </div>
+      </div>
+
+      {/* Question Description */}
+      <div style={{
+        padding: "8px 20px",
+        borderBottom: "1px solid var(--border)",
+        background: "rgba(255,255,255,0.01)",
+        fontSize: 11,
+        color: "var(--text-secondary)",
+        lineHeight: 1.3,
+        display: "flex",
+        alignItems: "flex-start",
+        gap: 6
+      }}>
+        <Info size={12} style={{ color: "var(--primary)", flexShrink: 0, marginTop: 1 }} />
+        <span>
+          {isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId) ? (
+            (match.homeTeam.toLowerCase().includes("outperforms") || match.homeTeam.toLowerCase().includes("above") || match.homeTeam.toLowerCase().includes("below")) ? (
+              "Predict the correct market outcome based on price performance."
+            ) : (
+              `Predict which coin will have the higher percentage price gain (or lower loss) by kickoff.`
+            )
+          ) : (
+            "Predict the match winner (HOME, DRAW, or AWAY) at full kickoff time."
+          )}
+        </span>
       </div>
 
       {/* Teams */}

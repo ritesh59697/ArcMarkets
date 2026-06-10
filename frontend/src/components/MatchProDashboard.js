@@ -5,7 +5,7 @@ import {
   ArrowLeft, TrendingUp, Clock, Coins, Globe, 
   Activity, AlertCircle, CheckCircle2, Sliders, Zap, RefreshCw, Info 
 } from "lucide-react";
-import { getCryptoLogo } from "../utils/marketAssets";
+import { getCryptoLogo, isCryptoMarket } from "../utils/marketAssets";
 import { useBetting } from "../hooks/useBetting";
 import { ACTIVE_NETWORK } from "../utils/config";
 
@@ -196,6 +196,23 @@ export default function MatchProDashboard({
               <span className="badge" style={{ marginTop: 4, background: "var(--border)" }}><Lock size={10} /> Locked</span>
             )}
           </div>
+        </div>
+      </div>
+
+      {/* Market Description Card */}
+      <div className="card" style={{ padding: "16px 24px", display: "flex", gap: 12, alignItems: "center", background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)" }}>
+        <Info size={16} style={{ color: "var(--primary)", flexShrink: 0 }} />
+        <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.4 }}>
+          <strong>Market Rule:</strong>{" "}
+          {isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId) ? (
+            (match.homeTeam.toLowerCase().includes("outperforms") || match.homeTeam.toLowerCase().includes("above") || match.homeTeam.toLowerCase().includes("below")) ? (
+              `Predict the outcome of this crypto market. Outcomes are graded based on the precise price conditions of ${match.homeTeam} vs ${match.awayTeam} at the scheduled kickoff time.`
+            ) : (
+              `This is a relative performance market. You are predicting which coin will achieve the higher percentage price increase (or smaller percentage loss) starting from the market creation time up to the kickoff time (${new Date(match.kickoffTime).toLocaleString()}).`
+            )
+          ) : (
+            `This is a standard football prediction market. You are predicting the match winner (Home team win, Draw, or Away team win) based on the official score at full kickoff time.`
+          )}
         </div>
       </div>
 
