@@ -1163,9 +1163,11 @@ function MatchesTab({
     );
   }
 
-  const filtered = matches.filter(m =>
-    !search || m.homeTeam.toLowerCase().includes(search.toLowerCase()) || m.awayTeam.toLowerCase().includes(search.toLowerCase())
-  );
+  const filtered = matches.filter(m => {
+    // Hide ended matches (status: 2 = RESOLVED, 3 = CANCELLED)
+    if (m.status === 2 || m.status === 3) return false;
+    return !search || m.homeTeam.toLowerCase().includes(search.toLowerCase()) || m.awayTeam.toLowerCase().includes(search.toLowerCase());
+  });
 
   const onChainKeys = new Set(
     matches.map((m) => `${m.homeTeam?.toLowerCase()}-${m.awayTeam?.toLowerCase()}`)
