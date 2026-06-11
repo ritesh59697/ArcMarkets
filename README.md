@@ -1,235 +1,178 @@
-# 🔮 ArcMarkets — Prediction Market on Arc Testnet
+# 🔮 ArcMarkets — Predictive Markets on Arc Network
 
-> **Parimutuel Pooling** · **AI Agent Delegation** · **100% On-Chain SVG NFT Receipts**  
-> Deployed on **Arc Testnet** — the first EVM chain where USDC is the native gas token.
+[![Built on Arc Network](https://img.shields.io/badge/Network-Arc_Testnet-7b2ff7?style=flat-square)](https://rpc.testnet.arc.network)
+[![Native Gas Token](https://img.shields.io/badge/Gas-USDC_Native-00d4ff?style=flat-square)](https://testnet.arcscan.app)
+[![Protocol License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
 
-## Quick Links
-
-| | |
-|---|---|
-| **Explorer** | [testnet.arcscan.app](https://testnet.arcscan.app) |
-| **Developer** | [@Ritesh5969](https://x.com/Ritesh5969) |
-| **Powered by** | Arc Network · Ethers.js · Next.js |
+ArcMarkets is a decentralized, peer-to-peer prediction protocol built on the **Arc Network**. By leveraging Arc's native USDC gas model, ArcMarkets allows users to deposit, place wagers, receive returns, and settle gas fees completely in USDC, removing standard onboarding barriers associated with native gas tokens (like ETH).
 
 ---
 
-## What is ArcMarkets?
+## 🚀 Key Innovations
 
-ArcMarkets is a decentralised, peer-to-peer prediction market built on Arc Testnet.  
-Users can bet USDC on outcomes across **sports** (football fixtures) and **crypto** (BTC/ETH head-to-head markets).
+### 1. Dynamic Parimutuel Pooling
+Unlike peer-to-peer orderbooks which require direct counterparties, all wagers consolidate into a unified on-chain pool. Odds adjust dynamically in real time based on wager distribution:
+$$\text{Odds}_i = \frac{\text{Total Pool} \times (1 - \text{Fee})}{\text{Outcome Pool}_i}$$
 
-Two core innovations set ArcMarkets apart:
+### 2. Escrowed AI Agent Delegation
+Escrow a USDC budget on-chain and authorize an off-chain AI agent to analyze sports fixtures (using FIFA ratings) and place wagers based on the **Kelly Criterion**—all without sharing private keys.
 
-**Parimutuel Odds Pricing** — All wagers on a match consolidate into a single on-chain pool. Odds adjust dynamically with every new bet. Winners split the pool minus a 2% protocol fee.
-
-**Autonomous AI Agent Delegation** — Users can escrow a USDC budget on-chain and authorise a built-in AI agent to place mathematically optimised bets using the Kelly Criterion — without ever giving up their private key.
-
----
-
-## Why Arc?
-
-Arc is the first L2 where **USDC is the native gas token** — you pay gas with USDC, not ETH.  
-This means ArcMarkets users bet *and* pay fees in the same token, with no native ETH required.
-
-- **Chain ID:** `5042002`  
-- **RPC:** `https://rpc.testnet.arc.network`  
-- **Explorer:** `https://testnet.arcscan.app`  
-- **Native token:** USDC (`0x3600000000000000000000000000000000000000`)
+### 3. 100% On-Chain SVG NFT Receipts
+Every bet mints an ERC-721 token containing an SVG receipt generated directly by the smart contract. The bet amount, teams, prediction type, and transaction timestamp are encoded on-chain in base64.
 
 ---
 
-## Architecture
+## 🛠️ Codebase Architecture
 
 ```
 ArcMarkets/
 ├── contracts/
-│   ├── PredictionMarket.sol   # Core parimutuel betting contract & USDC escrow pool
-│   ├── BetReceiptNFT.sol      # 100% on-chain SVG NFT receipt generator (ERC-721)
-│   └── MockUSDT.sol           # Mock ERC-20 for local/hardhat testing only
+│   ├── PredictionMarket.sol   # Core parimutuel pooling & budget escrow
+│   ├── BetReceiptNFT.sol      # On-chain dynamic SVG receipt NFT generator
+│   └── MockUSDT.sol           # Mock ERC-20 token for local development
 ├── scripts/
-│   ├── create-match.js        # Admin: create matches on-chain
-│   ├── resolve-match.js       # Admin: resolve matches on-chain
-│   ├── authorize-agent.js     # Admin: whitelist an agent wallet
-│   ├── check-contracts.js     # Verify deployment state
-│   └── test-rpc.js            # Verify RPC connectivity
+│   ├── deploy.js              # Contract compilation and deployment script
+│   ├── create-match.js        # Admin match creator
+│   ├── resolve-match.js       # Admin match outcome resolver
+│   ├── add-live-matches.js    # Seed live matches data
+│   ├── resolve-all-live.js    # Settlement utility for seed matches
+│   ├── authorize-agent.js     # Admin script to whitelist agent addresses
+│   ├── fund-agent.js          # Escrow funding utility
+│   ├── check-contracts.js     # Deployment state validator
+│   └── check-min-bet.js       # Betting limits validator
 ├── frontend/
 │   ├── src/
-│   │   ├── agent/             # ArcMarketsAgent.js — Kelly Criterion AI agent
-│   │   ├── app/               # Next.js routing, layout & pages
-│   │   │   └── api/           # API routes: /rpc proxy, /agent-analysis, /agent-run
-│   │   ├── hooks/             # useMatches, useBetting, useUSDT, useAgent, useWallet
-│   │   └── utils/             # config.js, abis.js, contracts.js
-│   └── globals.css            # Design system (responsive, light mode)
-├── scripts/deploy.js          # Hardhat deployment script (Arc Testnet + localhost)
-├── hardhat.config.js          # Hardhat config with arcTestnet network
-└── package.json
+│   │   ├── agent/             # ArcMarketsAgent.js (Kelly Criterion client engine)
+│   │   ├── app/               # Next.js layout, styles, API routes, and views
+│   │   ├── hooks/             # custom react hooks (useMatches, useWallet, useAgent)
+│   │   └── utils/             # ethers client configs and contract ABIs
+│   └── package.json           # Frontend next.js build dependencies
+├── hardhat.config.js          # Hardhat configuration with Arc Testnet network settings
+├── WHITEPAPER.md              # In-depth mathematical and engineering whitepaper
+└── package.json               # Root hardhat workspace setup
 ```
 
-### AI Agent Delegation Flow
+---
 
+## 📊 Interaction Flowcharts
+
+### On-Chain Betting Flow
 ```mermaid
 sequenceDiagram
-    autonumber
     actor User as User Wallet
     participant Contract as PredictionMarket (On-Chain)
-    participant Agent as ArcMarketsAgent (Client)
+    participant NFT as BetReceiptNFT (On-Chain)
+    
+    User->>Contract: placeBet(matchIndex, outcome, amount)
+    Note over User,Contract: Requires USDC ERC20 approval
+    Contract->>Contract: Update parimutuel pool sizes
+    Contract->>NFT: mintReceipt(user, betId, details...)
+    NFT-->>User: Transfer BetReceipt NFT
+```
 
-    User->>Contract: authorizeMyAgent(agentAddress, budget)
-    Note over User,Contract: Budget USDC escrowed in contract
-
-    loop Match Analysis
+### Escrowed AI Agent Run Cycle
+```mermaid
+sequenceDiagram
+    actor User as User Wallet
+    participant Contract as PredictionMarket (On-Chain)
+    participant Agent as AI Client Agent
+    
+    User->>Contract: authorizeMyAgent(agentWallet, budget)
+    Note over User,Contract: USDC transferred to escrow
+    loop Match Analysis Cycle
         Agent->>Contract: getMatch() & getOdds()
-        Contract-->>Agent: Pools, kickoff, teams
-        Agent->>Agent: Kelly Criterion (team ratings + EV)
+        Agent->>Agent: Evaluate Kelly Sizing / FIFA EV Model
     end
-
-    Agent->>Contract: agentPlaceBet(userAddress, matchIndex, outcome, amount)
-    Contract->>Contract: Validate agent & deduct budget
-    Contract->>User: Mint on-chain SVG NFT Receipt
+    Agent->>Contract: agentPlaceBet(user, matchIndex, outcome, amount)
+    Contract->>Contract: Deduct budget & register bet
+    Contract-->>User: Mint BetReceipt NFT
 ```
 
 ---
 
-## Deployed Contracts
+## 🌐 Deployed Addresses
 
-| Contract | Address | Explorer |
+All contracts are deployed on the official **Arc Testnet** (Chain ID: `5042002`):
+
+| Contract | Address | Explorer Link |
 |---|---|---|
-| PredictionMarket | `0xbE2bf8f1c34a0517Dfd8732d4b8A82056DB539B4` | [View on Arcscan](https://testnet.arcscan.app/address/0xbE2bf8f1c34a0517Dfd8732d4b8A82056DB539B4) |
-| BetReceiptNFT | `0xEfDdb2C5788E426d0AE18a62B74a84A8c86972dE` | [View on Arcscan](https://testnet.arcscan.app/address/0xEfDdb2C5788E426d0AE18a62B74a84A8c86972dE) |
-| USDC (native predeploy) | `0x3600000000000000000000000000000000000000` | [View on Arcscan](https://testnet.arcscan.app/address/0x3600000000000000000000000000000000000000) |
+| **PredictionMarket** | `0xbE2bf8f1c34a0517Dfd8732d4b8A82056DB539B4` | [View on Arcscan](https://testnet.arcscan.app/address/0xbE2bf8f1c34a0517Dfd8732d4b8A82056DB539B4) |
+| **BetReceiptNFT** | `0xEfDdb2C5788E426d0AE18a62B74a84A8c86972dE` | [View on Arcscan](https://testnet.arcscan.app/address/0xEfDdb2C5788E426d0AE18a62B74a84A8c86972dE) |
+| **Mock USDC (Predeploy)** | `0x3600000000000000000000000000000000000000` | [View on Arcscan](https://testnet.arcscan.app/address/0x3600000000000000000000000000000000000000) |
 
 ---
 
-## Features
+## ⚡ Quick Start
 
-### 1. Parimutuel Pool Odds
+### 1. Prerequisites
+- **Node.js** v18 or higher
+- **MetaMask** or any EIP-1193 wallet configured with Arc Testnet
+- Testnet gas USDC obtained from the [Circle Gas Faucet](https://faucet.circle.com/) (select Arc Testnet)
 
-All USDC bets on a market consolidate into a single pool. Odds update with every wager:
-
-$$\text{Outcome Odds} = \frac{\text{Total Pool} \times (1 - \text{Fee})}{\text{Outcome Pool}}$$
-
-The platform fee is **2%**, with 98% distributed directly to winners.
-
-### 2. Autonomous AI Agent
-
-Users escrow a USDC budget and authorise an agent wallet. The agent:
-- Never accesses the user's private key
-- Can only call `agentPlaceBet()` against the escrowed budget
-- Can be revoked at any time, immediately returning unused USDC
-
-### 3. Kelly Criterion Sizing
-
-$$f^* = p - \frac{q}{b}$$
-
-Where `p` = estimated win probability, `q` = 1 - p, `b` = decimal odds − 1.
-
-| Risk Profile | Kelly Multiplier | Min Confidence | Max Wager |
-|---|---|---|---|
-| Conservative | 0.25× | 70% | 5% |
-| Moderate | 0.5× | 55% | 10% |
-| Aggressive | 1.0× | 40% | 20% |
-
-### 4. On-Chain SVG NFT Receipts
-
-Every bet mints an ERC-721 NFT. The SVG, metadata, traits, and match details are generated entirely in Solidity using `Base64` and `Strings`. No IPFS, no Arweave, no centralised servers.
-
-### 5. Multi-RPC Fallback
-
-The Next.js frontend proxies all RPC calls through `/api/rpc` with automatic failover, server-side caching (3s TTL for read calls), and 5s timeout per node.
-
----
-
-## Quick Start
-
-### Prerequisites
-
-- Node.js v18+
-- A wallet with Arc Testnet USDC (get from [Circle Testnet Faucet](https://faucet.circle.com/) → select Arc Testnet)
-
-### 1. Install Dependencies
-
+### 2. Installation
+Install root development tools and frontend Next.js packages:
 ```bash
-# Root / Hardhat
+# Root directory dependencies
 npm install
 
-# Frontend
+# Frontend client dependencies
 cd frontend && npm install && cd ..
 ```
 
-### 2. Configure Environment
-
-Create root `.env`:
-
+### 3. Environment Variables Setup
+Configure a `.env` file at the root:
 ```env
-PRIVATE_KEY=your_deployer_wallet_private_key
+PRIVATE_KEY=your_admin_private_key_here
 USDC_ADDRESS=0x3600000000000000000000000000000000000000
 ```
 
-Create `frontend/.env.local` (or copy `frontend/.env.example`):
-
+Configure `frontend/.env.local` for the client DApp:
 ```env
 NEXT_PUBLIC_ARC_RPC_URL=https://rpc.testnet.arc.network
 NEXT_PUBLIC_USDC_ADDRESS=0x3600000000000000000000000000000000000000
-NEXT_PUBLIC_MARKET_ADDRESS=<from deployment.json>
-NEXT_PUBLIC_NFT_ADDRESS=<from deployment.json>
+NEXT_PUBLIC_MARKET_ADDRESS=0xbE2bf8f1c34a0517Dfd8732d4b8A82056DB539B4
+NEXT_PUBLIC_NFT_ADDRESS=0xEfDdb2C5788E426d0AE18a62B74a84A8c86972dE
 ```
 
-The UI reads markets from the chain (same as GoalBet). Contract addresses in `deployment.json` are also used as fallbacks in `config.js` when env vars are unset.
-
-### 3. Deploy Contracts
-
-```bash
-npx hardhat run scripts/deploy.js --network arcTestnet
-```
-
-The script will print your deployed addresses and update `deployment.json`. Copy the addresses into `frontend/.env.local`.
-
-### 4. Run the DApp
-
+### 4. Running the DApp
+Launch the Next.js frontend server:
 ```bash
 cd frontend
 npm run dev
 ```
-
-Open [http://localhost:3000](http://localhost:3000).
+Open [http://localhost:3000](http://localhost:3000) in your web browser.
 
 ---
 
-## Hardhat Scripts
+## 🔨 Hardhat Administrative Scripts
+
+To execute admin operations, use the following CLI commands:
 
 ```bash
-# Compile
+# Compile Smart Contracts
 npx hardhat compile
 
-# Deploy to Arc Testnet
+# Deploy Contracts (Updates deployment.json)
 npx hardhat run scripts/deploy.js --network arcTestnet
 
-# Create matches
-npx hardhat run scripts/create-match.js --network arcTestnet
-
-# Resolve a match (set result)
-MATCH_INDEX=0 RESULT=1 npx hardhat run scripts/resolve-match.js --network arcTestnet
-
-# Whitelist the agent wallet
-AGENT=0xYourAgentAddress npx hardhat run scripts/authorize-agent.js --network arcTestnet
-
-# Check deployment state
+# Verify Deployment Configuration
 npx hardhat run scripts/check-contracts.js --network arcTestnet
 
-# Test RPC connectivity
-node scripts/test-rpc.js
+# Seed Initial Fixtures/Matches
+npx hardhat run scripts/add-live-matches.js --network arcTestnet
+
+# Authorize an AI Agent wallet
+AGENT=0xYourAgentAddress npx hardhat run scripts/authorize-agent.js --network arcTestnet
+
+# Resolve a Match Outcome
+MATCH_INDEX=0 RESULT=1 npx hardhat run scripts/resolve-match.js --network arcTestnet
 ```
 
 ---
 
-## Roadmap
-
-- **Oracle Integration** — Chainlink / API3 for automated match creation and settlement
-- **Dynamic NFT States** — SVG changes to reflect Pending / Won / Lost based on market status
-- **Automated Agent Cycles** — Chainlink Automation or Gelato for scheduled agent runs
-- **DEX Swaps** — Accept any Arc asset and auto-swap to USDC before betting
-- **Copy-Trading Pools** — Stake into top-performing agent pools
+## 📘 Deep Dive Technical Details
+For an in-depth breakdown of the pricing mechanics, the Kelly sizing derivation formulas, and risk multiplier tables, see the [WHITEPAPER.md](./WHITEPAPER.md).
 
 ---
 
-_Built by [Ritesh5969](https://x.com/Ritesh5969) on Arc Testnet._
+_Built with 💜 on Arc Testnet._
