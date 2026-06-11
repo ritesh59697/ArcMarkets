@@ -101,11 +101,12 @@ export class ArcMarketsAgent {
     const drawEV  = (hist.drawRate / 100)    * (contractDrawOdds / 10000) - 1;
     const awayEV  = (hist.awayWinRate / 100) * (contractAwayOdds / 10000) - 1;
 
+    const isSingleAsset = homeTeam.toLowerCase() === "gold" || homeTeam.toLowerCase() === "silver";
     const outcomes = [
       { outcome: 1, ev: homeEV, prob: hist.homeWinRate, label: `${homeTeam} win` },
       { outcome: 2, ev: drawEV,  prob: hist.drawRate,    label: "Draw" },
       { outcome: 3, ev: awayEV,  prob: hist.awayWinRate, label: `${awayTeam} win` },
-    ];
+    ].filter(o => !isSingleAsset || o.outcome !== 2);
 
     outcomes.sort((a, b) => b.ev - a.ev);
     const best = outcomes[0];
@@ -299,19 +300,27 @@ export async function getAgentAnalysis(
   const awayRating = TEAM_RATINGS[awayTeam] ?? 65;
   const ratingDiff = homeRating - awayRating;
 
-  const homeWinProb = Math.min(85, Math.max(15, 50 + ratingDiff * 0.4 + 5));
-  const awayWinProb = Math.min(85, Math.max(15, 50 - ratingDiff * 0.4 - 5));
-  const drawProb = Math.max(10, 100 - homeWinProb - awayWinProb);
+  const isSingleAsset = homeTeam.toLowerCase() === "gold" || homeTeam.toLowerCase() === "silver";
+  let homeWinProb, awayWinProb, drawProb;
+  if (isSingleAsset) {
+    homeWinProb = 50;
+    awayWinProb = 50;
+    drawProb = 0;
+  } else {
+    homeWinProb = Math.min(85, Math.max(15, 50 + ratingDiff * 0.4 + 5));
+    awayWinProb = Math.min(85, Math.max(15, 50 - ratingDiff * 0.4 - 5));
+    drawProb = Math.max(10, 100 - homeWinProb - awayWinProb);
+  }
 
   const homeEV = (homeWinProb / 100) * (contractOdds.home / 10000) - 1;
   const drawEV  = (drawProb / 100)    * (contractOdds.draw / 10000) - 1;
   const awayEV  = (awayWinProb / 100) * (contractOdds.away / 10000) - 1;
 
   const outcomes = [
-    { outcome: 1, ev: homeEV, prob: homeWinProb, label: `${homeTeam} Win` },
+    { outcome: 1, ev: homeEV, prob: homeWinProb, label: isSingleAsset ? "YES" : `${homeTeam} Win` },
     { outcome: 2, ev: drawEV,  prob: drawProb,    label: "Draw" },
-    { outcome: 3, ev: awayEV,  prob: awayWinProb, label: `${awayTeam} Win` },
-  ].sort((a, b) => b.ev - a.ev);
+    { outcome: 3, ev: awayEV,  prob: awayWinProb, label: isSingleAsset ? "NO" : `${awayTeam} Win` },
+  ].filter(o => !isSingleAsset || o.outcome !== 2).sort((a, b) => b.ev - a.ev);
 
   const best = outcomes[0];
   

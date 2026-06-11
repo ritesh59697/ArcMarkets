@@ -16,8 +16,8 @@ export const CRYPTO_LOGOS = {
   rndr: `${COINGECKO}/11636/small/rndr.png`,
   link: `${COINGECKO}/877/small/chainlink-new-logo.png`,
   usdc: `${COINGECKO}/6319/small/usdc.png`,
-  gold: "https://coin-images.coingecko.com/coins/images/9519/small/paxgold.png",
-  silver: "https://coin-images.coingecko.com/coins/images/29789/small/kag-currency-ticker.png",
+  gold: "/gold.png",
+  silver: "/silver.png",
 };
 
 /** Match team / market label → logo URL (crypto only; sports use API crests). */

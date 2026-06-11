@@ -23,12 +23,18 @@ export default function MatchProDashboard({
   theme,
   initialOutcome = 1
 }) {
+  const isSingleAsset = match.homeTeam.toLowerCase() === "gold" || match.homeTeam.toLowerCase() === "silver";
+  const defaultOutcome = (isSingleAsset && (initialOutcome || 1) === 2) ? 1 : (initialOutcome || 1);
   const [timeframe, setTimeframe] = useState("1D");
-  const [outcome, setOutcome] = useState(initialOutcome || 1); // 1: Home, 2: Draw, 3: Away
+  const [outcome, setOutcome] = useState(defaultOutcome); // 1: Home, 2: Draw, 3: Away
 
   useEffect(() => {
-    setOutcome(initialOutcome || 1);
-  }, [initialOutcome]);
+    if (isSingleAsset && initialOutcome === 2) {
+      setOutcome(1);
+    } else {
+      setOutcome(initialOutcome || 1);
+    }
+  }, [initialOutcome, isSingleAsset]);
   const [amount, setAmount] = useState("50");
   const [slippage, setSlippage] = useState("1.0");
   const [hoverIndex, setHoverIndex] = useState(null);
@@ -123,7 +129,9 @@ export default function MatchProDashboard({
     if (result && result.success) {
       addNotif(
         "Bet Placed Successfully",
-        `Placed $${numAmount} USDC on ${OUTCOME_LABELS[outcome]} for ${match.homeTeam} vs ${match.awayTeam}`,
+        isSingleAsset
+          ? `Placed $${numAmount} USDC on ${OUTCOME_LABELS[outcome]} for ${match.homeTeam}`
+          : `Placed $${numAmount} USDC on ${OUTCOME_LABELS[outcome]} for ${match.homeTeam} vs ${match.awayTeam}`,
         result.txHash
       );
       onNotif("Bet placed successfully!", "success");
@@ -183,19 +191,31 @@ export default function MatchProDashboard({
 
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 20, paddingTop: 10, borderTop: "1px solid var(--border)" }}>
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--avatar-inner-bg)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
-                {homeImg ? <img src={homeImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>⚽</span>}
+            {isSingleAsset ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--avatar-inner-bg)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
+                  {homeImg ? <img src={homeImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>⚽</span>}
+                </div>
+                <span style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)" }}>{match.homeTeam}</span>
+                <span style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em", marginLeft: 6 }}>Market Open</span>
               </div>
-              <span style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)" }}>{match.homeTeam}</span>
-            </div>
-            <span style={{ fontSize: 11, fontWeight: 800, color: "var(--primary)", padding: "3px 8px", background: "var(--vs-badge-bg)", border: "1px solid var(--vs-badge-border)", borderRadius: 12 }}>VS</span>
-            <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-              <span style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)" }}>{match.awayTeam}</span>
-              <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--avatar-inner-bg)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
-                {awayImg ? <img src={awayImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>⚽</span>}
-              </div>
-            </div>
+            ) : (
+              <>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--avatar-inner-bg)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
+                    {homeImg ? <img src={homeImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>⚽</span>}
+                  </div>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)" }}>{match.homeTeam}</span>
+                </div>
+                <span style={{ fontSize: 11, fontWeight: 800, color: "var(--primary)", padding: "3px 8px", background: "var(--vs-badge-bg)", border: "1px solid var(--vs-badge-border)", borderRadius: 12 }}>VS</span>
+                <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                  <span style={{ fontSize: 18, fontWeight: 800, color: "var(--text-primary)" }}>{match.awayTeam}</span>
+                  <div style={{ width: 44, height: 44, borderRadius: "50%", background: "var(--avatar-inner-bg)", overflow: "hidden", display: "flex", alignItems: "center", justifyContent: "center", border: "1px solid var(--border)" }}>
+                    {awayImg ? <img src={awayImg} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} /> : <span>⚽</span>}
+                  </div>
+                </div>
+              </>
+            )}
           </div>
 
           <div style={{ display: "flex", alignItems: "center", gap: 16 }}>
@@ -416,7 +436,7 @@ export default function MatchProDashboard({
                     { id: 1, name: OUTCOME_NAMES[1], type: isCrypto ? "Market Outcome" : "Match Winner", pool: match.homePool, odds: match.odds.home },
                     { id: 2, name: "Draw", type: isCrypto ? "Market Outcome" : "Match Winner", pool: match.drawPool, odds: match.odds.draw },
                     { id: 3, name: OUTCOME_NAMES[3], type: isCrypto ? "Market Outcome" : "Match Winner", pool: match.awayPool, odds: match.odds.away }
-                  ].map(row => (
+                  ].filter(row => !isSingleAsset || row.id !== 2).map(row => (
                     <tr key={row.id} className="hover:bg-primary/5 transition-colors">
                       <td style={{ padding: "14px 0", fontWeight: 700, fontSize: 13.5 }}>{row.name}</td>
                       <td style={{ padding: "14px 0", fontSize: 12, color: "var(--text-secondary)" }}>{row.type}</td>
@@ -459,7 +479,7 @@ export default function MatchProDashboard({
             <div style={{ marginBottom: 18 }}>
               <div style={{ fontSize: 10, fontWeight: 700, color: "var(--text-muted)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 8 }}>Prediction</div>
               <div style={{ display: "flex", flexDirection: "column", gap: 6 }}>
-                {[1, 2, 3].map(o => (
+                {[1, 2, 3].filter(o => !isSingleAsset || o !== 2).map(o => (
                   <button
                     key={o}
                     onClick={() => setOutcome(o)}

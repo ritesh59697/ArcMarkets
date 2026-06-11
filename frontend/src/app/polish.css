@@ -438,12 +438,78 @@
 
 .gamified-card,
 .arc-card {
+  position: relative;
   box-shadow: var(--gamified-card-shadow);
+  transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.35s cubic-bezier(0.16, 1, 0.3, 1), border-color 0.25s ease !important;
+  z-index: 1;
+}
+
+/* ── Animated glow border: LIGHT MODE ONLY ── */
+[data-theme="light"] .gamified-card::before,
+[data-theme="light"] .arc-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+  padding: 1.5px;
+  background: linear-gradient(90deg, var(--primary) 0%, var(--purple) 50%, var(--primary) 100%);
+  background-size: 200% auto;
+  -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+  -webkit-mask-composite: xor;
+  mask-composite: exclude;
+  pointer-events: none;
+  z-index: 10;
+  opacity: 0;
+  transition: opacity 0.35s ease;
+}
+
+[data-theme="light"] .gamified-card:hover::before,
+[data-theme="light"] .arc-card:hover::before {
+  opacity: 1;
+  animation: border-glow-flow 3s linear infinite;
+}
+
+/* Dark mode: no animated border, suppress pseudo-element entirely */
+[data-theme="dark"] .gamified-card::before,
+[data-theme="dark"] .arc-card::before {
+  content: none;
 }
 
 .gamified-card:hover,
 .arc-card:hover {
-  box-shadow: var(--gamified-card-hover-shadow);
+  transform: translateY(-4px) !important;
+  box-shadow: var(--gamified-card-hover-shadow), 0 0 20px rgba(3, 86, 197, 0.12) !important;
+}
+
+/* ── Dark mode: high-contrast cards with real border ── */
+[data-theme="dark"] .gamified-card,
+[data-theme="dark"] .arc-card {
+  background: rgba(4, 18, 48, 0.97) !important;
+  border: 1px solid rgba(160, 196, 255, 0.30) !important;
+  box-shadow:
+    0 16px 40px rgba(0, 0, 0, 0.65),
+    inset 0 1px 0 rgba(255, 255, 255, 0.1) !important;
+}
+
+[data-theme="dark"] .gamified-card:hover,
+[data-theme="dark"] .arc-card:hover {
+  background: rgba(5, 24, 62, 0.99) !important;
+  border: 1px solid rgba(160, 196, 255, 0.52) !important;
+  box-shadow:
+    0 24px 56px rgba(0, 0, 0, 0.7),
+    inset 0 1px 0 rgba(255, 255, 255, 0.13) !important;
+}
+
+@keyframes border-glow-flow {
+  0% {
+    background-position: 0% center;
+  }
+  100% {
+    background-position: 200% center;
+  }
 }
 
 .match-grid {

@@ -44,10 +44,10 @@ html {
   --text-wager: var(--primary);
 
   --bg: #010a18;
-  --bg-card: rgba(2, 14, 38, 0.88);          /* was 0.65 — more opaque against WebGL bg */
-  --bg-card-hover: rgba(3, 20, 54, 0.95);
-  --border: rgba(207, 226, 255, 0.22);       /* was 0.15 — stronger border visibility */
-  --border-bright: rgba(255, 255, 255, 0.35);
+  --bg-card: rgba(4, 18, 48, 0.96);          /* high-contrast solid card bg for dark mode */
+  --bg-card-hover: rgba(5, 24, 62, 0.99);
+  --border: rgba(160, 196, 255, 0.30);       /* brighter border for dark mode contrast */
+  --border-bright: rgba(255, 255, 255, 0.42);
   --text-primary: #ffffff;
   --text-secondary: #ddeeff;                 /* was #cfe2ff — brighter secondary text */
   --text-muted: #9abde8;                     /* was #84a9e3 — more readable muted text */
@@ -106,8 +106,8 @@ html {
   --pool-draw-bg: rgba(160, 196, 255, 0.18);
   --grid-line-color: rgba(160, 196, 255, 0.04);
   --card-border-top: rgba(224, 240, 255, 0.15);
-  --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.55), 0 0 0 1px rgba(160, 196, 255, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.08);
-  --card-hover-shadow: 0 24px 60px rgba(3, 86, 197, 0.25), 0 0 0 1px rgba(77, 159, 255, 0.18), inset 0 1px 0 rgba(224, 240, 255, 0.14);
+  --card-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), 0 0 0 1px rgba(160, 196, 255, 0.22), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  --card-hover-shadow: 0 24px 60px rgba(3, 86, 197, 0.28), 0 0 0 1px rgba(77, 159, 255, 0.32), inset 0 1px 0 rgba(224, 240, 255, 0.16);
   --terminal-bg: rgba(2, 8, 22, 0.75);
   --terminal-border: var(--border);
   --terminal-shadow: inset 0 4px 20px rgba(0, 0, 0, 0.6);

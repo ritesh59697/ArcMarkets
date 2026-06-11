@@ -161,10 +161,11 @@ function NumberTicker({ value, prefix = "", suffix = "" }) {
 
 // ─── Match Card ───────────────────────────────────────────────────────────────
 function MatchCard({ match, onBet, onSelect }) {
-  const t = match.totalPool || 1;
+  const isSingleAsset = match.homeTeam.toLowerCase() === "gold" || match.homeTeam.toLowerCase() === "silver";
+  const t = isSingleAsset ? ((match.homePool + match.awayPool) || 1) : (match.totalPool || 1);
   const hp = Math.round((match.homePool / t) * 100);
-  const dp = Math.round((match.drawPool / t) * 100);
-  const ap = Math.round((match.awayPool / t) * 100);
+  const dp = isSingleAsset ? 0 : Math.round((match.drawPool / t) * 100);
+  const ap = isSingleAsset ? (100 - hp) : Math.round((match.awayPool / t) * 100);
 
   const homeImg = match.homeImage || getCryptoLogo(match.homeTeam) || match.homeCrest;
   const awayImg = match.awayImage || getCryptoLogo(match.awayTeam) || match.awayCrest;
@@ -229,38 +230,21 @@ function MatchCard({ match, onBet, onSelect }) {
         {getMatchQuestion(match.homeTeam, match.awayTeam, match.matchId)}
       </div>
 
-      {/* Question Description */}
-      <div style={{
-        padding: "8px 20px",
-        borderBottom: "1px solid var(--border)",
-        background: "rgba(255,255,255,0.01)",
-        fontSize: 11,
-        color: "var(--text-secondary)",
-        lineHeight: 1.3,
-        display: "flex",
-        alignItems: "flex-start",
-        gap: 6
-      }}>
-        <Info size={12} style={{ color: "var(--primary)", flexShrink: 0, marginTop: 1 }} />
-        <span>
-          {isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId) ? (
-            (match.homeTeam.toLowerCase().includes("outperforms") || match.homeTeam.toLowerCase().includes("above") || match.homeTeam.toLowerCase().includes("below")) ? (
-              "Predict the correct market outcome based on price performance."
-            ) : (
-              `Predict which coin will have the higher percentage price gain (or lower loss) by kickoff.`
-            )
-          ) : (
-            "Predict the match winner (HOME, DRAW, or AWAY) at full kickoff time."
-          )}
-        </span>
-      </div>
-
       {/* Teams */}
       <div style={{ padding: "22px 20px 18px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
         {(() => {
           const isCrypto = isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId);
           const homeSub = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Above" : "Yes") : "Home";
           const awaySub = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Below" : "No") : "Away";
+          if (isSingleAsset) {
+            return (
+              <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
+                <TeamAvatar emoji={match.homeFlag} img={homeImg} size={70} borderColor="rgba(3, 86, 197, 0.55)" isToken={homeIsToken} />
+                <div className="font-sans" style={{ marginTop: 10, fontSize: 16, fontWeight: 800, letterSpacing: "-0.01em", color: "var(--text-primary)" }}>{match.homeTeam}</div>
+                <div style={{ fontSize: 10, color: "var(--text-secondary)", marginTop: 2, fontWeight: 600, textTransform: "uppercase", letterSpacing: "0.05em" }}>Market Open</div>
+              </div>
+            );
+          }
           return (
             <>
               <div style={{ textAlign: "center", flex: 1, display: "flex", flexDirection: "column", alignItems: "center" }}>
@@ -297,11 +281,15 @@ function MatchCard({ match, onBet, onSelect }) {
           const isCrypto = isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId);
           const homeLabel = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Above" : "Yes") : "Home";
           const awayLabel = isCrypto ? (match.homeTeam.toLowerCase().includes("above") ? "Below" : "No") : "Away";
-          return [
+          const list = [
             { label: homeLabel, odds: match.odds.home, o: 1, cls: "odds-btn-home" },
             { label: "Draw", odds: match.odds.draw, o: 2, cls: "odds-btn-draw" },
             { label: awayLabel, odds: match.odds.away, o: 3, cls: "odds-btn-away" },
           ];
+          if (isSingleAsset) {
+            return list.filter(opt => opt.o !== 2);
+          }
+          return list;
         })().map(opt => {
           const isWinner = match.status === 2 && match.result === opt.o;
           const isLoser = match.status === 2 && match.result !== opt.o;
@@ -332,16 +320,18 @@ function MatchCard({ match, onBet, onSelect }) {
       <div style={{ padding: "0 20px 20px" }}>
         <div className="pool-bar-track">
           <div className="pool-bar-home" style={{ width: `${hp}%` }} />
-          <div className="pool-bar-draw" style={{ width: `${dp}%` }} />
+          {!isSingleAsset && <div className="pool-bar-draw" style={{ width: `${dp}%` }} />}
           <div className="pool-bar-away" style={{ width: `${ap}%` }} />
         </div>
         <div className="font-mono" style={{ display: "flex", justifyContent: "space-between", marginTop: 8, fontSize: 9.5, fontWeight: 700 }}>
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--primary)" }}>
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 4px var(--primary)" }} /> {hp}%
           </span>
-          <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--text-secondary)" }}>
-            <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--dot-draw)" }} /> {dp}%
-          </span>
+          {!isSingleAsset && (
+            <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--text-secondary)" }}>
+              <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--dot-draw)" }} /> {dp}%
+            </span>
+          )}
           <span style={{ display: "inline-flex", alignItems: "center", gap: 4, color: "var(--purple)" }}>
             <span style={{ width: 5, height: 5, borderRadius: "50%", background: "var(--purple)", boxShadow: "0 0 4px var(--purple)" }} /> {ap}%
           </span>
@@ -1391,7 +1381,7 @@ function MatchesTab({
         const activeTeams = [];
         if (matches) {
           for (const m of matches) {
-            if (m.status === 0) {
+            if (m.status === 0 && m.kickoffTime > Date.now()) {
               if (m.homeTeam && activeTeams.length < 3 && !activeTeams.some(t => t.name === m.homeTeam)) {
                 activeTeams.push({
                   name: m.homeTeam,
@@ -1431,7 +1421,7 @@ function MatchesTab({
               <div>
                 <span className="text-secondary font-mono uppercase text-[11px] tracking-widest font-semibold" style={{ color: "var(--text-secondary)" }}>Active Markets</span>
                 <h3 className="text-3xl font-bold text-tertiary mt-1" style={{ color: "var(--purple)", fontFamily: "var(--font-mono)" }}>
-                  <NumberTicker value={matches ? matches.filter(m => m.status === 0).length : 0} />
+                  <NumberTicker value={matches ? matches.filter(m => m.status === 0 && m.kickoffTime > Date.now()).length : 0} />
                 </h3>
               </div>
               {/* Dynamic Avatars from Active Markets */}
@@ -1448,9 +1438,9 @@ function MatchesTab({
                     </div>
                   );
                 })}
-                {matches && matches.filter(m => m.status === 0).length > activeTeams.length && (
+                {matches && matches.filter(m => m.status === 0 && m.kickoffTime > Date.now()).length > activeTeams.length && (
                   <div className="w-8 h-8 rounded-full border-2 border-white dark:border-slate-800 bg-primary text-white text-[10px] flex items-center justify-center font-bold shadow-sm" style={{ width: 32, height: 32 }}>
-                    +{matches.filter(m => m.status === 0).length - activeTeams.length}
+                    +{matches.filter(m => m.status === 0 && m.kickoffTime > Date.now()).length - activeTeams.length}
                   </div>
                 )}
               </div>
