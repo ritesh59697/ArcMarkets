@@ -16,6 +16,8 @@ export const CRYPTO_LOGOS = {
   rndr: `${COINGECKO}/11636/small/rndr.png`,
   link: `${COINGECKO}/877/small/chainlink-new-logo.png`,
   usdc: `${COINGECKO}/6319/small/usdc.png`,
+  gold: "https://coin-images.coingecko.com/coins/images/9519/small/paxgold.png",
+  silver: "https://coin-images.coingecko.com/coins/images/29789/small/kag-currency-ticker.png",
 };
 
 /** Match team / market label → logo URL (crypto only; sports use API crests). */
@@ -31,6 +33,8 @@ const CRYPTO_PATTERNS = [
   { re: /\bai\s*token/i, logo: CRYPTO_LOGOS.fet },
   { re: /\bmeme\s*token/i, logo: CRYPTO_LOGOS.pepe },
   { re: /\busdc\b/i, logo: CRYPTO_LOGOS.usdc },
+  { re: /\bgold\b/i, logo: CRYPTO_LOGOS.gold },
+  { re: /\bsilver\b/i, logo: CRYPTO_LOGOS.silver },
 ];
 
 export function getCryptoLogo(label) {
@@ -56,6 +60,8 @@ export function isCryptoMarket(homeTeam, awayTeam, matchId = "") {
     blob.includes("token") ||
     blob.includes("above") ||
     blob.includes("outperform") ||
+    blob.includes("gold") ||
+    blob.includes("silver") ||
     blob.includes("cr_")
   );
 }
@@ -83,6 +89,12 @@ export function getMatchQuestion(homeTeam, awayTeam, matchId = "") {
     }
     if (homeTeam.toLowerCase().includes("outperforms")) {
       return `Will ETH outperform SOL in price gains by kickoff?`;
+    }
+    if (homeTeam.toLowerCase() === "gold") {
+      return `Can GOLD touch the ATH again before 2027?`;
+    }
+    if (homeTeam.toLowerCase() === "silver") {
+      return `Can Silver touch the ATH before 2027?`;
     }
     return `Will ${homeTeam} outperform ${awayTeam} in price gains by kickoff?`;
   }
