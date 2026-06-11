@@ -96,11 +96,8 @@ All contracts are live on the **Arc Testnet** (Chain ID: `5042002`):
 ### 1. Install Dependencies
 
 ```bash
-# Root workspace (Hardhat tooling)
-npm install
-
-# Frontend Next.js client
-cd frontend && npm install && cd ..
+# Install all workspace dependencies at once (both Root and Frontend)
+pnpm install
 ```
 
 ### 2. Configure Environment Variables
@@ -125,7 +122,7 @@ NEXT_PUBLIC_NFT_ADDRESS=0xEfDdb2C5788E426d0AE18a62B74a84A8c86972dE
 
 ```bash
 cd frontend
-npm run dev
+pnpm dev
 ```
 
 Navigate to [http://localhost:3000](http://localhost:3000) in your browser.

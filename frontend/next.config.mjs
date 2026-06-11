@@ -1,3 +1,5 @@
+import path from "path";
+
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   devIndicators: {
@@ -5,7 +7,7 @@ const nextConfig = {
     buildActivity: false,
   },
   turbopack: {
-    root: import.meta.dirname,
+    root: path.resolve(import.meta.dirname, ".."),
   },
   images: {
     remotePatterns: [
