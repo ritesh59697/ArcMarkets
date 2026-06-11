@@ -942,7 +942,7 @@ function FixturePreviewCard({ fixture }) {
         </span>
         <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{timeUntil(fixture.kickoffTime)}</span>
       </div>
-      
+
       {/* Centered logo matchup with team names aligned below */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, width: "100%" }}>
         {/* Home Team */}
@@ -977,7 +977,7 @@ function FixturePreviewCard({ fixture }) {
           </div>
         </div>
       </div>
-      
+
       <p style={{ fontSize: 9.5, color: "var(--text-muted)", textAlign: "center", margin: 0, lineHeight: 1.3 }}>
         Fixture from {fixture.source || "sports API"} — on-chain market opens when listed by protocol
       </p>
@@ -1361,7 +1361,7 @@ function MatchesTab({
               Explore Markets
             </button>
             <a
-              href="https://ritesh5969.gitbook.io/arcmarkets-docs/how-it-works"
+              href="https://ritesh5969.gitbook.io/arcmarkets-docs#how-it-works"
               target="_blank"
               rel="noopener noreferrer"
               className="hero-secondary-action"
@@ -1818,9 +1818,9 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
           "x-cron-secret": process.env.NEXT_PUBLIC_CRON_SECRET || "some_random_string",
         },
         body: JSON.stringify({
-          users: [{ 
-            address, 
-            riskLevel: risk, 
+          users: [{
+            address,
+            riskLevel: risk,
             budget: remainingBudget,
             sizingMethod: sizingMethod,
             customBetSize: parseFloat(customBetSize) || 10
@@ -2323,8 +2323,8 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
                   background: "linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%)",
                   border: "none",
                   color: "#ffffff",
-                  boxShadow: theme === "dark" 
-                    ? "0 4px 14px rgba(112, 159, 255, 0.35)" 
+                  boxShadow: theme === "dark"
+                    ? "0 4px 14px rgba(112, 159, 255, 0.35)"
                     : "0 4px 12px rgba(3, 86, 197, 0.25)",
                   cursor: "pointer",
                   transition: "all 0.2s ease",
