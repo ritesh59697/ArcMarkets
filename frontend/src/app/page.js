@@ -1361,7 +1361,7 @@ function MatchesTab({
               Explore Markets
             </button>
             <a
-              href="https://ritesh5969.gitbook.io/arcmarkets-docs"
+              href="https://ritesh5969.gitbook.io/arcmarkets-docs/how-it-works"
               target="_blank"
               rel="noopener noreferrer"
               className="hero-secondary-action"
