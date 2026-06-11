@@ -5,7 +5,7 @@ import { Providers } from "./providers";
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="en" data-theme="dark" suppressHydrationWarning>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
                 var stored = localStorage.getItem('arcmarkets-theme');
                 var theme = stored === 'light' || stored === 'dark'
                   ? stored
-                  : (window.matchMedia('(prefers-color-scheme: light)').matches ? 'light' : 'dark');
+                  : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
                 document.documentElement.setAttribute('data-theme', theme);
               })()
             `,

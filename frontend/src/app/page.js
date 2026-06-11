@@ -2882,7 +2882,7 @@ export default function Home() {
   const [tab, setTab] = useState("matches");
   const [modal, setModal] = useState(null);
   const [toast, setToast] = useState(null);
-  const [theme, setTheme] = useState("dark");
+  const [theme, setTheme] = useState("light");
   const [footerModal, setFooterModal] = useState(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
 
@@ -2902,9 +2902,9 @@ export default function Home() {
     const resolved =
       stored === "light" || stored === "dark"
         ? stored
-        : window.matchMedia("(prefers-color-scheme: light)").matches
-          ? "light"
-          : "dark";
+        : window.matchMedia("(prefers-color-scheme: dark)").matches
+          ? "dark"
+          : "light";
     setTheme(resolved);
     document.documentElement.setAttribute("data-theme", resolved);
 
