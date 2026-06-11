@@ -29,7 +29,7 @@ export default function RootLayout({ children }) {
                 var stored = localStorage.getItem('arcmarkets-theme');
                 var theme = stored === 'light' || stored === 'dark'
                   ? stored
-                  : (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
+                  : 'light';
                 document.documentElement.setAttribute('data-theme', theme);
               })()
             `,

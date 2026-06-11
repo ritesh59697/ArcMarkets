@@ -2907,12 +2907,7 @@ export default function Home() {
 
   useEffect(() => {
     const stored = localStorage.getItem("arcmarkets-theme");
-    const resolved =
-      stored === "light" || stored === "dark"
-        ? stored
-        : window.matchMedia("(prefers-color-scheme: dark)").matches
-          ? "dark"
-          : "light";
+    const resolved = stored === "light" || stored === "dark" ? stored : "light";
     setTheme(resolved);
     document.documentElement.setAttribute("data-theme", resolved);
 
