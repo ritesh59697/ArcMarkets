@@ -7,7 +7,7 @@ import {
   Play, Pause, RefreshCw, CheckCircle2, AlertCircle, ArrowUpRight,
   Target, Flame, Layers, Activity, Coins, CircleDot, Search,
   LogOut, Copy, ExternalLink, Info, Lock, Unlock, Timer, Sun, Moon, Menu,
-  BookOpen
+  BookOpen, User
 } from "lucide-react";
 import { useWalletContext } from "./providers";
 import { ACTIVE_NETWORK, TEAM_FLAGS, CONTRACTS } from "../utils/config";
@@ -2445,6 +2445,40 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
   const { claimWinnings, status: claimStatus } = useBetting(signer);
   const [activeSubTab, setActiveSubTab] = useState("all");
 
+  const [username, setUsername] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [tempUsername, setTempUsername] = useState("");
+  const [isCopied, setIsCopied] = useState(false);
+  const [activeSection, setActiveSection] = useState("predictions"); // "predictions" | "agent-history"
+
+  useEffect(() => {
+    if (address) {
+      const saved = localStorage.getItem(`arcmarkets_username_${address.toLowerCase()}`);
+      const fallback = `Trader_${address.slice(2, 8)}`;
+      setUsername(saved || fallback);
+      setTempUsername(saved || fallback);
+    }
+  }, [address]);
+
+  const handleSaveUsername = () => {
+    const trimmed = tempUsername.trim();
+    if (trimmed.length > 0) {
+      localStorage.setItem(`arcmarkets_username_${address.toLowerCase()}`, trimmed);
+      setUsername(trimmed);
+      setIsEditing(false);
+      onNotif("Username updated successfully!", "success");
+    } else {
+      onNotif("Username cannot be empty", "error");
+    }
+  };
+
+  const handleCopyAddress = () => {
+    navigator.clipboard.writeText(address);
+    setIsCopied(true);
+    onNotif("Address copied to clipboard!", "success");
+    setTimeout(() => setIsCopied(false), 2000);
+  };
+
   const claimable = claimableBets.reduce((acc, b) => acc + b.potentialPayout, 0);
 
   const filteredBets = (() => {
@@ -2454,18 +2488,414 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
     return bets || [];
   })();
 
+  const agentBets = bets.filter(b => b.isAgentBet) || [];
+
   if (!address) {
     return (
       <div className="card" style={{ padding: "40px 20px", textAlign: "center", color: "var(--text-muted)", display: "flex", flexDirection: "column", alignItems: "center", gap: 12 }}>
         <Wallet size={32} style={{ opacity: 0.4, color: "var(--primary)" }} />
-        <div>Connect your wallet to view your betting history and claim rewards.</div>
+        <div>Connect your wallet to view your profile, betting history, and claim rewards.</div>
       </div>
     );
   }
 
+  const renderBetCard = (bet) => {
+    const estMultiplier = bet.amount > 0 ? (bet.potentialPayout / bet.amount).toFixed(2) : "0.00";
+    const isLight = theme === "light";
+
+    // Determine card state visuals
+    let cardBorderLeft = isLight ? "4px solid rgba(10, 22, 40, 0.12)" : "4px solid rgba(255, 255, 255, 0.12)";
+    let cardBoxShadow = "var(--card-shadow)";
+    let statusBadge = null;
+    let payoutColor = "var(--text-primary)";
+    let payoutLabel = "Est. Payout";
+    let isClaimed = bet.claimed;
+    let isWinner = bet.isWinner;
+    let isLost = bet.matchStatus === 2 && !bet.isWinner;
+
+    if (bet.canClaim) {
+      cardBorderLeft = "4px solid var(--success-text)";
+      cardBoxShadow = isLight
+        ? "0 8px 24px rgba(4, 120, 87, 0.08), inset 4px 0 10px rgba(4, 120, 87, 0.03)"
+        : "0 16px 40px rgba(0, 0, 0, 0.55), inset 4px 0 10px var(--success-bg)";
+      payoutColor = "var(--success-text)";
+      payoutLabel = "Winnings";
+      statusBadge = (
+        <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "var(--success-bg)", border: "1px solid var(--success-border)", color: "var(--success-text)" }}>
+          <CheckCircle2 size={10} /> Won · Ready to Claim
+        </span>
+      );
+    } else if (isClaimed) {
+      cardBorderLeft = "4px solid var(--gold)";
+      cardBoxShadow = isLight
+        ? "0 8px 24px rgba(161, 98, 7, 0.08), inset 4px 0 10px rgba(161, 98, 7, 0.03)"
+        : "0 16px 40px rgba(0, 0, 0, 0.55), inset 4px 0 10px rgba(245, 192, 24, 0.04)";
+      payoutColor = "var(--gold)";
+      payoutLabel = "Claimed Winnings";
+      statusBadge = (
+        <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "rgba(212, 175, 55, 0.08)", border: "1px solid rgba(212, 175, 55, 0.2)", color: "var(--gold)" }}>
+          <Unlock size={10} /> Claimed
+        </span>
+      );
+    } else if (isLost) {
+      cardBorderLeft = isLight ? "4px solid rgba(10, 22, 40, 0.15)" : "4px solid rgba(255, 255, 255, 0.15)";
+      payoutColor = "var(--text-muted)";
+      payoutLabel = "Potential Payout";
+      statusBadge = (
+        <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
+          <AlertCircle size={10} style={{ opacity: 0.5 }} /> Settled (Lost)
+        </span>
+      );
+    } else if (bet.matchStatus === 0) {
+      if (bet.kickoffTime > Date.now()) {
+        cardBorderLeft = "4px solid var(--primary)";
+        cardBoxShadow = "var(--card-shadow)";
+        statusBadge = (
+          <span className="badge badge-open" style={{ gap: 5, padding: "4px 10px" }}>
+            <Clock size={10} /> Upcoming
+          </span>
+        );
+      } else {
+        cardBorderLeft = "4px solid #ff4757";
+        cardBoxShadow = isLight
+          ? "0 8px 24px rgba(185, 28, 28, 0.08), inset 4px 0 10px rgba(185, 28, 28, 0.03)"
+          : "0 16px 40px rgba(0, 0, 0, 0.55), inset 4px 0 10px rgba(255, 71, 87, 0.08)";
+        statusBadge = (
+          <span className="badge badge-live" style={{ gap: 5, padding: "4px 10px" }}>
+            <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff4757", boxShadow: "0 0 8px #ff4757", animation: "pulse-glow 2s infinite" }} /> Live Now
+          </span>
+        );
+      }
+    } else if (bet.matchStatus === 1) {
+      cardBorderLeft = "4px solid var(--border)";
+      statusBadge = (
+        <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}>
+          <Lock size={10} /> Locked · Grading
+        </span>
+      );
+    } else if (bet.matchStatus === 3) {
+      cardBorderLeft = isLight ? "4px solid rgba(10, 22, 40, 0.15)" : "4px solid rgba(255, 255, 255, 0.15)";
+      payoutColor = "var(--text-primary)";
+      payoutLabel = "Refundable";
+      statusBadge = (
+        <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}>
+          <AlertCircle size={10} /> Cancelled
+        </span>
+      );
+    }
+
+    const isSingleAsset = bet.homeTeam === "GOLD" || bet.homeTeam === "Silver";
+
+    const renderSideAvatar = (name) => {
+      const logo = getCryptoLogo(name);
+      if (logo) {
+        return (
+          <img
+            src={logo}
+            alt=""
+            style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid var(--bg-card)", objectFit: "cover" }}
+          />
+        );
+      }
+      if (isCryptoMarket(name, "")) {
+        const initial = name ? name.slice(0, 2).toUpperCase() : "";
+        return (
+          <div style={{
+            width: 26,
+            height: 26,
+            borderRadius: "50%",
+            background: "var(--primary-alpha-bg)",
+            border: "1.5px solid var(--primary)",
+            color: "var(--primary)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            fontSize: 9,
+            fontWeight: "bold",
+            fontFamily: "'JetBrains Mono', monospace",
+          }}>
+            {initial}
+          </div>
+        );
+      }
+      return <span style={{ fontSize: 18 }}>{TEAM_FLAGS[name] || "🏴"}</span>;
+    };
+
+    return (
+      <div key={bet.betId} className="card" style={{ padding: "16px 20px", borderLeft: cardBorderLeft, boxShadow: cardBoxShadow, marginBottom: 12 }}>
+        <div className="font-sans" style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
+          {/* Teams Avatar Group */}
+          <div style={{ display: "flex", alignItems: "center", position: "relative", width: 44, height: 26, flexShrink: 0 }}>
+            {isSingleAsset ? (
+              <div style={{ position: "absolute", left: 9, zIndex: 2 }}>
+                {renderSideAvatar(bet.homeTeam)}
+              </div>
+            ) : (
+              <>
+                <div style={{ position: "absolute", left: 0, zIndex: 2 }}>
+                  {renderSideAvatar(bet.homeTeam)}
+                </div>
+                <div style={{ position: "absolute", left: 16, zIndex: 1 }}>
+                  {renderSideAvatar(bet.awayTeam)}
+                </div>
+              </>
+            )}
+          </div>
+
+          {/* Info */}
+          <div style={{ flex: 1, minWidth: 200 }}>
+            <div style={{ fontSize: 13.5, fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span>{bet.homeTeam} vs {bet.awayTeam}</span>
+              {statusBadge}
+            </div>
+            <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
+              <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-secondary)" }}>Prediction:</span>
+              <span className="text-gradient-primary-purple" style={{ fontSize: 12, fontWeight: 800 }}>
+                {bet.outcomeName}
+              </span>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>@ {estMultiplier}x</span>
+              {bet.isAgentBet && (
+                <span className="badge" style={{ gap: 3, padding: "2px 6px", background: "var(--purple-alpha-bg)", border: "1px solid var(--purple-alpha-border)", color: "var(--purple)", fontSize: 9.5 }}>
+                  <Bot size={9} /> Agent
+                </span>
+              )}
+
+              <div style={{ width: 1, height: 10, background: "var(--border)", margin: "0 4px" }} />
+
+              {bet.txHash && (
+                <a
+                  href={`${ACTIVE_NETWORK.explorerUrl}/tx/${bet.txHash}`}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 3,
+                    fontSize: 10.5,
+                    color: "var(--text-secondary)",
+                    textDecoration: "none",
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
+                  onMouseLeave={e => e.currentTarget.style.color = "var(--text-secondary)"}
+                >
+                  TX <ExternalLink size={9} />
+                </a>
+              )}
+              {bet.claimed && bet.claimTxHash && (
+                <>
+                  <div style={{ width: 1, height: 10, background: "var(--border)", margin: "0 4px" }} />
+                  <a
+                    href={`${ACTIVE_NETWORK.explorerUrl}/tx/${bet.claimTxHash}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: 3,
+                      fontSize: 10.5,
+                      color: "var(--gold)",
+                      textDecoration: "none",
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
+                    onMouseLeave={e => e.currentTarget.style.color = "var(--gold)"}
+                  >
+                    Claim TX <ExternalLink size={9} />
+                  </a>
+                </>
+              )}
+            </div>
+          </div>
+
+          {/* Amount */}
+          <div style={{ textAlign: "right", paddingRight: 8, minWidth: 60 }}>
+            <div style={{ fontSize: 10.5, fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>Wager</div>
+            <div style={{ fontSize: 14.5, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: "var(--text-primary)" }}>${fmt(bet.amount)}</div>
+          </div>
+
+          <div style={{ width: 1, height: 28, background: "var(--border)" }} />
+
+          {/* Payout */}
+          <div style={{ textAlign: "right", paddingLeft: 8, paddingRight: 12, minWidth: 80 }}>
+            <div style={{ fontSize: 10.5, fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>{payoutLabel}</div>
+            <div style={{ fontSize: 14.5, fontWeight: 800, color: payoutColor, fontFamily: "'JetBrains Mono', monospace" }}>${fmt(bet.potentialPayout)}</div>
+          </div>
+
+          {/* Action */}
+          {bet.canClaim ? (
+            <button
+              className="btn-shimmer"
+              onClick={async () => {
+                onNotif(`Claiming $${fmt(bet.potentialPayout)} USDC…`, "info");
+                const txHash = await claimWinnings(bet.betId);
+                if (txHash) {
+                  addNotif(
+                    "Reward Claimed",
+                    `Claimed winnings of $${fmt(bet.potentialPayout)} USDC for match ${bet.homeTeam} vs ${bet.awayTeam}`,
+                    txHash
+                  );
+                  onNotif(
+                    <span>
+                      Claimed successfully!{" "}
+                      <a
+                        href={`${ACTIVE_NETWORK.explorerUrl}/tx/${txHash}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        style={{ color: "var(--primary)", textDecoration: "underline", marginLeft: 4 }}
+                      >
+                        Verify
+                      </a>
+                    </span>,
+                    "success"
+                  );
+                  refetchBets();
+                  refetchUsdt();
+                } else {
+                  onNotif("Claim failed", "error");
+                }
+              }}
+              style={{ gap: 6, padding: "8px 16px", height: 36, fontSize: 12, borderRadius: 8 }}
+              disabled={claimStatus === "claiming"}
+            >
+              {claimStatus === "claiming" ? <RefreshCw size={12} className="animate-spin" /> : <ArrowUpRight size={12} />} Claim
+            </button>
+          ) : null}
+        </div>
+      </div>
+    );
+  };
+
   return (
     <div className="portfolio-grid font-sans">
-      <section>
+      
+      {/* ── User Profile Header Card ── */}
+      <div className="card profile-header-card" style={{
+        gridColumn: "1 / -1",
+        display: "flex",
+        alignItems: "center",
+        justifyContent: "space-between",
+        padding: "24px 32px",
+        background: "var(--bg-card)",
+        border: "1px solid var(--border)",
+        borderRadius: 16,
+        marginBottom: 8,
+        position: "relative",
+        overflow: "hidden",
+        backdropFilter: "blur(40px) saturate(1.4)",
+        WebkitBackdropFilter: "blur(40px) saturate(1.4)",
+        flexWrap: "wrap",
+        gap: 20
+      }}>
+        <div style={{
+          position: "absolute",
+          top: 0, left: 0, right: 0, height: 3,
+          background: "linear-gradient(90deg, var(--primary) 0%, var(--purple) 100%)"
+        }} />
+        
+        <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
+          {/* Avatar */}
+          <div style={{
+            width: 60,
+            height: 60,
+            borderRadius: "50%",
+            background: "linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%)",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            color: "#ffffff",
+            fontSize: 20,
+            fontWeight: 800,
+            textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+            boxShadow: theme === "dark" ? "0 8px 24px rgba(112, 159, 255, 0.2)" : "none",
+            flexShrink: 0
+          }}>
+            {username ? username.slice(0, 2).toUpperCase() : "TR"}
+          </div>
+
+          <div>
+            {/* Username Editing */}
+            {isEditing ? (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 6 }}>
+                <input
+                  type="text"
+                  value={tempUsername}
+                  onChange={e => setTempUsername(e.target.value)}
+                  maxLength={18}
+                  className="input font-sans"
+                  style={{ height: 32, padding: "0 10px", fontSize: 13, width: 160 }}
+                  autoFocus
+                />
+                <button className="btn-primary" onClick={handleSaveUsername} style={{ height: 30, padding: "0 10px", borderRadius: 6, fontSize: 11 }}>Save</button>
+                <button className="btn-ghost" onClick={() => { setTempUsername(username); setIsEditing(false); }} style={{ height: 30, padding: "0 10px", borderRadius: 6, fontSize: 11 }}>Cancel</button>
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 4 }}>
+                <h2 style={{ fontSize: 19, fontWeight: 700, margin: 0, color: "var(--text-primary)" }}>{username}</h2>
+                <button
+                  onClick={() => setIsEditing(true)}
+                  style={{
+                    background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer",
+                    display: "flex", alignItems: "center", padding: 4, borderRadius: 4
+                  }}
+                  onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
+                  onMouseLeave={e => e.currentTarget.style.color = "var(--text-secondary)"}
+                  title="Edit Username"
+                >
+                  <Settings size={13} />
+                </button>
+              </div>
+            )}
+
+            {/* Address copier */}
+            <div style={{ display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
+              <span className="font-mono" style={{ fontSize: 11.5, color: "var(--text-secondary)", letterSpacing: "0.02em" }}>
+                {address.slice(0, 8)}...{address.slice(-6)}
+              </span>
+              <button
+                onClick={handleCopyAddress}
+                style={{
+                  background: "var(--border-bright)", border: "1px solid var(--border)", color: "var(--text-secondary)",
+                  cursor: "pointer", display: "flex", alignItems: "center", gap: 4, padding: "2px 7px", borderRadius: 6,
+                  fontSize: 10, fontWeight: 700
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
+                onMouseLeave={e => e.currentTarget.style.color = "var(--text-secondary)"}
+              >
+                <Copy size={9} /> {isCopied ? "Copied!" : "Copy"}
+              </button>
+              <a
+                href={`${ACTIVE_NETWORK.explorerUrl}/address/${address}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                style={{
+                  background: "var(--border-bright)", border: "1px solid var(--border)", color: "var(--text-secondary)",
+                  display: "flex", alignItems: "center", gap: 4, padding: "2px 7px", borderRadius: 6,
+                  fontSize: 10, fontWeight: 700, textDecoration: "none"
+                }}
+                onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
+                onMouseLeave={e => e.currentTarget.style.color = "var(--text-secondary)"}
+              >
+                Explorer <ExternalLink size={9} />
+              </a>
+            </div>
+          </div>
+        </div>
+
+        {/* Bets statistics badge */}
+        <div style={{ display: "flex", gap: 24, flexWrap: "wrap" }}>
+          <div>
+            <div style={{ fontSize: 9.5, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3, fontWeight: 600 }}>Total Predictions</div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: "var(--text-primary)", fontFamily: "'JetBrains Mono', monospace" }}>{bets.length}</div>
+          </div>
+          <div style={{ width: 1, height: 32, background: "var(--border)" }} />
+          <div>
+            <div style={{ fontSize: 9.5, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.08em", marginBottom: 3, fontWeight: 600 }}>AI Agent Trades</div>
+            <div style={{ fontSize: 17, fontWeight: 800, color: "var(--purple)", fontFamily: "'JetBrains Mono', monospace" }}>{agentBets.length}</div>
+          </div>
+        </div>
+      </div>
+
+      {/* ── Main Tab Contents ── */}
+      <section style={{ minWidth: 0 }}>
         {/* Stats */}
         <div className="portfolio-stats-container">
           {[
@@ -2509,351 +2939,190 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
           ))}
         </div>
 
-        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, flexWrap: "wrap", gap: 16 }}>
-          <h2 className="font-serif" style={{ fontSize: 22, fontWeight: 400, letterSpacing: "-0.01em", margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
-            <Wallet size={18} style={{ color: "var(--primary)" }} /> My Bets
-          </h2>
-
-          {/* Sub-tab pill selectors */}
-          <div style={{
-            display: "flex",
-            gap: 4,
-            background: "rgba(255, 255, 255, 0.03)",
-            border: "1px solid var(--border)",
-            padding: 3,
-            borderRadius: 10,
-            overflowX: "auto",
-            WebkitOverflowScrolling: "touch",
-            scrollbarWidth: "none",
-            msOverflowStyle: "none",
-          }} className="no-scrollbar">
-            {[
-              { id: "all", label: "All", count: (bets || []).length },
-              { id: "active", label: "Active & Live", count: (pendingBets || []).length },
-              { id: "claimable", label: "Claimable", count: (claimableBets || []).length, highlight: (claimableBets || []).length > 0 },
-              { id: "history", label: "History", count: (settledBets || []).filter(b => !b.canClaim).length }
-            ].map(tab => (
-              <button
-                key={tab.id}
-                onClick={() => setActiveSubTab(tab.id)}
-                className="font-sans"
-                style={{
-                  padding: "6px 12px",
-                  borderRadius: 7,
-                  fontSize: 12,
-                  fontWeight: activeSubTab === tab.id ? 700 : 500,
-                  color: activeSubTab === tab.id
-                    ? "var(--text-primary)"
-                    : tab.highlight
-                      ? "var(--gold)"
-                      : "var(--text-secondary)",
-                  background: activeSubTab === tab.id
-                    ? "rgba(255, 255, 255, 0.08)"
-                    : "transparent",
-                  border: "none",
-                  cursor: "pointer",
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 5,
-                  transition: "all 0.15s ease",
-                  flexShrink: 0,
-                }}
-              >
-                {tab.label}
-                <span style={{
-                  fontSize: 10,
-                  padding: "1px 5px",
-                  borderRadius: 99,
-                  background: activeSubTab === tab.id
-                    ? "var(--primary)"
-                    : tab.highlight
-                      ? "rgba(212, 175, 55, 0.15)"
-                      : "rgba(255, 255, 255, 0.05)",
-                  color: activeSubTab === tab.id
-                    ? "#000"
-                    : tab.highlight
-                      ? "var(--gold)"
-                      : "var(--text-muted)",
-                  fontWeight: 700
-                }}>
-                  {tab.count}
-                </span>
-              </button>
-            ))}
-          </div>
+        {/* Profile Tabs Navigation */}
+        <div style={{ display: "flex", borderBottom: "1px solid var(--border)", marginBottom: 20, gap: 24 }}>
+          <button
+            onClick={() => setActiveSection("predictions")}
+            style={{
+              background: "none",
+              border: "none",
+              borderBottom: activeSection === "predictions" ? "2px solid var(--primary)" : "2px solid transparent",
+              paddingBottom: 10,
+              fontSize: 14,
+              fontWeight: activeSection === "predictions" ? 700 : 500,
+              color: activeSection === "predictions" ? "var(--text-primary)" : "var(--text-secondary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "all 0.15s"
+            }}
+          >
+            <Layers size={14} /> My Predictions
+          </button>
+          <button
+            onClick={() => setActiveSection("agent-history")}
+            style={{
+              background: "none",
+              border: "none",
+              borderBottom: activeSection === "agent-history" ? "2px solid var(--purple)" : "2px solid transparent",
+              paddingBottom: 10,
+              fontSize: 14,
+              fontWeight: activeSection === "agent-history" ? 700 : 500,
+              color: activeSection === "agent-history" ? "var(--text-primary)" : "var(--text-secondary)",
+              cursor: "pointer",
+              display: "flex",
+              alignItems: "center",
+              gap: 6,
+              transition: "all 0.15s"
+            }}
+          >
+            <Bot size={14} /> AI Agent History
+          </button>
         </div>
 
+        {/* Prediction Slips Filter Pill Selectors — Only shown in predictions tab */}
+        {activeSection === "predictions" && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, flexWrap: "wrap", gap: 16 }}>
+            <h2 className="font-serif" style={{ fontSize: 18, fontWeight: 400, letterSpacing: "-0.01em", margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
+              <Wallet size={16} style={{ color: "var(--primary)" }} /> Prediction slips
+            </h2>
+
+            <div style={{
+              display: "flex",
+              gap: 4,
+              background: "rgba(255, 255, 255, 0.03)",
+              border: "1px solid var(--border)",
+              padding: 3,
+              borderRadius: 10,
+              overflowX: "auto",
+              WebkitOverflowScrolling: "touch",
+              scrollbarWidth: "none",
+              msOverflowStyle: "none",
+            }} className="no-scrollbar">
+              {[
+                { id: "all", label: "All", count: (bets || []).length },
+                { id: "active", label: "Active & Live", count: (pendingBets || []).length },
+                { id: "claimable", label: "Claimable", count: (claimableBets || []).length, highlight: (claimableBets || []).length > 0 },
+                { id: "history", label: "History", count: (settledBets || []).filter(b => !b.canClaim).length }
+              ].map(tab => (
+                <button
+                  key={tab.id}
+                  onClick={() => setActiveSubTab(tab.id)}
+                  className="font-sans"
+                  style={{
+                    padding: "6px 12px",
+                    borderRadius: 7,
+                    fontSize: 11.5,
+                    fontWeight: activeSubTab === tab.id ? 700 : 500,
+                    color: activeSubTab === tab.id
+                      ? "var(--text-primary)"
+                      : tab.highlight
+                        ? "var(--gold)"
+                        : "var(--text-secondary)",
+                    background: activeSubTab === tab.id
+                      ? "rgba(255, 255, 255, 0.08)"
+                      : "transparent",
+                    border: "none",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 5,
+                    transition: "all 0.15s ease",
+                    flexShrink: 0,
+                  }}
+                >
+                  {tab.label}
+                  <span style={{
+                    fontSize: 10,
+                    padding: "1px 5px",
+                    borderRadius: 99,
+                    background: activeSubTab === tab.id
+                      ? "var(--primary)"
+                      : tab.highlight
+                        ? "rgba(212, 175, 55, 0.15)"
+                        : "rgba(255, 255, 255, 0.05)",
+                    color: activeSubTab === tab.id
+                      ? "#000"
+                      : tab.highlight
+                        ? "var(--gold)"
+                        : "var(--text-muted)",
+                    fontWeight: 700
+                  }}>
+                    {tab.count}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {/* AI Agent History Tab Header */}
+        {activeSection === "agent-history" && (
+          <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18 }}>
+            <h2 className="font-serif" style={{ fontSize: 18, fontWeight: 400, letterSpacing: "-0.01em", margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
+              <Bot size={16} style={{ color: "var(--purple)" }} /> Autonomous Trades
+            </h2>
+            <span style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 600 }}>Total executed: {agentBets.length}</span>
+          </div>
+        )}
+
+        {/* Dashboard Lists */}
         <div style={{ display: "flex", flexDirection: "column", gap: 12, minHeight: 400 }}>
           {loading ? (
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center", height: 150, color: "var(--primary)", gap: 8 }}>
               <RefreshCw size={18} className="animate-spin" />
-              <span style={{ fontSize: 12, fontWeight: 500 }}>Fetching bets...</span>
+              <span style={{ fontSize: 12, fontWeight: 500 }}>Loading trade history...</span>
             </div>
-          ) : filteredBets.length === 0 ? (
-            <div className="card" style={{ padding: "48px 20px", textAlign: "center", color: "var(--text-muted)", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
-              <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)", display: "flex", alignItems: "center", justifyContent: "center" }}>
-                <CircleDot size={24} style={{ opacity: 0.6, color: "var(--primary)" }} />
-              </div>
-              <div>
-                <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>
-                  {activeSubTab === "active" && "No active or live bets"}
-                  {activeSubTab === "claimable" && "No rewards to claim"}
-                  {activeSubTab === "history" && "No settled history"}
-                  {activeSubTab === "all" && "No bets placed yet"}
+          ) : activeSection === "predictions" ? (
+            filteredBets.length === 0 ? (
+              <div className="card" style={{ padding: "48px 20px", textAlign: "center", color: "var(--text-muted)", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <CircleDot size={24} style={{ opacity: 0.6, color: "var(--primary)" }} />
                 </div>
-                <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-                  {activeSubTab === "active" && "Your active/live prediction slips will appear here."}
-                  {activeSubTab === "claimable" && "When match predictions end in your favor, claim your USDC wins here!"}
-                  {activeSubTab === "history" && "Settled, lost, and fully claimed tickets are listed here."}
-                  {activeSubTab === "all" && "Pick a match and make your first prediction to earn USDC."}
-                </div>
-              </div>
-              {activeSubTab === "all" && (
-                <a href="#" onClick={e => { e.preventDefault(); document.querySelector('[data-tab="matches"]')?.click(); }} style={{ textDecoration: "none" }}>
-                  <button className="btn-primary" style={{ borderRadius: 10, marginTop: 4 }}>
-                    <BarChart3 size={14} /> Browse Markets
-                  </button>
-                </a>
-              )}
-            </div>
-          ) : (
-            filteredBets.map(bet => {
-              const estMultiplier = bet.amount > 0 ? (bet.potentialPayout / bet.amount).toFixed(2) : "0.00";
-
-              const isLight = theme === "light";
-
-              // Determine card state visuals
-              let cardBorderLeft = isLight ? "4px solid rgba(10, 22, 40, 0.12)" : "4px solid rgba(255, 255, 255, 0.12)";
-              let cardBoxShadow = "var(--card-shadow)";
-              let statusBadge = null;
-              let payoutColor = "var(--text-primary)";
-              let payoutLabel = "Est. Payout";
-              let isClaimed = bet.claimed;
-              let isWinner = bet.isWinner;
-              let isLost = bet.matchStatus === 2 && !bet.isWinner;
-
-              if (bet.canClaim) {
-                // Claimable / Won but unclaimed
-                cardBorderLeft = "4px solid var(--success-text)"; // Neon/emerald green
-                cardBoxShadow = isLight
-                  ? "0 8px 24px rgba(4, 120, 87, 0.08), inset 4px 0 10px rgba(4, 120, 87, 0.03)"
-                  : "0 16px 40px rgba(0, 0, 0, 0.55), inset 4px 0 10px var(--success-bg)";
-                payoutColor = "var(--success-text)";
-                payoutLabel = "Winnings";
-                statusBadge = (
-                  <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "var(--success-bg)", border: "1px solid var(--success-border)", color: "var(--success-text)" }}>
-                    <CheckCircle2 size={10} /> Won · Ready to Claim
-                  </span>
-                );
-              } else if (isClaimed) {
-                // Won and Claimed
-                cardBorderLeft = "4px solid var(--gold)";
-                cardBoxShadow = isLight
-                  ? "0 8px 24px rgba(161, 98, 7, 0.08), inset 4px 0 10px rgba(161, 98, 7, 0.03)"
-                  : "0 16px 40px rgba(0, 0, 0, 0.55), inset 4px 0 10px rgba(245, 192, 24, 0.04)";
-                payoutColor = "var(--gold)";
-                payoutLabel = "Claimed Winnings";
-                statusBadge = (
-                  <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "rgba(212, 175, 55, 0.08)", border: "1px solid rgba(212, 175, 55, 0.2)", color: "var(--gold)" }}>
-                    <Unlock size={10} /> Claimed
-                  </span>
-                );
-              } else if (isLost) {
-                // Lost
-                cardBorderLeft = isLight ? "4px solid rgba(10, 22, 40, 0.15)" : "4px solid rgba(255, 255, 255, 0.15)";
-                payoutColor = "var(--text-muted)";
-                payoutLabel = "Potential Payout";
-                statusBadge = (
-                  <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", color: "var(--text-muted)" }}>
-                    <AlertCircle size={10} style={{ opacity: 0.5 }} /> Settled (Lost)
-                  </span>
-                );
-              } else if (bet.matchStatus === 0) {
-                if (bet.kickoffTime > Date.now()) {
-                  // Upcoming / Open
-                  cardBorderLeft = "4px solid var(--primary)"; // Cyan
-                  cardBoxShadow = "var(--card-shadow)";
-                  statusBadge = (
-                    <span className="badge badge-open" style={{ gap: 5, padding: "4px 10px" }}>
-                      <Clock size={10} /> Upcoming
-                    </span>
-                  );
-                } else {
-                  // Live Now
-                  cardBorderLeft = "4px solid #ff4757"; // Pulsing red
-                  cardBoxShadow = isLight
-                    ? "0 8px 24px rgba(185, 28, 28, 0.08), inset 4px 0 10px rgba(185, 28, 28, 0.03)"
-                    : "0 16px 40px rgba(0, 0, 0, 0.55), inset 4px 0 10px rgba(255, 71, 87, 0.08)";
-                  statusBadge = (
-                    <span className="badge badge-live" style={{ gap: 5, padding: "4px 10px" }}>
-                      <span className="pulse-dot" style={{ width: 6, height: 6, borderRadius: "50%", background: "#ff4757", boxShadow: "0 0 8px #ff4757", animation: "pulse-glow 2s infinite" }} /> Live Now
-                    </span>
-                  );
-                }
-              } else if (bet.matchStatus === 1) {
-                // Locked
-                cardBorderLeft = "4px solid var(--border)";
-                statusBadge = (
-                  <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "rgba(255,255,255,0.04)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}>
-                    <Lock size={10} /> Locked · Grading
-                  </span>
-                );
-              } else if (bet.matchStatus === 3) {
-                // Cancelled
-                cardBorderLeft = isLight ? "4px solid rgba(10, 22, 40, 0.15)" : "4px solid rgba(255, 255, 255, 0.15)";
-                payoutColor = "var(--text-primary)";
-                payoutLabel = "Refundable";
-                statusBadge = (
-                  <span className="badge" style={{ gap: 5, padding: "4px 10px", background: "rgba(255,255,255,0.05)", border: "1px solid var(--border)", color: "var(--text-secondary)" }}>
-                    <AlertCircle size={10} /> Cancelled
-                  </span>
-                );
-              }
-
-              return (
-                <div key={bet.betId} className="card" style={{ padding: "16px 20px", borderLeft: cardBorderLeft, boxShadow: cardBoxShadow }}>
-                  <div className="font-sans" style={{ display: "flex", alignItems: "center", gap: 14, flexWrap: "wrap" }}>
-
-                    {/* Teams Avatar Group */}
-                    <div style={{ display: "flex", alignItems: "center", position: "relative", width: 44, height: 26, flexShrink: 0 }}>
-                      <div style={{ position: "absolute", left: 0, zIndex: 2 }}>
-                        {getCryptoLogo(bet.homeTeam) ? (
-                          <img src={getCryptoLogo(bet.homeTeam)} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid var(--bg-card)", objectFit: "cover" }} />
-                        ) : (
-                          <span style={{ fontSize: 18 }}>{TEAM_FLAGS[bet.homeTeam] || "🏴"}</span>
-                        )}
-                      </div>
-                      <div style={{ position: "absolute", left: 16, zIndex: 1 }}>
-                        {getCryptoLogo(bet.awayTeam) ? (
-                          <img src={getCryptoLogo(bet.awayTeam)} alt="" style={{ width: 26, height: 26, borderRadius: "50%", border: "2px solid var(--bg-card)", objectFit: "cover" }} />
-                        ) : (
-                          <span style={{ fontSize: 18 }}>{TEAM_FLAGS[bet.awayTeam] || "🏴"}</span>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Info */}
-                    <div style={{ flex: 1, minWidth: 200 }}>
-                      <div style={{ fontSize: 13.5, fontWeight: 700, marginBottom: 4, display: "flex", alignItems: "center", gap: 8, flexWrap: "wrap" }}>
-                        <span>{bet.homeTeam} vs {bet.awayTeam}</span>
-                        {statusBadge}
-                      </div>
-                      <div style={{ display: "flex", alignItems: "center", gap: 6, flexWrap: "wrap" }}>
-                        <span style={{ fontSize: 11, fontWeight: 600, color: "var(--text-secondary)" }}>Prediction:</span>
-                        <span className="text-gradient-primary-purple" style={{ fontSize: 12, fontWeight: 800 }}>
-                          {bet.outcomeName}
-                        </span>
-                        <span style={{ fontSize: 11, color: "var(--text-muted)", fontFamily: "'JetBrains Mono', monospace", fontWeight: 700 }}>@ {estMultiplier}x</span>
-                        {bet.isAgentBet && (
-                          <span className="badge" style={{ gap: 3, padding: "2px 6px", background: "var(--purple-alpha-bg)", border: "1px solid var(--purple-alpha-border)", color: "var(--purple)", fontSize: 9.5 }}>
-                            <Bot size={9} /> Agent
-                          </span>
-                        )}
-
-                        <div style={{ width: 1, height: 10, background: "var(--border)", margin: "0 4px" }} />
-
-                        {bet.txHash && (
-                          <a
-                            href={`${ACTIVE_NETWORK.explorerUrl}/tx/${bet.txHash}`}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            style={{
-                              display: "inline-flex",
-                              alignItems: "center",
-                              gap: 3,
-                              fontSize: 10.5,
-                              color: "var(--text-secondary)",
-                              textDecoration: "none",
-                            }}
-                            onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
-                            onMouseLeave={e => e.currentTarget.style.color = "var(--text-secondary)"}
-                          >
-                            TX <ExternalLink size={9} />
-                          </a>
-                        )}
-                        {bet.claimed && bet.claimTxHash && (
-                          <>
-                            <div style={{ width: 1, height: 10, background: "var(--border)", margin: "0 4px" }} />
-                            <a
-                              href={`${ACTIVE_NETWORK.explorerUrl}/tx/${bet.claimTxHash}`}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: 3,
-                                fontSize: 10.5,
-                                color: "var(--gold)",
-                                textDecoration: "none",
-                              }}
-                              onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
-                              onMouseLeave={e => e.currentTarget.style.color = "var(--gold)"}
-                            >
-                              Claim TX <ExternalLink size={9} />
-                            </a>
-                          </>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Amount */}
-                    <div style={{ textAlign: "right", paddingRight: 8, minWidth: 60 }}>
-                      <div style={{ fontSize: 10.5, fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>Wager</div>
-                      <div style={{ fontSize: 14.5, fontWeight: 700, fontFamily: "'JetBrains Mono', monospace", color: "var(--text-primary)" }}>${fmt(bet.amount)}</div>
-                    </div>
-
-                    <div style={{ width: 1, height: 28, background: "var(--border)" }} />
-
-                    {/* Payout */}
-                    <div style={{ textAlign: "right", paddingLeft: 8, paddingRight: 12, minWidth: 80 }}>
-                      <div style={{ fontSize: 10.5, fontWeight: 600, color: "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.06em", marginBottom: 2 }}>{payoutLabel}</div>
-                      <div style={{ fontSize: 14.5, fontWeight: 800, color: payoutColor, fontFamily: "'JetBrains Mono', monospace" }}>${fmt(bet.potentialPayout)}</div>
-                    </div>
-
-                    {/* Action */}
-                    {bet.canClaim ? (
-                      <button
-                        className="btn-shimmer"
-                        onClick={async () => {
-                          onNotif(`Claiming $${fmt(bet.potentialPayout)} USDC…`, "info");
-                          const txHash = await claimWinnings(bet.betId);
-                          if (txHash) {
-                            addNotif(
-                              "Reward Claimed",
-                              `Claimed winnings of $${fmt(bet.potentialPayout)} USDC for match ${bet.homeTeam} vs ${bet.awayTeam}`,
-                              txHash
-                            );
-                            onNotif(
-                              <span>
-                                Claimed successfully!{" "}
-                                <a
-                                  href={`${ACTIVE_NETWORK.explorerUrl}/tx/${txHash}`}
-                                  target="_blank"
-                                  rel="noopener noreferrer"
-                                  style={{ color: "var(--primary)", textDecoration: "underline", marginLeft: 4 }}
-                                >
-                                  Verify
-                                </a>
-                              </span>,
-                              "success"
-                            );
-                            refetchBets();
-                            refetchUsdt();
-                          } else {
-                            onNotif("Claim failed", "error");
-                          }
-                        }}
-                        style={{ gap: 6, padding: "8px 16px", height: 36, fontSize: 12, borderRadius: 8 }}
-                        disabled={claimStatus === "claiming"}
-                      >
-                        {claimStatus === "claiming" ? <RefreshCw size={12} className="animate-spin" /> : <ArrowUpRight size={12} />} Claim
-                      </button>
-                    ) : null}
-
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>
+                    {activeSubTab === "active" && "No active or live predictions"}
+                    {activeSubTab === "claimable" && "No winnings to claim"}
+                    {activeSubTab === "history" && "No settled history"}
+                    {activeSubTab === "all" && "No predictions placed yet"}
+                  </div>
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+                    {activeSubTab === "active" && "Your active/live prediction slips will appear here."}
+                    {activeSubTab === "claimable" && "When match predictions end in your favor, claim your USDC wins here!"}
+                    {activeSubTab === "history" && "Settled, lost, and fully claimed tickets are listed here."}
+                    {activeSubTab === "all" && "Pick a market and make your first prediction to earn USDC."}
                   </div>
                 </div>
-              );
-            })
+                {activeSubTab === "all" && (
+                  <button onClick={() => document.querySelector('[data-tab="matches"]')?.click()} className="btn-primary" style={{ borderRadius: 10, marginTop: 4 }}>
+                    <BarChart3 size={14} /> Browse Markets
+                  </button>
+                )}
+              </div>
+            ) : (
+              filteredBets.map(bet => renderBetCard(bet))
+            )
+          ) : (
+            /* Agent History tab contents */
+            agentBets.length === 0 ? (
+              <div className="card" style={{ padding: "48px 20px", textAlign: "center", color: "var(--text-muted)", display: "flex", flexDirection: "column", alignItems: "center", gap: 14 }}>
+                <div style={{ width: 56, height: 56, borderRadius: "50%", background: "var(--purple-alpha-bg)", border: "1px solid var(--purple-alpha-border)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <Bot size={24} style={{ opacity: 0.6, color: "var(--purple)" }} />
+                </div>
+                <div>
+                  <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 6 }}>No AI Agent Bets Placed Yet</div>
+                  <div style={{ fontSize: 13, color: "var(--text-secondary)" }}>
+                    Authorize the AI Betting Agent and run a cycle to execute autonomous trades on-chain!
+                  </div>
+                </div>
+                <button onClick={() => document.querySelector('[data-tab="agent"]')?.click()} className="btn-primary" style={{ borderRadius: 10, marginTop: 4, background: "linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%)", border: "none" }}>
+                  Go to AI Agent Setup
+                </button>
+              </div>
+            ) : (
+              agentBets.map(bet => renderBetCard(bet))
+            )
           )}
         </div>
       </section>
@@ -3033,7 +3302,7 @@ export default function Home() {
   const TABS = [
     { id: "matches", label: "Markets", icon: <BarChart3 size={14} /> },
     { id: "agent", label: "AI Agent", icon: <Bot size={14} /> },
-    { id: "portfolio", label: "Portfolio", icon: <Wallet size={14} /> },
+    { id: "portfolio", label: "Profile", icon: <User size={14} /> },
     { id: "leaderboard", label: "Leaderboard", icon: <Trophy size={14} /> },
   ];
 
