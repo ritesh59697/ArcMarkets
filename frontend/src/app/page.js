@@ -3225,6 +3225,7 @@ export default function Home() {
   const [avatarUrl, setAvatarUrl] = useState("");
   const [showAvatarEdit, setShowAvatarEdit] = useState(false);
   const [tempAvatarUrl, setTempAvatarUrl] = useState("");
+  const [isDragging, setIsDragging] = useState(false);
 
   // Sync avatar url and temp avatar url
   useEffect(() => {
@@ -3345,6 +3346,56 @@ export default function Home() {
       notify(wallet.error, "error");
     }
   }, [wallet.error, notify]);
+
+  const previewInitials = (() => {
+    if (wallet.address) {
+      const saved = localStorage.getItem(`arcmarkets_username_${wallet.address.toLowerCase()}`);
+      const name = saved || `Trader_${wallet.address.slice(2, 8)}`;
+      return name.slice(0, 2).toUpperCase();
+    }
+    return "TR";
+  })();
+
+  const handleAvatarFileUpload = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        notify("Image file size must be less than 2MB", "error");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setTempAvatarUrl(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const handleDragOver = (e) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = () => {
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e) => {
+    e.preventDefault();
+    setIsDragging(false);
+    const file = e.dataTransfer.files?.[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        notify("Image file size must be less than 2MB", "error");
+        return;
+      }
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        setTempAvatarUrl(event.target.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   const openBet = (match, outcome) => {
     if (!wallet.isConnected) { notify("Connect your wallet first!", "error"); return; }
@@ -3818,18 +3869,72 @@ export default function Home() {
               </button>
             </div>
 
-            <div>
-              <label style={{ display: "block", fontSize: 11, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Custom Image URL</label>
-              <input
-                type="text"
-                placeholder="https://example.com/avatar.png"
-                value={tempAvatarUrl}
-                onChange={e => setTempAvatarUrl(e.target.value)}
-                className="input"
-                style={{ width: "100%", height: 38, padding: "0 12px", fontSize: 13, borderRadius: 8, background: "var(--surface-container)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
-              />
+            {/* Live Preview */}
+            <div style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8 }}>
+              <div style={{
+                width: 80,
+                height: 80,
+                borderRadius: "50%",
+                background: tempAvatarUrl ? "none" : "linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                color: "#ffffff",
+                fontSize: 26,
+                fontWeight: 800,
+                textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+                boxShadow: "0 8px 24px rgba(0,0,0,0.3)",
+                overflow: "hidden",
+                border: "3.5px solid var(--primary)",
+                position: "relative"
+              }}>
+                {tempAvatarUrl ? (
+                  <img src={tempAvatarUrl} alt="Preview" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                ) : (
+                  previewInitials
+                )}
+              </div>
+              <span style={{ fontSize: 11, color: "var(--text-secondary)", fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Preview</span>
             </div>
 
+            {/* Upload Zone */}
+            <div>
+              <label style={{ display: "block", fontSize: 11, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Upload Local Picture</label>
+              <div
+                onDragOver={handleDragOver}
+                onDragLeave={handleDragLeave}
+                onDrop={handleDrop}
+                onClick={() => document.getElementById("avatar-file-input").click()}
+                style={{
+                  border: isDragging ? "2px dashed var(--primary)" : "2px dashed var(--border)",
+                  borderRadius: 12,
+                  padding: "20px 16px",
+                  textAlign: "center",
+                  cursor: "pointer",
+                  background: isDragging ? "rgba(112, 159, 255, 0.08)" : "rgba(255, 255, 255, 0.01)",
+                  transition: "all 0.2s ease",
+                  position: "relative",
+                  boxShadow: isDragging ? "0 0 12px rgba(112, 159, 255, 0.2)" : "none"
+                }}
+              >
+                <input
+                  type="file"
+                  id="avatar-file-input"
+                  accept="image/*"
+                  onChange={handleAvatarFileUpload}
+                  style={{ display: "none" }}
+                />
+                <Camera size={24} style={{ color: isDragging ? "var(--primary)" : "var(--text-secondary)", marginBottom: 8, transition: "color 0.2s" }} />
+                <div style={{ fontSize: 12.5, fontWeight: 700, color: "var(--text-primary)" }}>
+                  {isDragging ? "Drop your image here!" : "Drag & drop or click to upload"}
+                </div>
+                <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>
+                  Supports PNG, JPG, GIF (Max 2MB)
+                </div>
+              </div>
+            </div>
+
+            {/* Preset Avatars */}
             <div>
               <label style={{ display: "block", fontSize: 11, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Preset Avatars</label>
               <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
@@ -3859,6 +3964,19 @@ export default function Home() {
                   </button>
                 ))}
               </div>
+            </div>
+
+            {/* Custom URL Option */}
+            <div>
+              <label style={{ display: "block", fontSize: 11, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Custom Image URL</label>
+              <input
+                type="text"
+                placeholder="https://example.com/avatar.png"
+                value={tempAvatarUrl.startsWith("data:") ? "" : tempAvatarUrl}
+                onChange={e => setTempAvatarUrl(e.target.value)}
+                className="input"
+                style={{ width: "100%", height: 38, padding: "0 12px", fontSize: 13, borderRadius: 8, background: "var(--surface-container)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+              />
             </div>
 
             <div style={{ display: "flex", gap: 12, marginTop: 10 }}>
