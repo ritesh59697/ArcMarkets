@@ -7,7 +7,7 @@ import {
   Play, Pause, RefreshCw, CheckCircle2, AlertCircle, ArrowUpRight,
   Target, Flame, Layers, Activity, Coins, CircleDot, Search,
   LogOut, Copy, ExternalLink, Info, Lock, Unlock, Timer, Sun, Moon, Menu,
-  BookOpen, User
+  BookOpen, User, Camera
 } from "lucide-react";
 import { useWalletContext } from "./providers";
 import { ACTIVE_NETWORK, TEAM_FLAGS, CONTRACTS } from "../utils/config";
@@ -2440,7 +2440,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
 }
 
 // ─── Portfolio Tab ────────────────────────────────────────────────────────────
-function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLeaderboard, userBetsState, theme }) {
+function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLeaderboard, userBetsState, theme, avatarUrl, setShowAvatarEdit }) {
   const { bets, loading, totalPnl, totalBetAmount, pendingBets, claimableBets, settledBets, refetch: refetchBets } = userBetsState;
   const { claimWinnings, status: claimStatus } = useBetting(signer);
   const [activeSubTab, setActiveSubTab] = useState("all");
@@ -2793,22 +2793,54 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
         
         <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           {/* Avatar */}
-          <div style={{
-            width: 60,
-            height: 60,
-            borderRadius: "50%",
-            background: "linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-            color: "#ffffff",
-            fontSize: 20,
-            fontWeight: 800,
-            textShadow: "0 2px 4px rgba(0,0,0,0.2)",
-            boxShadow: theme === "dark" ? "0 8px 24px rgba(112, 159, 255, 0.2)" : "none",
-            flexShrink: 0
-          }}>
-            {username ? username.slice(0, 2).toUpperCase() : "TR"}
+          <div style={{ position: "relative", flexShrink: 0 }}>
+            <div style={{
+              width: 60,
+              height: 60,
+              borderRadius: "50%",
+              background: avatarUrl ? "none" : "linear-gradient(135deg, var(--primary) 0%, var(--purple) 100%)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              color: "#ffffff",
+              fontSize: 20,
+              fontWeight: 800,
+              textShadow: "0 2px 4px rgba(0,0,0,0.2)",
+              boxShadow: theme === "dark" ? "0 8px 24px rgba(112, 159, 255, 0.2)" : "none",
+              overflow: "hidden",
+              border: "2px solid var(--border)",
+              flexShrink: 0
+            }}>
+              {avatarUrl ? (
+                <img src={avatarUrl} alt="Avatar" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+              ) : (
+                username ? username.slice(0, 2).toUpperCase() : "TR"
+              )}
+            </div>
+            
+            {/* Edit overlay icon */}
+            <button
+              onClick={() => setShowAvatarEdit(true)}
+              style={{
+                position: "absolute",
+                bottom: -2,
+                right: -2,
+                width: 22,
+                height: 22,
+                borderRadius: "50%",
+                background: "var(--surface-container)",
+                border: "1px solid var(--border)",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                cursor: "pointer",
+                color: "var(--text-primary)",
+                boxShadow: "0 2px 6px rgba(0,0,0,0.3)"
+              }}
+              title="Edit Avatar"
+            >
+              <Camera size={11} />
+            </button>
           </div>
 
           <div>
@@ -2853,7 +2885,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
               <button
                 onClick={handleCopyAddress}
                 style={{
-                  background: "var(--border-bright)", border: "1px solid var(--border)", color: "var(--text-secondary)",
+                  background: "var(--surface-container)", border: "1px solid var(--border)", color: "var(--text-secondary)",
                   cursor: "pointer", display: "flex", alignItems: "center", gap: 4, padding: "2px 7px", borderRadius: 6,
                   fontSize: 10, fontWeight: 700
                 }}
@@ -2867,7 +2899,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                 target="_blank"
                 rel="noopener noreferrer"
                 style={{
-                  background: "var(--border-bright)", border: "1px solid var(--border)", color: "var(--text-secondary)",
+                  background: "var(--surface-container)", border: "1px solid var(--border)", color: "var(--text-secondary)",
                   display: "flex", alignItems: "center", gap: 4, padding: "2px 7px", borderRadius: 6,
                   fontSize: 10, fontWeight: 700, textDecoration: "none"
                 }}
@@ -3126,7 +3158,6 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
           )}
         </div>
       </section>
-
       <LeaderboardSidebar onViewAll={onGoLeaderboard} />
     </div>
   );
@@ -3189,6 +3220,27 @@ export default function Home() {
   const [theme, setTheme] = useState("light");
   const [footerModal, setFooterModal] = useState(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  // Avatar states
+  const [avatarUrl, setAvatarUrl] = useState("");
+  const [showAvatarEdit, setShowAvatarEdit] = useState(false);
+  const [tempAvatarUrl, setTempAvatarUrl] = useState("");
+
+  // Sync avatar url and temp avatar url
+  useEffect(() => {
+    if (wallet.address) {
+      const savedAvatar = localStorage.getItem(`arcmarkets_avatar_${wallet.address.toLowerCase()}`);
+      setAvatarUrl(savedAvatar || "");
+    } else {
+      setAvatarUrl("");
+    }
+  }, [wallet.address]);
+
+  useEffect(() => {
+    if (showAvatarEdit) {
+      setTempAvatarUrl(avatarUrl);
+    }
+  }, [showAvatarEdit, avatarUrl]);
 
   // Notification history state
   const [notifications, setNotifications] = useState([]);
@@ -3675,6 +3727,8 @@ export default function Home() {
               onGoLeaderboard={() => setTab("leaderboard")}
               userBetsState={userBetsState}
               theme={theme}
+              avatarUrl={avatarUrl}
+              setShowAvatarEdit={setShowAvatarEdit}
             />
           )}
           {tab === "leaderboard" && <LeaderboardTab theme={theme} />}
@@ -3726,6 +3780,124 @@ export default function Home() {
 
         {/* Sticky Mobile Navigation (replaced by top hamburger menu) */}
       </div>
+
+      {/* ── Edit Avatar Modal ── */}
+      {showAvatarEdit && wallet.address && (
+        <div style={{
+          position: "fixed",
+          top: 0, left: 0, right: 0, bottom: 0,
+          background: "rgba(0, 0, 0, 0.75)",
+          backdropFilter: "blur(12px)",
+          zIndex: 10000,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+        }}>
+          <div className="card font-sans" style={{
+            width: "100%",
+            maxWidth: 400,
+            padding: 28,
+            background: "var(--bg-card)",
+            border: "1px solid var(--border)",
+            boxShadow: "0 24px 64px rgba(0,0,0,0.7)",
+            borderRadius: 16,
+            display: "flex",
+            flexDirection: "column",
+            gap: 20,
+            position: "relative"
+          }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+              <h3 style={{ margin: 0, fontSize: 16.5, fontWeight: 800, color: "var(--text-primary)" }}>Edit Profile Picture</h3>
+              <button
+                onClick={() => setShowAvatarEdit(false)}
+                style={{ background: "none", border: "none", color: "var(--text-secondary)", cursor: "pointer", display: "flex", padding: 4 }}
+                onMouseEnter={e => e.currentTarget.style.color = "var(--primary)"}
+                onMouseLeave={e => e.currentTarget.style.color = "var(--text-secondary)"}
+              >
+                <X size={16} />
+              </button>
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 11, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Custom Image URL</label>
+              <input
+                type="text"
+                placeholder="https://example.com/avatar.png"
+                value={tempAvatarUrl}
+                onChange={e => setTempAvatarUrl(e.target.value)}
+                className="input"
+                style={{ width: "100%", height: 38, padding: "0 12px", fontSize: 13, borderRadius: 8, background: "var(--surface-container)", border: "1px solid var(--border)", color: "var(--text-primary)" }}
+              />
+            </div>
+
+            <div>
+              <label style={{ display: "block", fontSize: 11, color: "var(--text-secondary)", marginBottom: 8, fontWeight: 700, textTransform: "uppercase", letterSpacing: "0.05em" }}>Preset Avatars</label>
+              <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+                {[
+                  "https://images.unsplash.com/photo-1618005182384-a83a8bd57fbe?w=120&auto=format&fit=crop&q=60", // Abstract Wave
+                  "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&auto=format&fit=crop&q=60", // Futuristic Mesh
+                  "https://images.unsplash.com/photo-1614741118887-7a4ee193a5fa?w=120&auto=format&fit=crop&q=60", // Code Matrix
+                  "https://images.unsplash.com/photo-1620641788421-7a1c342ea42e?w=120&auto=format&fit=crop&q=60"  // Neon Glow
+                ].map((url, i) => (
+                  <button
+                    key={i}
+                    onClick={() => setTempAvatarUrl(url)}
+                    style={{
+                      width: 50,
+                      height: 50,
+                      borderRadius: "50%",
+                      border: tempAvatarUrl === url ? "2.5px solid var(--primary)" : "1.5px solid var(--border)",
+                      overflow: "hidden",
+                      padding: 0,
+                      cursor: "pointer",
+                      background: "none",
+                      boxShadow: tempAvatarUrl === url ? "0 0 10px var(--primary)" : "none",
+                      transition: "all 0.15s ease"
+                    }}
+                  >
+                    <img src={url} alt="" style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div style={{ display: "flex", gap: 12, marginTop: 10 }}>
+              <button
+                onClick={() => {
+                  localStorage.removeItem(`arcmarkets_avatar_${wallet.address.toLowerCase()}`);
+                  setAvatarUrl("");
+                  setShowAvatarEdit(false);
+                  notify("Profile picture reset to initials", "success");
+                }}
+                className="btn-ghost"
+                style={{ flex: 1, height: 38, borderRadius: 8, fontSize: 12, fontWeight: 700 }}
+              >
+                Reset
+              </button>
+              <button
+                onClick={() => {
+                  const trimmed = tempAvatarUrl.trim();
+                  if (trimmed) {
+                    localStorage.setItem(`arcmarkets_avatar_${wallet.address.toLowerCase()}`, trimmed);
+                    setAvatarUrl(trimmed);
+                    setShowAvatarEdit(false);
+                    notify("Profile picture updated", "success");
+                  } else {
+                    localStorage.removeItem(`arcmarkets_avatar_${wallet.address.toLowerCase()}`);
+                    setAvatarUrl("");
+                    setShowAvatarEdit(false);
+                    notify("Profile picture reset to initials", "success");
+                  }
+                }}
+                className="btn-primary"
+                style={{ flex: 1, height: 38, borderRadius: 8, fontSize: 12, fontWeight: 700 }}
+              >
+                Save
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* ── Info Modal ── */}
       {footerModal && (
