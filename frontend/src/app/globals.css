@@ -1767,6 +1767,13 @@ nextjs-portal {
     padding: 6px 10px !important;
     font-size: 11px !important;
   }
+  body::before,
+  body::after,
+  .grid-bg {
+    bottom: auto !important;
+    height: 100vh !important;
+    height: 100lvh !important;
+  }
 }
 
 /* Compact mobile bottom nav items on smaller viewports */
