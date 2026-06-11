@@ -1294,8 +1294,10 @@ function MatchesTab({
   }
 
   const filtered = matches.filter(m => {
-    // Hide ended matches (status: 2 = RESOLVED, 3 = CANCELLED)
-    if (m.status === 2 || m.status === 3) return false;
+    // Hide ended or closed matches (status !== 0: Open)
+    if (m.status !== 0) return false;
+    // Hide matches where kickoff time has already passed
+    if (m.kickoffTime <= Date.now()) return false;
     return !search || m.homeTeam.toLowerCase().includes(search.toLowerCase()) || m.awayTeam.toLowerCase().includes(search.toLowerCase());
   });
 
@@ -1764,14 +1766,15 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
   }, [logs]);
 
   const analyze = async () => {
-    if (!matches || matches.length === 0) {
-      onNotif("No matches available to analyze.", "error");
+    const liveMatches = (matches || []).filter(m => m.status === 0 && m.kickoffTime > Date.now());
+    if (liveMatches.length === 0) {
+      onNotif("No live matches available to analyze.", "error");
       return;
     }
     setAn(true); addLog("[Scan] Running EV analysis across all markets…", "var(--terminal-info)");
     try {
       const currentBudget = isAuthorized ? remainingBudget : (parseFloat(budget) || 0);
-      const results = await Promise.all(matches.map(async m => {
+      const results = await Promise.all(liveMatches.map(async m => {
         const r = await fetch("/api/agent-analysis", {
           method: "POST", headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
