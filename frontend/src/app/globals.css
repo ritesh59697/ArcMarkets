@@ -1148,7 +1148,7 @@ body::after {
 /* Agent tab responsive container */
 .agent-tab-container {
   display: grid;
-  grid-template-columns: 1fr 400px;
+  grid-template-columns: 1fr 1.25fr;
   gap: 28px;
   width: 100%;
   max-width: 100%;

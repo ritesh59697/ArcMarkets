@@ -237,10 +237,18 @@ export default function MatchProDashboard({
       </div>
 
       {/* Market Description Card */}
-      <div className="card" style={{ padding: "16px 24px", display: "flex", gap: 12, alignItems: "center", background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)" }}>
-        <Info size={16} style={{ color: "var(--primary)", flexShrink: 0 }} />
-        <div style={{ fontSize: 13, color: "var(--text-secondary)", lineHeight: 1.4 }}>
-          <strong>Market Rule:</strong>{" "}
+      <div className="card" style={{
+        padding: "14px 20px",
+        display: "flex",
+        gap: 12,
+        alignItems: "flex-start",
+        background: theme === "dark" ? "rgba(4, 18, 56, 0.97)" : "var(--primary-alpha-bg)",
+        border: theme === "dark" ? "1px solid rgba(100, 160, 255, 0.40)" : "1px solid var(--primary-alpha-border)",
+        boxShadow: theme === "dark" ? "0 4px 20px rgba(0,0,0,0.5)" : "none",
+      }}>
+        <Info size={15} style={{ color: "var(--primary)", flexShrink: 0, marginTop: 2 }} />
+        <div style={{ fontSize: 13, color: theme === "dark" ? "#e8f0ff" : "var(--text-primary)", lineHeight: 1.65, fontWeight: 450 }}>
+          <strong style={{ color: theme === "dark" ? "#7eb8ff" : "var(--primary)", fontWeight: 700 }}>Market Rule:</strong>{" "}
           {isCryptoMarket(match.homeTeam, match.awayTeam, match.matchId) ? (
             (match.homeTeam.toLowerCase().includes("outperforms") || match.homeTeam.toLowerCase().includes("above") || match.homeTeam.toLowerCase().includes("below")) ? (
               `Predict the outcome of this crypto market. Outcomes are graded based on the precise price conditions of ${match.homeTeam} vs ${match.awayTeam} at the scheduled kickoff time.`

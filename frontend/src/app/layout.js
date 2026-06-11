@@ -9,8 +9,8 @@ export default function RootLayout({ children }) {
       <head>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <meta name="description" content="ArcMarkets - live sports and crypto prediction markets on Arc Testnet, settled in USDC." />
-        <title>ArcMarkets — On-Chain Predictions on Arc</title>
+        <meta name="description" content="ArcMarkets| live sports and crypto prediction markets on Arc Testnet, settled in USDC." />
+        <title>ArcMarkets - On-Chain Predictions on Arc</title>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="preconnect" href="https://api.fontshare.com" />

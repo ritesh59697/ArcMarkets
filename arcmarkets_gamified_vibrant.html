@@ -1,14 +1,22 @@
 <!DOCTYPE html>
 
-<html class="light" lang="en"><head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>ArcMarkets | Predict Win On-Chain</title>
-<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
-<script id="tailwind-config">
+<html class="light" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <title>ArcMarkets | Predict Win On-Chain</title>
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Manrope:wght@600;700;800&amp;family=JetBrains+Mono:wght@500&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap"
+        rel="stylesheet" />
+    <script id="tailwind-config">
         tailwind.config = {
             darkMode: "class",
             theme: {
@@ -100,404 +108,489 @@
             },
         }
     </script>
-<style>
+    <style>
         .gamified-card {
             transition: transform 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.2s ease;
             box-shadow: 0 8px 0 0 rgba(0, 0, 0, 0.05);
         }
+
         .gamified-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 12px 0 0 rgba(0, 0, 0, 0.08);
         }
+
         .gamified-card:active {
             transform: translateY(2px);
             box-shadow: 0 4px 0 0 rgba(0, 0, 0, 0.05);
         }
+
         .pulse-live {
             animation: pulse-ring 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
         }
+
         @keyframes pulse-ring {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: .5; transform: scale(1.05); }
+
+            0%,
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            50% {
+                opacity: .5;
+                transform: scale(1.05);
+            }
         }
+
         .gradient-mesh {
             background-color: #f7f9fb;
-            background-image: 
+            background-image:
                 radial-gradient(at 0% 0%, rgba(37, 99, 235, 0.1) 0px, transparent 50%),
                 radial-gradient(at 100% 100%, rgba(123, 209, 250, 0.1) 0px, transparent 50%);
         }
+
         .progress-fill {
             transition: width 1s ease-in-out;
         }
     </style>
 </head>
+
 <body class="bg-background text-on-background font-body-base gradient-mesh min-h-screen">
-<!-- TopNavBar -->
-<header class="w-full top-0 sticky z-50 bg-surface border-b border-outline-variant">
-<div class="max-w-container-max mx-auto flex items-center justify-between px-gutter py-4">
-<div class="flex items-center gap-8">
-<span class="text-title-md font-title-md font-bold text-primary">ArcMarkets</span>
-<nav class="hidden md:flex items-center gap-6">
-<a class="text-primary border-b-2 border-primary pb-1 font-semibold" href="#">Markets</a>
-<a class="text-secondary hover:text-primary transition-colors" href="#">AI Agent</a>
-<a class="text-secondary hover:text-primary transition-colors" href="#">Portfolio</a>
-<a class="text-secondary hover:text-primary transition-colors" href="#">Leaderboard</a>
-</nav>
-</div>
-<div class="flex items-center gap-4">
-<button class="hidden md:flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full font-semibold transition-all active:scale-95">
-<span class="material-symbols-outlined text-[20px]">search</span>
-<span>Search Markets</span>
-</button>
-<button class="px-6 py-2.5 bg-primary text-on-primary rounded-full font-bold shadow-lg hover:opacity-90 transition-all active:scale-95">
+    <!-- TopNavBar -->
+    <header class="w-full top-0 sticky z-50 bg-surface border-b border-outline-variant">
+        <div class="max-w-container-max mx-auto flex items-center justify-between px-gutter py-4">
+            <div class="flex items-center gap-8">
+                <span class="text-title-md font-title-md font-bold text-primary">ArcMarkets</span>
+                <nav class="hidden md:flex items-center gap-6">
+                    <a class="text-primary border-b-2 border-primary pb-1 font-semibold" href="#">Markets</a>
+                    <a class="text-secondary hover:text-primary transition-colors" href="#">AI Agent</a>
+                    <a class="text-secondary hover:text-primary transition-colors" href="#">Portfolio</a>
+                    <a class="text-secondary hover:text-primary transition-colors" href="#">Leaderboard</a>
+                </nav>
+            </div>
+            <div class="flex items-center gap-4">
+                <button
+                    class="hidden md:flex items-center gap-2 px-4 py-2 bg-secondary-container text-on-secondary-container rounded-full font-semibold transition-all active:scale-95">
+                    <span class="material-symbols-outlined text-[20px]">search</span>
+                    <span>Search Markets</span>
+                </button>
+                <button
+                    class="px-6 py-2.5 bg-primary text-on-primary rounded-full font-bold shadow-lg hover:opacity-90 transition-all active:scale-95">
                     Connect Wallet
                 </button>
-</div>
-</div>
-</header>
-<main class="max-w-container-max mx-auto px-gutter py-stack-lg">
-<!-- Hero Section -->
-<section class="mb-stack-lg relative overflow-hidden rounded-2xl bg-primary-container p-12 flex flex-col md:flex-row items-center justify-between text-on-primary-container">
-<div class="z-10 md:w-1/2 space-y-6 text-center md:text-left">
-<div class="inline-flex items-center gap-2 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm">
-<span class="pulse-live w-2 h-2 bg-red-400 rounded-full"></span>
-<span class="font-label-mono text-[12px] uppercase tracking-wider">Live &amp; On-Chain</span>
-</div>
-<h1 class="font-display-lg text-display-lg leading-tight">Predict the Future, <br/><span class="text-tertiary-fixed">Win the Rewards.</span></h1>
-<p class="text-body-base text-on-primary-container/80 max-w-md">The most high-octane decentralized prediction market. Gamified analytics, real-time odds, and instant payouts.</p>
-<div class="flex flex-wrap gap-4 justify-center md:justify-start">
-<button class="px-8 py-4 bg-white text-primary rounded-xl font-bold text-lg shadow-xl hover:scale-105 transition-transform">Explore Markets</button>
-<button class="px-8 py-4 bg-transparent border-2 border-white/30 text-white rounded-xl font-bold text-lg hover:bg-white/10 transition-all">How it Works</button>
-</div>
-</div>
-<div class="md:w-1/2 mt-12 md:mt-0 relative">
-<div class="relative z-10 w-full aspect-square max-w-[400px] mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 transform rotate-3">
-<img class="w-full h-full object-cover" data-alt="A vibrant 3D digital illustration of a futuristic glowing crystal ball floating in a high-tech sports stadium environment. The scene is filled with electric purple and cyan neon lights, showing digital data streams flowing through the air. The mood is energetic, playful, and technologically advanced, resembling a premium mobile gaming interface with high-key lighting and a sense of excitement." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyyUn7taEGDWaO9B0Zwr_I0iRnUkH4AFw4fGqLTDd7NgiXVJ1d2m48maPYUErqniksprkuHj24DSeTmAGq_nkQ2OgE-H0sYeXtKebJtNmMULUxIQgc7al4QXo-wkPKUD23u1jElelxxbcBMAsPKgZSyQAv6iWjvAC12aZGXgPBzOljMZ2mWaOSgpXoB2r1wqMLEy9HxhxurVu4QnK0bdeIYJp3JFC6x7MnJrAhTaR_cICCYsOj-YvqDHQGwMNnphWJPnWCB7Rotw"/>
-</div>
-<!-- Decorative elements -->
-<div class="absolute -top-10 -right-10 w-32 h-32 bg-tertiary-fixed rounded-full blur-3xl opacity-30"></div>
-<div class="absolute -bottom-10 -left-10 w-48 h-48 bg-primary rounded-full blur-3xl opacity-40"></div>
-</div>
-</section>
-<!-- Stats Grid (Bento) -->
-<div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-stack-lg">
-<div class="md:col-span-1 bg-surface-container-lowest p-6 rounded-2xl gamified-card border border-outline-variant flex flex-col justify-between">
-<div>
-<span class="text-secondary font-label-mono uppercase text-[12px] tracking-widest">Global Vol</span>
-<h3 class="text-stat-lg font-stat-lg text-primary">$12.4M</h3>
-</div>
-<div class="mt-4 flex items-center gap-2 text-green-600 font-bold">
-<span class="material-symbols-outlined">trending_up</span>
-<span>+12.5%</span>
-</div>
-</div>
-<div class="md:col-span-1 bg-surface-container-lowest p-6 rounded-2xl gamified-card border border-outline-variant flex flex-col justify-between">
-<div>
-<span class="text-secondary font-label-mono uppercase text-[12px] tracking-widest">Active Markets</span>
-<h3 class="text-stat-lg font-stat-lg text-tertiary">1,842</h3>
-</div>
-<div class="mt-4 flex -space-x-3">
-<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200"></div>
-<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-300"></div>
-<div class="w-8 h-8 rounded-full border-2 border-white bg-slate-400"></div>
-<div class="w-8 h-8 rounded-full border-2 border-white bg-primary text-white text-[10px] flex items-center justify-center font-bold">+40</div>
-</div>
-</div>
-<div class="md:col-span-2 bg-gradient-to-br from-tertiary to-tertiary-container p-6 rounded-2xl gamified-card text-white flex items-center justify-between">
-<div class="space-y-2">
-<span class="font-label-mono uppercase text-[12px] opacity-80">Your Rank Progress</span>
-<h3 class="text-title-md font-bold">Gold League Elite</h3>
-<div class="w-64 h-3 bg-white/20 rounded-full overflow-hidden mt-4">
-<div class="progress-fill h-full bg-tertiary-fixed" style="width: 72%"></div>
-</div>
-<p class="text-[12px] opacity-80">280 XP until Platinum</p>
-</div>
-<span class="material-symbols-outlined text-[64px] opacity-30" style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
-</div>
-</div>
-<!-- Section Title -->
-<div class="flex items-center justify-between mb-8">
-<div class="flex items-center gap-4">
-<div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
-<span class="material-symbols-outlined">local_fire_department</span>
-</div>
-<div>
-<h2 class="font-headline-lg text-title-md text-on-surface">Featured Markets</h2>
-<p class="text-secondary text-sm">Hottest predictions in the ecosystem right now.</p>
-</div>
-</div>
-<div class="flex gap-2">
-<button class="p-3 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary hover:text-white transition-all">
-<span class="material-symbols-outlined">chevron_left</span>
-</button>
-<button class="p-3 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary hover:text-white transition-all">
-<span class="material-symbols-outlined">chevron_right</span>
-</button>
-</div>
-</div>
-<!-- Market Cards Grid -->
-<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
-<!-- Market Card 1 -->
-<div class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant gamified-card">
-<div class="p-5 border-b border-outline-variant flex justify-between items-center">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-red-500 pulse-live"></span>
-<span class="font-label-mono text-[10px] font-bold text-red-500 uppercase tracking-tighter">Live Now</span>
-</div>
-<span class="text-[12px] text-secondary font-semibold">Ends in 02h 45m</span>
-</div>
-<div class="p-6 space-y-6">
-<div class="flex justify-between items-center">
-<div class="text-center space-y-2">
-<div class="w-16 h-16 rounded-full bg-surface-container p-2 flex items-center justify-center shadow-inner">
-<img class="w-12 h-12 object-contain" data-alt="A stylized professional football club logo with bright blue and white colors, featuring clean vector lines and a modern athletic aesthetic. The logo is displayed on a high-gloss 3D badge with studio lighting." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWvP0UPfjB2ch-fyXduoquc474SDjwAbF-jL4ThaH-vxO-IsVcQX2mgarocYKcgc7iTwtlZhsAtVYdRCdq6f64YAamtcLo-dtwTMrXiYiF7BBGwrdXHUyQ0SECnJR5ouMNyJczgCnT-62x_M9eYbc6zT7_LUgQsZYDilxJDQGPeu1zT2cJtdFXTfWfw5nD7BT4zmRT620fmV6-zOkgILo3_A5qhFJ3NWLH9MH7oqdYGDGe96mqJOl2_4ECYo1NxLkirZcUUOKUww"/>
-</div>
-<p class="text-[12px] font-bold">Manchester City</p>
-</div>
-<div class="text-title-md font-bold text-outline-variant italic">VS</div>
-<div class="text-center space-y-2">
-<div class="w-16 h-16 rounded-full bg-surface-container p-2 flex items-center justify-center shadow-inner">
-<img class="w-12 h-12 object-contain" data-alt="A professional basketball team emblem with fiery orange and black colors, featuring a clean bold mascot illustration. The design is rendered as a 3D digital asset with vibrant color saturation." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8PuToULtDCv1tPAATzsEXR_EVtYKBek6vz4kUcR8yoHgRVBn94JPuiN-Alqhfo4NgRg-m4hgbHskIbu4OlEawkIoX3fkiFwlor56DzklBgPoq-eTiP8MbA0mffpTu0Ham-8Ya_JkCBDbbWpdn3PrQ6sUE8220H--dxQnp22Gc7uGWI8T5jsqNOXqxn3Y1hY3Nye6UcTH9ne4uGYK0wipc2E29EJxY1WyCmjpW-ypOUBGcv6ZeTpNI2ObQEbFtLz91RnuynlbKyg"/>
-</div>
-<p class="text-[12px] font-bold">Arsenal</p>
-</div>
-</div>
-<h4 class="text-center font-bold text-lg">Who will win the Premier League match?</h4>
-<div class="grid grid-cols-2 gap-4">
-<button class="group p-4 rounded-xl border-2 border-outline-variant hover:border-primary hover:bg-primary/5 transition-all text-center">
-<span class="block text-secondary text-[12px] group-hover:text-primary">Win Odds</span>
-<span class="block font-bold text-xl text-primary">1.85x</span>
-</button>
-<button class="group p-4 rounded-xl border-2 border-outline-variant hover:border-tertiary hover:bg-tertiary/5 transition-all text-center">
-<span class="block text-secondary text-[12px] group-hover:text-tertiary">Win Odds</span>
-<span class="block font-bold text-xl text-tertiary">2.10x</span>
-</button>
-</div>
-</div>
-<div class="px-6 pb-6">
-<button class="w-full py-4 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
+            </div>
+        </div>
+    </header>
+    <main class="max-w-container-max mx-auto px-gutter py-stack-lg">
+        <!-- Hero Section -->
+        <section
+            class="mb-stack-lg relative overflow-hidden rounded-2xl bg-primary-container p-12 flex flex-col md:flex-row items-center justify-between text-on-primary-container">
+            <div class="z-10 md:w-1/2 space-y-6 text-center md:text-left">
+                <div class="inline-flex items-center gap-2 px-4 py-1 bg-white/20 rounded-full backdrop-blur-sm">
+                    <span class="pulse-live w-2 h-2 bg-red-400 rounded-full"></span>
+                    <span class="font-label-mono text-[12px] uppercase tracking-wider">Live &amp; On-Chain</span>
+                </div>
+                <h1 class="font-display-lg text-display-lg leading-tight">Predict the Future, <br /><span
+                        class="text-tertiary-fixed">Win the Rewards.</span></h1>
+                <p class="text-body-base text-on-primary-container/80 max-w-md">The most high-octane decentralized
+                    prediction market. Gamified analytics, real-time odds, and instant payouts.</p>
+                <div class="flex flex-wrap gap-4 justify-center md:justify-start">
+                    <button
+                        class="px-8 py-4 bg-white text-primary rounded-xl font-bold text-lg shadow-xl hover:scale-105 transition-transform">Explore
+                        Markets</button>
+                    <button
+                        class="px-8 py-4 bg-transparent border-2 border-white/30 text-white rounded-xl font-bold text-lg hover:bg-white/10 transition-all">How
+                        it Works</button>
+                </div>
+            </div>
+            <div class="md:w-1/2 mt-12 md:mt-0 relative">
+                <div
+                    class="relative z-10 w-full aspect-square max-w-[400px] mx-auto rounded-3xl overflow-hidden shadow-2xl border-4 border-white/20 transform rotate-3">
+                    <img class="w-full h-full object-cover"
+                        data-alt="A vibrant 3D digital illustration of a futuristic glowing crystal ball floating in a high-tech sports stadium environment. The scene is filled with electric purple and cyan neon lights, showing digital data streams flowing through the air. The mood is energetic, playful, and technologically advanced, resembling a premium mobile gaming interface with high-key lighting and a sense of excitement."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuDyyUn7taEGDWaO9B0Zwr_I0iRnUkH4AFw4fGqLTDd7NgiXVJ1d2m48maPYUErqniksprkuHj24DSeTmAGq_nkQ2OgE-H0sYeXtKebJtNmMULUxIQgc7al4QXo-wkPKUD23u1jElelxxbcBMAsPKgZSyQAv6iWjvAC12aZGXgPBzOljMZ2mWaOSgpXoB2r1wqMLEy9HxhxurVu4QnK0bdeIYJp3JFC6x7MnJrAhTaR_cICCYsOj-YvqDHQGwMNnphWJPnWCB7Rotw" />
+                </div>
+                <!-- Decorative elements -->
+                <div class="absolute -top-10 -right-10 w-32 h-32 bg-tertiary-fixed rounded-full blur-3xl opacity-30">
+                </div>
+                <div class="absolute -bottom-10 -left-10 w-48 h-48 bg-primary rounded-full blur-3xl opacity-40"></div>
+            </div>
+        </section>
+        <!-- Stats Grid (Bento) -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-6 mb-stack-lg">
+            <div
+                class="md:col-span-1 bg-surface-container-lowest p-6 rounded-2xl gamified-card border border-outline-variant flex flex-col justify-between">
+                <div>
+                    <span class="text-secondary font-label-mono uppercase text-[12px] tracking-widest">Global Vol</span>
+                    <h3 class="text-stat-lg font-stat-lg text-primary">$12.4M</h3>
+                </div>
+                <div class="mt-4 flex items-center gap-2 text-green-600 font-bold">
+                    <span class="material-symbols-outlined">trending_up</span>
+                    <span>+12.5%</span>
+                </div>
+            </div>
+            <div
+                class="md:col-span-1 bg-surface-container-lowest p-6 rounded-2xl gamified-card border border-outline-variant flex flex-col justify-between">
+                <div>
+                    <span class="text-secondary font-label-mono uppercase text-[12px] tracking-widest">Active
+                        Markets</span>
+                    <h3 class="text-stat-lg font-stat-lg text-tertiary">1,842</h3>
+                </div>
+                <div class="mt-4 flex -space-x-3">
+                    <div class="w-8 h-8 rounded-full border-2 border-white bg-slate-200"></div>
+                    <div class="w-8 h-8 rounded-full border-2 border-white bg-slate-300"></div>
+                    <div class="w-8 h-8 rounded-full border-2 border-white bg-slate-400"></div>
+                    <div
+                        class="w-8 h-8 rounded-full border-2 border-white bg-primary text-white text-[10px] flex items-center justify-center font-bold">
+                        +40</div>
+                </div>
+            </div>
+            <div
+                class="md:col-span-2 bg-gradient-to-br from-tertiary to-tertiary-container p-6 rounded-2xl gamified-card text-white flex items-center justify-between">
+                <div class="space-y-2">
+                    <span class="font-label-mono uppercase text-[12px] opacity-80">Your Rank Progress</span>
+                    <h3 class="text-title-md font-bold">Gold League Elite</h3>
+                    <div class="w-64 h-3 bg-white/20 rounded-full overflow-hidden mt-4">
+                        <div class="progress-fill h-full bg-tertiary-fixed" style="width: 72%"></div>
+                    </div>
+                    <p class="text-[12px] opacity-80">280 XP until Platinum</p>
+                </div>
+                <span class="material-symbols-outlined text-[64px] opacity-30"
+                    style="font-variation-settings: 'FILL' 1;">workspace_premium</span>
+            </div>
+        </div>
+        <!-- Section Title -->
+        <div class="flex items-center justify-between mb-8">
+            <div class="flex items-center gap-4">
+                <div class="w-12 h-12 bg-primary rounded-xl flex items-center justify-center text-white shadow-lg">
+                    <span class="material-symbols-outlined">local_fire_department</span>
+                </div>
+                <div>
+                    <h2 class="font-headline-lg text-title-md text-on-surface">Featured Markets</h2>
+                    <p class="text-secondary text-sm">Hottest predictions in the ecosystem right now.</p>
+                </div>
+            </div>
+            <div class="flex gap-2">
+                <button
+                    class="p-3 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary hover:text-white transition-all">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <button
+                    class="p-3 rounded-full bg-surface-container-high text-on-surface-variant hover:bg-primary hover:text-white transition-all">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+        </div>
+        <!-- Market Cards Grid -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+            <!-- Market Card 1 -->
+            <div
+                class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant gamified-card">
+                <div class="p-5 border-b border-outline-variant flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="w-2 h-2 rounded-full bg-red-500 pulse-live"></span>
+                        <span class="font-label-mono text-[10px] font-bold text-red-500 uppercase tracking-tighter">Live
+                            Now</span>
+                    </div>
+                    <span class="text-[12px] text-secondary font-semibold">Ends in 02h 45m</span>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="flex justify-between items-center">
+                        <div class="text-center space-y-2">
+                            <div
+                                class="w-16 h-16 rounded-full bg-surface-container p-2 flex items-center justify-center shadow-inner">
+                                <img class="w-12 h-12 object-contain"
+                                    data-alt="A stylized professional football club logo with bright blue and white colors, featuring clean vector lines and a modern athletic aesthetic. The logo is displayed on a high-gloss 3D badge with studio lighting."
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWvP0UPfjB2ch-fyXduoquc474SDjwAbF-jL4ThaH-vxO-IsVcQX2mgarocYKcgc7iTwtlZhsAtVYdRCdq6f64YAamtcLo-dtwTMrXiYiF7BBGwrdXHUyQ0SECnJR5ouMNyJczgCnT-62x_M9eYbc6zT7_LUgQsZYDilxJDQGPeu1zT2cJtdFXTfWfw5nD7BT4zmRT620fmV6-zOkgILo3_A5qhFJ3NWLH9MH7oqdYGDGe96mqJOl2_4ECYo1NxLkirZcUUOKUww" />
+                            </div>
+                            <p class="text-[12px] font-bold">Manchester City</p>
+                        </div>
+                        <div class="text-title-md font-bold text-outline-variant italic">VS</div>
+                        <div class="text-center space-y-2">
+                            <div
+                                class="w-16 h-16 rounded-full bg-surface-container p-2 flex items-center justify-center shadow-inner">
+                                <img class="w-12 h-12 object-contain"
+                                    data-alt="A professional basketball team emblem with fiery orange and black colors, featuring a clean bold mascot illustration. The design is rendered as a 3D digital asset with vibrant color saturation."
+                                    src="https://lh3.googleusercontent.com/aida-public/AB6AXuA8PuToULtDCv1tPAATzsEXR_EVtYKBek6vz4kUcR8yoHgRVBn94JPuiN-Alqhfo4NgRg-m4hgbHskIbu4OlEawkIoX3fkiFwlor56DzklBgPoq-eTiP8MbA0mffpTu0Ham-8Ya_JkCBDbbWpdn3PrQ6sUE8220H--dxQnp22Gc7uGWI8T5jsqNOXqxn3Y1hY3Nye6UcTH9ne4uGYK0wipc2E29EJxY1WyCmjpW-ypOUBGcv6ZeTpNI2ObQEbFtLz91RnuynlbKyg" />
+                            </div>
+                            <p class="text-[12px] font-bold">Arsenal</p>
+                        </div>
+                    </div>
+                    <h4 class="text-center font-bold text-lg">Who will win the Premier League match?</h4>
+                    <div class="grid grid-cols-2 gap-4">
+                        <button
+                            class="group p-4 rounded-xl border-2 border-outline-variant hover:border-primary hover:bg-primary/5 transition-all text-center">
+                            <span class="block text-secondary text-[12px] group-hover:text-primary">Win Odds</span>
+                            <span class="block font-bold text-xl text-primary">1.85x</span>
+                        </button>
+                        <button
+                            class="group p-4 rounded-xl border-2 border-outline-variant hover:border-tertiary hover:bg-tertiary/5 transition-all text-center">
+                            <span class="block text-secondary text-[12px] group-hover:text-tertiary">Win Odds</span>
+                            <span class="block font-bold text-xl text-tertiary">2.10x</span>
+                        </button>
+                    </div>
+                </div>
+                <div class="px-6 pb-6">
+                    <button
+                        class="w-full py-4 bg-primary text-white rounded-xl font-bold shadow-lg shadow-primary/20 hover:scale-[1.02] active:scale-95 transition-all">
                         Place Prediction
                     </button>
-</div>
-</div>
-<!-- Market Card 2 -->
-<div class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant gamified-card">
-<div class="p-5 border-b border-outline-variant flex justify-between items-center">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-primary text-[18px]">currency_bitcoin</span>
-<span class="font-label-mono text-[10px] font-bold text-primary uppercase">Crypto Market</span>
-</div>
-<span class="text-[12px] text-secondary font-semibold italic">Liquidity: $450k</span>
-</div>
-<div class="p-6 space-y-6">
-<div class="flex flex-col items-center gap-4">
-<div class="w-24 h-24 relative">
-<div class="absolute inset-0 bg-orange-500/20 rounded-full animate-ping"></div>
-<div class="relative w-full h-full bg-orange-500 rounded-full flex items-center justify-center text-white shadow-xl">
-<span class="material-symbols-outlined text-[48px]" style="font-variation-settings: 'FILL' 1;">currency_bitcoin</span>
-</div>
-</div>
-<h4 class="text-center font-bold text-lg">Will BTC close above $75,000 by Friday?</h4>
-</div>
-<div class="flex flex-col gap-3">
-<div class="flex items-center justify-between text-sm mb-1">
-<span class="font-bold text-green-600 uppercase">YES 64%</span>
-<span class="font-bold text-red-600 uppercase">36% NO</span>
-</div>
-<div class="w-full h-4 bg-surface-container rounded-full overflow-hidden flex">
-<div class="h-full bg-green-500" style="width: 64%"></div>
-<div class="h-full bg-red-500" style="width: 36%"></div>
-</div>
-</div>
-<div class="grid grid-cols-2 gap-4 pt-2">
-<button class="p-3 bg-green-100 text-green-700 rounded-lg font-bold border-b-4 border-green-200 active:border-b-0 active:translate-y-1 transition-all">Buy YES</button>
-<button class="p-3 bg-red-100 text-red-700 rounded-lg font-bold border-b-4 border-red-200 active:border-b-0 active:translate-y-1 transition-all">Buy NO</button>
-</div>
-</div>
-</div>
-<!-- Market Card 3 (Pop Culture) -->
-<div class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant gamified-card">
-<div class="p-5 border-b border-outline-variant flex justify-between items-center">
-<div class="flex items-center gap-2">
-<span class="material-symbols-outlined text-tertiary text-[18px]">movie</span>
-<span class="font-label-mono text-[10px] font-bold text-tertiary uppercase">Entertainment</span>
-</div>
-<span class="text-[12px] text-secondary font-semibold">2.4k Predictions</span>
-</div>
-<div class="p-6 space-y-6">
-<div class="relative h-40 rounded-xl overflow-hidden">
-<img class="w-full h-full object-cover" data-alt="A professional film set environment with high-end cameras and bright studio spotlights against a dark backdrop. The scene is rendered with cinematic lighting, electric blue and warm gold accents, and a crisp modern feel. It evokes the excitement of a movie premiere or a major awards ceremony." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmlLdhPsYO2zZ-SdvA7GjBZlZYfh8pL9QPYsolLAtLvrj66Ox37DVdG5oKDQrsfDkCOzeanpHzPsdt747JUk6wClwq-QiEeCgcU8Mg3kJJvvSQZhOTOcJDgWa19jDl-6CEALJBNFy9eXxZriBaN_hXS2W2K0h9JRJMBzLULFZF14tqsY2HAF_j14Vj3-z1Jj47hMp5tQuaIx9ywxCEPHb8LH764HchqizTb_9DZeAILks1tZ5hucBzClN2vUE_fVk7kTzxPYWk4w"/>
-<div class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
-<p class="text-white font-bold text-lg">Oscars: Best Picture 2024 Winner?</p>
-</div>
-</div>
-<div class="space-y-3">
-<div class="flex items-center justify-between p-3 bg-surface-container rounded-xl hover:bg-primary/10 cursor-pointer transition-all group">
-<div class="flex items-center gap-3">
-<span class="w-8 h-8 flex items-center justify-center bg-white rounded-lg font-bold text-primary shadow-sm">A</span>
-<span class="font-semibold text-sm">Oppenheimer</span>
-</div>
-<span class="font-bold text-primary">1.2x</span>
-</div>
-<div class="flex items-center justify-between p-3 bg-surface-container rounded-xl hover:bg-primary/10 cursor-pointer transition-all group">
-<div class="flex items-center gap-3">
-<span class="w-8 h-8 flex items-center justify-center bg-white rounded-lg font-bold text-primary shadow-sm">B</span>
-<span class="font-semibold text-sm">Killers of the Flower Moon</span>
-</div>
-<span class="font-bold text-primary">3.5x</span>
-</div>
-<div class="flex items-center justify-between p-3 bg-surface-container rounded-xl hover:bg-primary/10 cursor-pointer transition-all group">
-<div class="flex items-center gap-3">
-<span class="w-8 h-8 flex items-center justify-center bg-white rounded-lg font-bold text-primary shadow-sm">C</span>
-<span class="font-semibold text-sm">Poor Things</span>
-</div>
-<span class="font-bold text-primary">5.2x</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<!-- Leaderboard Preview Section -->
-<section class="mt-stack-lg bg-white rounded-3xl p-gutter shadow-xl shadow-primary/5 border border-outline-variant">
-<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-<div>
-<h2 class="font-headline-lg text-title-md text-on-surface">Weekly Champions</h2>
-<p class="text-secondary text-sm">The most profitable predictors on ArcMarkets right now.</p>
-</div>
-<div class="flex gap-2 p-1 bg-surface-container rounded-xl">
-<button class="px-4 py-2 bg-white rounded-lg shadow-sm font-bold text-sm text-primary">Profit</button>
-<button class="px-4 py-2 text-secondary font-bold text-sm hover:text-primary transition-all">Win Rate</button>
-<button class="px-4 py-2 text-secondary font-bold text-sm hover:text-primary transition-all">Predictions</button>
-</div>
-</div>
-<div class="overflow-x-auto">
-<table class="w-full">
-<thead>
-<tr class="text-left border-b border-outline-variant">
-<th class="pb-4 font-label-mono text-[12px] uppercase text-secondary">Rank</th>
-<th class="pb-4 font-label-mono text-[12px] uppercase text-secondary">User</th>
-<th class="pb-4 font-label-mono text-[12px] uppercase text-secondary">Win Rate</th>
-<th class="pb-4 font-label-mono text-[12px] uppercase text-secondary text-right">Profit</th>
-</tr>
-</thead>
-<tbody class="divide-y divide-outline-variant">
-<tr class="group hover:bg-primary/5 transition-all">
-<td class="py-5">
-<div class="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center text-white font-black text-lg shadow-lg">1</div>
-</td>
-<td class="py-5">
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
-<span class="material-symbols-outlined text-primary">person</span>
-</div>
-<div>
-<p class="font-bold">AlphaPredictor.eth</p>
-<p class="text-[12px] text-secondary">Joined Jan 2024</p>
-</div>
-</div>
-</td>
-<td class="py-5">
-<div class="flex flex-col gap-1">
-<span class="font-bold">84.2%</span>
-<div class="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-<div class="h-full bg-green-500" style="width: 84%"></div>
-</div>
-</div>
-</td>
-<td class="py-5 text-right">
-<p class="text-lg font-bold text-green-600">+12,450 USDC</p>
-<p class="text-[12px] text-secondary">last 7 days</p>
-</td>
-</tr>
-<tr class="group hover:bg-primary/5 transition-all">
-<td class="py-5">
-<div class="w-10 h-10 rounded-full bg-slate-300 flex items-center justify-center text-white font-black text-lg shadow-lg">2</div>
-</td>
-<td class="py-5">
-<div class="flex items-center gap-3">
-<div class="w-12 h-12 rounded-xl bg-tertiary/20 flex items-center justify-center">
-<span class="material-symbols-outlined text-tertiary">person</span>
-</div>
-<div>
-<p class="font-bold">Bullish_Whale_0x</p>
-<p class="text-[12px] text-secondary">Joined Feb 2024</p>
-</div>
-</div>
-</td>
-<td class="py-5">
-<div class="flex flex-col gap-1">
-<span class="font-bold">78.5%</span>
-<div class="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
-<div class="h-full bg-green-500" style="width: 78%"></div>
-</div>
-</div>
-</td>
-<td class="py-5 text-right">
-<p class="text-lg font-bold text-green-600">+9,210 USDC</p>
-<p class="text-[12px] text-secondary">last 7 days</p>
-</td>
-</tr>
-</tbody>
-</table>
-</div>
-<div class="mt-8 text-center">
-<button class="px-8 py-3 bg-surface-container text-primary rounded-xl font-bold hover:bg-primary hover:text-white transition-all">View Full Leaderboard</button>
-</div>
-</section>
-</main>
-<!-- Footer -->
-<footer class="w-full bg-surface-container border-t border-outline-variant mt-stack-lg">
-<div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center px-gutter py-8">
-<div class="flex flex-col items-center md:items-start gap-4 mb-8 md:mb-0">
-<span class="text-title-md font-title-md font-bold text-primary">ArcMarkets</span>
-<p class="font-label-mono text-label-mono text-on-surface-variant max-w-xs text-center md:text-left">
-                    © 2024 ArcMarkets. Predict Win On-Chain. The world's fastest gamified prediction protocol.
+                </div>
+            </div>
+            <!-- Market Card 2 -->
+            <div
+                class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant gamified-card">
+                <div class="p-5 border-b border-outline-variant flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-primary text-[18px]">currency_bitcoin</span>
+                        <span class="font-label-mono text-[10px] font-bold text-primary uppercase">Crypto Market</span>
+                    </div>
+                    <span class="text-[12px] text-secondary font-semibold italic">Liquidity: $450k</span>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="flex flex-col items-center gap-4">
+                        <div class="w-24 h-24 relative">
+                            <div class="absolute inset-0 bg-orange-500/20 rounded-full animate-ping"></div>
+                            <div
+                                class="relative w-full h-full bg-orange-500 rounded-full flex items-center justify-center text-white shadow-xl">
+                                <span class="material-symbols-outlined text-[48px]"
+                                    style="font-variation-settings: 'FILL' 1;">currency_bitcoin</span>
+                            </div>
+                        </div>
+                        <h4 class="text-center font-bold text-lg">Will BTC close above $75,000 by Friday?</h4>
+                    </div>
+                    <div class="flex flex-col gap-3">
+                        <div class="flex items-center justify-between text-sm mb-1">
+                            <span class="font-bold text-green-600 uppercase">YES 64%</span>
+                            <span class="font-bold text-red-600 uppercase">36% NO</span>
+                        </div>
+                        <div class="w-full h-4 bg-surface-container rounded-full overflow-hidden flex">
+                            <div class="h-full bg-green-500" style="width: 64%"></div>
+                            <div class="h-full bg-red-500" style="width: 36%"></div>
+                        </div>
+                    </div>
+                    <div class="grid grid-cols-2 gap-4 pt-2">
+                        <button
+                            class="p-3 bg-green-100 text-green-700 rounded-lg font-bold border-b-4 border-green-200 active:border-b-0 active:translate-y-1 transition-all">Buy
+                            YES</button>
+                        <button
+                            class="p-3 bg-red-100 text-red-700 rounded-lg font-bold border-b-4 border-red-200 active:border-b-0 active:translate-y-1 transition-all">Buy
+                            NO</button>
+                    </div>
+                </div>
+            </div>
+            <!-- Market Card 3 (Pop Culture) -->
+            <div
+                class="bg-surface-container-lowest rounded-2xl overflow-hidden border border-outline-variant gamified-card">
+                <div class="p-5 border-b border-outline-variant flex justify-between items-center">
+                    <div class="flex items-center gap-2">
+                        <span class="material-symbols-outlined text-tertiary text-[18px]">movie</span>
+                        <span class="font-label-mono text-[10px] font-bold text-tertiary uppercase">Entertainment</span>
+                    </div>
+                    <span class="text-[12px] text-secondary font-semibold">2.4k Predictions</span>
+                </div>
+                <div class="p-6 space-y-6">
+                    <div class="relative h-40 rounded-xl overflow-hidden">
+                        <img class="w-full h-full object-cover"
+                            data-alt="A professional film set environment with high-end cameras and bright studio spotlights against a dark backdrop. The scene is rendered with cinematic lighting, electric blue and warm gold accents, and a crisp modern feel. It evokes the excitement of a movie premiere or a major awards ceremony."
+                            src="https://lh3.googleusercontent.com/aida-public/AB6AXuDmlLdhPsYO2zZ-SdvA7GjBZlZYfh8pL9QPYsolLAtLvrj66Ox37DVdG5oKDQrsfDkCOzeanpHzPsdt747JUk6wClwq-QiEeCgcU8Mg3kJJvvSQZhOTOcJDgWa19jDl-6CEALJBNFy9eXxZriBaN_hXS2W2K0h9JRJMBzLULFZF14tqsY2HAF_j14Vj3-z1Jj47hMp5tQuaIx9ywxCEPHb8LH764HchqizTb_9DZeAILks1tZ5hucBzClN2vUE_fVk7kTzxPYWk4w" />
+                        <div
+                            class="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent flex flex-col justify-end p-4">
+                            <p class="text-white font-bold text-lg">Oscars: Best Picture 2024 Winner?</p>
+                        </div>
+                    </div>
+                    <div class="space-y-3">
+                        <div
+                            class="flex items-center justify-between p-3 bg-surface-container rounded-xl hover:bg-primary/10 cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center bg-white rounded-lg font-bold text-primary shadow-sm">A</span>
+                                <span class="font-semibold text-sm">Oppenheimer</span>
+                            </div>
+                            <span class="font-bold text-primary">1.2x</span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between p-3 bg-surface-container rounded-xl hover:bg-primary/10 cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center bg-white rounded-lg font-bold text-primary shadow-sm">B</span>
+                                <span class="font-semibold text-sm">Killers of the Flower Moon</span>
+                            </div>
+                            <span class="font-bold text-primary">3.5x</span>
+                        </div>
+                        <div
+                            class="flex items-center justify-between p-3 bg-surface-container rounded-xl hover:bg-primary/10 cursor-pointer transition-all group">
+                            <div class="flex items-center gap-3">
+                                <span
+                                    class="w-8 h-8 flex items-center justify-center bg-white rounded-lg font-bold text-primary shadow-sm">C</span>
+                                <span class="font-semibold text-sm">Poor Things</span>
+                            </div>
+                            <span class="font-bold text-primary">5.2x</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Leaderboard Preview Section -->
+        <section
+            class="mt-stack-lg bg-white rounded-3xl p-gutter shadow-xl shadow-primary/5 border border-outline-variant">
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
+                <div>
+                    <h2 class="font-headline-lg text-title-md text-on-surface">Weekly Champions</h2>
+                    <p class="text-secondary text-sm">The most profitable predictors on ArcMarkets right now.</p>
+                </div>
+                <div class="flex gap-2 p-1 bg-surface-container rounded-xl">
+                    <button
+                        class="px-4 py-2 bg-white rounded-lg shadow-sm font-bold text-sm text-primary">Profit</button>
+                    <button class="px-4 py-2 text-secondary font-bold text-sm hover:text-primary transition-all">Win
+                        Rate</button>
+                    <button
+                        class="px-4 py-2 text-secondary font-bold text-sm hover:text-primary transition-all">Predictions</button>
+                </div>
+            </div>
+            <div class="overflow-x-auto">
+                <table class="w-full">
+                    <thead>
+                        <tr class="text-left border-b border-outline-variant">
+                            <th class="pb-4 font-label-mono text-[12px] uppercase text-secondary">Rank</th>
+                            <th class="pb-4 font-label-mono text-[12px] uppercase text-secondary">User</th>
+                            <th class="pb-4 font-label-mono text-[12px] uppercase text-secondary">Win Rate</th>
+                            <th class="pb-4 font-label-mono text-[12px] uppercase text-secondary text-right">Profit</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-outline-variant">
+                        <tr class="group hover:bg-primary/5 transition-all">
+                            <td class="py-5">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-yellow-400 flex items-center justify-center text-white font-black text-lg shadow-lg">
+                                    1</div>
+                            </td>
+                            <td class="py-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-primary">person</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold">AlphaPredictor.eth</p>
+                                        <p class="text-[12px] text-secondary">Joined Jan 2024</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-5">
+                                <div class="flex flex-col gap-1">
+                                    <span class="font-bold">84.2%</span>
+                                    <div class="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-green-500" style="width: 84%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-5 text-right">
+                                <p class="text-lg font-bold text-green-600">+12,450 USDC</p>
+                                <p class="text-[12px] text-secondary">last 7 days</p>
+                            </td>
+                        </tr>
+                        <tr class="group hover:bg-primary/5 transition-all">
+                            <td class="py-5">
+                                <div
+                                    class="w-10 h-10 rounded-full bg-slate-300 flex items-center justify-center text-white font-black text-lg shadow-lg">
+                                    2</div>
+                            </td>
+                            <td class="py-5">
+                                <div class="flex items-center gap-3">
+                                    <div class="w-12 h-12 rounded-xl bg-tertiary/20 flex items-center justify-center">
+                                        <span class="material-symbols-outlined text-tertiary">person</span>
+                                    </div>
+                                    <div>
+                                        <p class="font-bold">Bullish_Whale_0x</p>
+                                        <p class="text-[12px] text-secondary">Joined Feb 2024</p>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-5">
+                                <div class="flex flex-col gap-1">
+                                    <span class="font-bold">78.5%</span>
+                                    <div class="w-32 h-1.5 bg-slate-100 rounded-full overflow-hidden">
+                                        <div class="h-full bg-green-500" style="width: 78%"></div>
+                                    </div>
+                                </div>
+                            </td>
+                            <td class="py-5 text-right">
+                                <p class="text-lg font-bold text-green-600">+9,210 USDC</p>
+                                <p class="text-[12px] text-secondary">last 7 days</p>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="mt-8 text-center">
+                <button
+                    class="px-8 py-3 bg-surface-container text-primary rounded-xl font-bold hover:bg-primary hover:text-white transition-all">View
+                    Full Leaderboard</button>
+            </div>
+        </section>
+    </main>
+    <!-- Footer -->
+    <footer class="w-full bg-surface-container border-t border-outline-variant mt-stack-lg">
+        <div class="max-w-container-max mx-auto flex flex-col md:flex-row justify-between items-center px-gutter py-8">
+            <div class="flex flex-col items-center md:items-start gap-4 mb-8 md:mb-0">
+                <span class="text-title-md font-title-md font-bold text-primary">ArcMarkets</span>
+                <p class="font-label-mono text-label-mono text-on-surface-variant max-w-xs text-center md:text-left">
+                    © 2026 ArcMarkets. Predict Win On-Chain. The world's fastest gamified prediction protocol.
                 </p>
-</div>
-<div class="flex gap-8 mb-8 md:mb-0">
-<div class="flex flex-col gap-3">
-<span class="font-bold text-primary text-sm uppercase">Platform</span>
-<a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">Markets</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">AI Agent</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">Portfolio</a>
-</div>
-<div class="flex flex-col gap-3">
-<span class="font-bold text-primary text-sm uppercase">Support</span>
-<a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">About</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">Docs</a>
-<a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">Support</a>
-</div>
-</div>
-<div class="flex gap-4">
-<a class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm hover:scale-110 transition-transform" href="#">
-<img class="w-6 h-6" data-alt="Social media icon with vibrant electric blue colors and modern vector aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7mrDs4S7Qo1D6I9GplOm-Q1LxnSBfciD7gLwkKShRVv5_UNLhlxomVbYeppp8r5tMFkoAHtkiTnNEIkUX6pQOQlghwwLv0_S-rArnByKBdUAzQNB0z03rO5Xs9J_w0FHIuFNw6gtrMt3hoN3E-zRt_l4LP5SAybVX6OdyBWTl5vcq1NW0AylDA7QyW-cbVStjaCcGq02BBlSkI7D8MbefuOoyK_HXjpuRP5HTpMeYRokKH9nMsDbX4K4cjPCmcuWglC24OrencA"/>
-</a>
-<a class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm hover:scale-110 transition-transform" href="#">
-<img class="w-6 h-6" data-alt="Social media icon with vibrant purple and cyan accents in a modern digital style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfGvqKslrib2hLmDbC2kcAsn6OLl-HAOFwg7RX1WlJjYW6Q26B7L9Y6ijHqjT93VEtb4JGgo6QzqqiJ25NEVsUIklQ-moeCmmnAE62q75tcLHBaPjcfGqeRbqKy7To7uAHv0xMP5V3euojFwvkjsVmP4FCjm8haqOK1Ebar0ODcoHib2hCbLuouibq6qIfI43AvrHL2AtffqTCPPm-u3eSJUet2V4deccV987hY4MNM3S0BnDjaGPPu4TXMaKvdHHE2_B8ahlfmg"/>
-</a>
-</div>
-</div>
-</footer>
-<!-- Mobile Nav Anchor -->
-<div class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-white/90 backdrop-blur-md rounded-full shadow-2xl border border-outline-variant flex items-center gap-8">
-<button class="text-primary flex flex-col items-center gap-1">
-<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
-<span class="text-[10px] font-bold uppercase">Markets</span>
-</button>
-<button class="text-secondary flex flex-col items-center gap-1">
-<span class="material-symbols-outlined">smart_toy</span>
-<span class="text-[10px] font-bold uppercase">AI</span>
-</button>
-<button class="text-secondary flex flex-col items-center gap-1">
-<span class="material-symbols-outlined">account_balance_wallet</span>
-<span class="text-[10px] font-bold uppercase">Bag</span>
-</button>
-<button class="text-secondary flex flex-col items-center gap-1">
-<span class="material-symbols-outlined">leaderboard</span>
-<span class="text-[10px] font-bold uppercase">Ranks</span>
-</button>
-</div>
-<script>
+            </div>
+            <div class="flex gap-8 mb-8 md:mb-0">
+                <div class="flex flex-col gap-3">
+                    <span class="font-bold text-primary text-sm uppercase">Platform</span>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">Markets</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">AI
+                        Agent</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors text-sm"
+                        href="#">Portfolio</a>
+                </div>
+                <div class="flex flex-col gap-3">
+                    <span class="font-bold text-primary text-sm uppercase">Support</span>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">About</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">Docs</a>
+                    <a class="text-on-surface-variant hover:text-primary transition-colors text-sm" href="#">Support</a>
+                </div>
+            </div>
+            <div class="flex gap-4">
+                <a class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm hover:scale-110 transition-transform"
+                    href="#">
+                    <img class="w-6 h-6"
+                        data-alt="Social media icon with vibrant electric blue colors and modern vector aesthetic."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuA7mrDs4S7Qo1D6I9GplOm-Q1LxnSBfciD7gLwkKShRVv5_UNLhlxomVbYeppp8r5tMFkoAHtkiTnNEIkUX6pQOQlghwwLv0_S-rArnByKBdUAzQNB0z03rO5Xs9J_w0FHIuFNw6gtrMt3hoN3E-zRt_l4LP5SAybVX6OdyBWTl5vcq1NW0AylDA7QyW-cbVStjaCcGq02BBlSkI7D8MbefuOoyK_HXjpuRP5HTpMeYRokKH9nMsDbX4K4cjPCmcuWglC24OrencA" />
+                </a>
+                <a class="w-12 h-12 bg-white rounded-xl flex items-center justify-center shadow-sm hover:scale-110 transition-transform"
+                    href="#">
+                    <img class="w-6 h-6"
+                        data-alt="Social media icon with vibrant purple and cyan accents in a modern digital style."
+                        src="https://lh3.googleusercontent.com/aida-public/AB6AXuBfGvqKslrib2hLmDbC2kcAsn6OLl-HAOFwg7RX1WlJjYW6Q26B7L9Y6ijHqjT93VEtb4JGgo6QzqqiJ25NEVsUIklQ-moeCmmnAE62q75tcLHBaPjcfGqeRbqKy7To7uAHv0xMP5V3euojFwvkjsVmP4FCjm8haqOK1Ebar0ODcoHib2hCbLuouibq6qIfI43AvrHL2AtffqTCPPm-u3eSJUet2V4deccV987hY4MNM3S0BnDjaGPPu4TXMaKvdHHE2_B8ahlfmg" />
+                </a>
+            </div>
+        </div>
+    </footer>
+    <!-- Mobile Nav Anchor -->
+    <div
+        class="md:hidden fixed bottom-6 left-1/2 -translate-x-1/2 z-50 px-6 py-3 bg-white/90 backdrop-blur-md rounded-full shadow-2xl border border-outline-variant flex items-center gap-8">
+        <button class="text-primary flex flex-col items-center gap-1">
+            <span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">explore</span>
+            <span class="text-[10px] font-bold uppercase">Markets</span>
+        </button>
+        <button class="text-secondary flex flex-col items-center gap-1">
+            <span class="material-symbols-outlined">smart_toy</span>
+            <span class="text-[10px] font-bold uppercase">AI</span>
+        </button>
+        <button class="text-secondary flex flex-col items-center gap-1">
+            <span class="material-symbols-outlined">account_balance_wallet</span>
+            <span class="text-[10px] font-bold uppercase">Bag</span>
+        </button>
+        <button class="text-secondary flex flex-col items-center gap-1">
+            <span class="material-symbols-outlined">leaderboard</span>
+            <span class="text-[10px] font-bold uppercase">Ranks</span>
+        </button>
+    </div>
+    <script>
         // Simple micro-interactions
         document.querySelectorAll('.gamified-card').forEach(card => {
             card.addEventListener('mouseenter', () => {
@@ -521,4 +614,6 @@
             }, 500);
         });
     </script>
-</body></html>
+</body>
+
+</html>

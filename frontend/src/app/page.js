@@ -1740,13 +1740,60 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
   }, [isAuthorized, remainingBudget]);
 
   const RISK = {
-    conservative: { color: "var(--green)", bg: "var(--success-bg)", border: "var(--success-border)", icon: <Shield size={13} />, desc: "Min 70% confidence · Max 5% per bet" },
-    moderate: { color: "var(--purple)", bg: "var(--purple-alpha-bg)", border: "var(--purple-alpha-border)", icon: <Target size={13} />, desc: "Min 55% confidence · Max 10% per bet" },
-    aggressive: { color: "var(--red)", bg: "var(--danger-bg)", border: "var(--danger-border)", icon: <Flame size={13} />, desc: "Min 40% confidence · Max 20% per bet" },
+    conservative: { color: "var(--green)", bg: "var(--success-bg)", border: "var(--success-border)", icon: <Shield size={13} />, desc: "Min 60% confidence · Max 5% per bet" },
+    moderate: { color: "var(--purple)", bg: "var(--purple-alpha-bg)", border: "var(--purple-alpha-border)", icon: <Target size={13} />, desc: "Min 45% confidence · Max 10% per bet" },
+    aggressive: { color: "var(--red)", bg: "var(--danger-bg)", border: "var(--danger-border)", icon: <Flame size={13} />, desc: "Min 30% confidence · Max 20% per bet" },
   };
 
   const addLog = (text, col, txHash) => {
     setLogs(p => [...p, { text, col, txHash }]);
+  };
+
+  // Animated spinner shown while the API call is in-flight
+  const SPINNER_FRAMES = ["⠋", "⠙", "⠹", "⠸", "⠼", "⠴", "⠦", "⠧", "⠇", "⠏"];
+  const DOTS_FRAMES = [".", "..", "...", "...."];
+  const spinnerFrameRef = useRef(0);
+  const dotsFrameRef = useRef(0);
+  const spinnerIntervalRef = useRef(null);
+  const spinnerLogIndexRef = useRef(null);
+
+  const startSpinner = (label) => {
+    // Append a placeholder spinner log entry
+    setLogs(p => {
+      spinnerLogIndexRef.current = p.length;
+      return [...p, { text: `${SPINNER_FRAMES[0]} ${label}.`, col: "var(--terminal-info)", isSpinner: true }];
+    });
+    spinnerFrameRef.current = 0;
+    dotsFrameRef.current = 0;
+    spinnerIntervalRef.current = setInterval(() => {
+      spinnerFrameRef.current = (spinnerFrameRef.current + 1) % SPINNER_FRAMES.length;
+      dotsFrameRef.current = (dotsFrameRef.current + 1) % DOTS_FRAMES.length;
+      const frame = SPINNER_FRAMES[spinnerFrameRef.current];
+      const dots = DOTS_FRAMES[dotsFrameRef.current];
+      setLogs(p => {
+        if (spinnerLogIndexRef.current === null) return p;
+        return p.map((entry, i) =>
+          i === spinnerLogIndexRef.current
+            ? { ...entry, text: `${frame} ${label}${dots}` }
+            : entry
+        );
+      });
+    }, 400);
+  };
+
+  const stopSpinner = (finalText, finalCol) => {
+    if (spinnerIntervalRef.current) {
+      clearInterval(spinnerIntervalRef.current);
+      spinnerIntervalRef.current = null;
+    }
+    if (spinnerLogIndexRef.current !== null) {
+      setLogs(p => p.map((entry, i) =>
+        i === spinnerLogIndexRef.current
+          ? { ...entry, text: finalText, col: finalCol }
+          : entry
+      ));
+      spinnerLogIndexRef.current = null;
+    }
   };
 
   useEffect(() => {
@@ -1803,6 +1850,8 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
     }
     addLog("[Trigger] Initiating manual agent cycle run on Arc Testnet...", "var(--terminal-primary)");
     setRunningCycle(true);
+    // Start animated spinner immediately — terminal never looks frozen
+    startSpinner("Submitting to agent executor… analyzing markets");
     try {
       const res = await fetch("/api/agent-run", {
         method: "POST",
@@ -1822,10 +1871,8 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
       });
       const data = await res.json();
       if (data.success) {
+        stopSpinner("[Scan] Starting analysis of active prediction markets...", "var(--terminal-info)");
         const queue = [];
-
-        // Initial agent status checks in log
-        queue.push({ text: "[Scan] Starting analysis of active prediction markets...", col: "var(--terminal-info)" });
 
         if (data.actions && data.actions.length > 0) {
           data.actions.forEach(act => {
@@ -1901,16 +1948,17 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
             if (item.onPrint) item.onPrint();
             logIndex++;
 
-            // Adaptive styling delay for premium feeling
-            let delay = 600;
+            // Cosmetic log animation delays only — the trade is already confirmed by this point.
+            // Keep delays short so the terminal feels responsive, not "stuck".
+            let delay = 180;
             if (item.text.includes("[Scan]") || item.text.includes("[Analysis]") || item.text.includes("Evaluating")) {
-              delay = 500;
+              delay = 140;
             } else if (item.text.includes("[Skipped]")) {
-              delay = 400;
+              delay = 120;
             } else if (item.text.includes("[Bet Placed]")) {
-              delay = 900;
+              delay = 250;
             } else if (item.text.includes("TX Confirmed")) {
-              delay = 1400; // Simulated blockchain confirmation wait time
+              delay = 300; // was 1400ms — the "stuck" moment; trade is already on-chain
             }
 
             setTimeout(printNextLog, delay);
@@ -1921,12 +1969,12 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
         printNextLog();
 
       } else {
-        addLog(`[Error] Agent cycle failed: ${data.error}`, "var(--terminal-danger)");
+        stopSpinner(`[Error] Agent cycle failed: ${data.error}`, "var(--terminal-danger)");
         onNotif(`Agent cycle failed: ${data.error}`, "error");
         setRunningCycle(false);
       }
     } catch (e) {
-      addLog(`[Error] Network error during execution: ${e.message}`, "var(--terminal-danger)");
+      stopSpinner(`[Error] Network error: ${e.message}`, "var(--terminal-danger)");
       onNotif("Network error during agent execution.", "error");
       setRunningCycle(false);
     }
@@ -2336,20 +2384,6 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
                 {runningCycle ? "Running..." : "Run Cycle"}
               </button>
             )}
-            <div style={{
-              display: "flex", alignItems: "center", gap: 5, padding: "4px 10px", borderRadius: 20,
-              background: isAuthorized ? "var(--success-bg)" : "var(--border)",
-              border: `1px solid ${isAuthorized ? "var(--success-border)" : "var(--border)"}`
-            }}>
-              <div style={{
-                width: 6, height: 6, borderRadius: "50%",
-                background: isAuthorized ? "var(--success-text)" : "var(--dot-draw)",
-                boxShadow: isAuthorized ? "0 0 8px var(--success-text)" : "none"
-              }} />
-              <span style={{ fontSize: 10, fontWeight: 700, color: isAuthorized ? "var(--success-text)" : "var(--text-secondary)", textTransform: "uppercase", letterSpacing: "0.08em" }}>
-                {isAuthorized ? "Active" : "Idle"}
-              </span>
-            </div>
           </div>
         </div>
 
@@ -3209,12 +3243,10 @@ export default function Home() {
                 )}
               </div>
               <div className="desktop-only" style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)", borderRadius: 7 }}>
-                <div style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 6px var(--primary)" }} />
                 <span style={{ fontSize: 11, fontWeight: 600, color: "var(--primary)", fontFamily: "'JetBrains Mono', monospace" }}>{ACTIVE_NETWORK.name}</span>
               </div>
               {wallet.isConnected ? (
                 <button type="button" className="wallet-pill connected" onClick={wallet.disconnect}>
-                  <span className="status-dot" />
                   <span>{shortAddr(wallet.address)}</span>
                   <LogOut size={12} aria-hidden />
                 </button>
