@@ -594,9 +594,9 @@
   }
 
   .hero-copy {
-    align-items: flex-start;
+    align-items: center;
     gap: 16px;
-    text-align: left;
+    text-align: center;
   }
 
   .hero-title {

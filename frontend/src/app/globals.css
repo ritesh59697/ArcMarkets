@@ -1289,13 +1289,13 @@ body::after {
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   display: inline-block;
-  scale: 1;
-  transition: scale 0.25s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.25s;
+  border-bottom: 1.5px solid transparent;
+  transition: border-color 0.25s ease, opacity 0.25s ease;
 }
 
 .developer-link:hover {
-  scale: 1.05;
-  opacity: 0.95;
+  opacity: 0.85;
+  border-color: var(--primary);
 }
 
 /* Swap Warning Banner */
