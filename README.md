@@ -1,4 +1,4 @@
-# ArcMarkets — Decentralized Prediction Markets on Arc Network
+# ArcMarkets: Decentralized Prediction Markets on Arc Network
 
 [![Network](https://img.shields.io/badge/Network-Arc_Testnet-7b2ff7?style=flat-square)](https://rpc.testnet.arc.network)
 [![Gas Token](https://img.shields.io/badge/Gas-USDC_Native-00d4ff?style=flat-square)](https://testnet.arcscan.app)
