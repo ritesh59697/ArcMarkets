@@ -6,7 +6,8 @@ import {
   Clock, Users, BarChart3, ChevronRight, Shield, Globe, Star, X,
   Play, Pause, RefreshCw, CheckCircle2, AlertCircle, ArrowUpRight,
   Target, Flame, Layers, Activity, Coins, CircleDot, Search,
-  LogOut, Copy, ExternalLink, Info, Lock, Unlock, Timer, Sun, Moon, Menu
+  LogOut, Copy, ExternalLink, Info, Lock, Unlock, Timer, Sun, Moon, Menu,
+  BookOpen
 } from "lucide-react";
 import { useWalletContext } from "./providers";
 import { ACTIVE_NETWORK, TEAM_FLAGS, CONTRACTS } from "../utils/config";
@@ -2995,6 +2996,20 @@ export default function Home() {
                   {t.icon}{t.label}
                 </button>
               ))}
+              <a
+                href="https://ritesh5969.gitbook.io/arcmarkets-docs"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="tab-item"
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  textDecoration: "none"
+                }}
+              >
+                <BookOpen size={14} />Docs <ArrowUpRight size={10} style={{ opacity: 0.6 }} />
+              </a>
             </div>
 
             {/* Right actions */}
@@ -3193,6 +3208,33 @@ export default function Home() {
                 <span style={{ fontSize: 13, textTransform: "none", letterSpacing: "normal" }}>{t.label}</span>
               </button>
             ))}
+            <a
+              href="https://ritesh5969.gitbook.io/arcmarkets-docs"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mobile-menu-item"
+              style={{
+                display: "flex",
+                alignItems: "center",
+                gap: 12,
+                padding: "12px 16px",
+                borderRadius: 8,
+                background: "transparent",
+                border: "none",
+                color: "var(--text-secondary)",
+                fontSize: 14,
+                fontWeight: 600,
+                textDecoration: "none",
+                width: "100%",
+                transition: "all 0.2s ease"
+              }}
+              onClick={() => setShowMobileMenu(false)}
+            >
+              <BookOpen size={14} />
+              <span style={{ fontSize: 13, textTransform: "none", letterSpacing: "normal", display: "inline-flex", alignItems: "center", gap: 4 }}>
+                Docs <ArrowUpRight size={10} style={{ opacity: 0.6 }} />
+              </span>
+            </a>
           </div>
         )}
 
@@ -3282,7 +3324,26 @@ export default function Home() {
 
               {/* Support Links */}
               <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
-                <button onClick={() => setFooterModal("whitepaper")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Whitepaper</button>
+                <a
+                  href="https://ritesh5969.gitbook.io/arcmarkets-docs/whitepaper"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  style={{
+                    background: "none",
+                    border: "none",
+                    cursor: "pointer",
+                    fontSize: 12,
+                    color: "var(--text-secondary)",
+                    fontWeight: 500,
+                    textDecoration: "none",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: 3
+                  }}
+                  className="hover:text-primary transition-colors"
+                >
+                  Whitepaper <ArrowUpRight size={10} style={{ opacity: 0.6 }} />
+                </a>
                 <button onClick={() => setFooterModal("verification")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Verification</button>
                 <button onClick={() => setFooterModal("odds")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Odds API</button>
                 <button onClick={() => setFooterModal("privacy")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Privacy</button>
