@@ -698,6 +698,13 @@ function BetModal({ match, initOutcome, onClose, onSuccess, signer, theme }) {
 }
 
 function InfoModal({ type, onClose, theme }) {
+  const [copiedId, setCopiedId] = useState(null);
+  const handleCopy = (id, text) => {
+    navigator.clipboard.writeText(text);
+    setCopiedId(id);
+    setTimeout(() => setCopiedId(null), 2000);
+  };
+
   const MODAL_CONTENT = {
     whitepaper: {
       title: "ArcMarkets Whitepaper",
@@ -727,60 +734,85 @@ function InfoModal({ type, onClose, theme }) {
       subtitle: "Verify contract addresses and logs on the Arc Testnet Explorer",
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
-          <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--text-primary)" }}>
+          <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)" }}>
             All transaction logic, wagers, and agent executions are executed transparently on-chain. You can verify the smart contracts directly:
           </p>
-          <div style={{ display: "flex", flexDirection: "column", gap: 8, marginTop: 4 }}>
-            <div style={{ background: "rgba(0,0,0,0.04)", padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 4 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 6px var(--primary)" }} />
-                <span style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 700 }}>Prediction Market Contract</span>
+          <div style={{ display: "flex", flexDirection: "column", gap: 10, marginTop: 4 }}>
+            {[
+              { id: "market", name: "Prediction Market Contract", address: CONTRACTS.PREDICTION_MARKET, dotColor: "var(--primary)" },
+              { id: "nft", name: "Bet Receipt NFT Contract", address: CONTRACTS.BET_RECEIPT_NFT, dotColor: "var(--accent)" },
+              { id: "usdc", name: "USDC Token Contract", address: CONTRACTS.USDC, dotColor: "var(--purple)" }
+            ].map((c) => (
+              <div key={c.id} style={{
+                background: "var(--card-header-bg)",
+                border: "1px solid var(--border)",
+                borderRadius: 10,
+                padding: "12px 16px",
+                display: "flex",
+                flexDirection: "column",
+                gap: 6,
+                boxShadow: "0 4px 12px rgba(0,0,0,0.2)"
+              }}>
+                <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+                    <span style={{ width: 6, height: 6, borderRadius: "50%", background: c.dotColor, boxShadow: `0 0 6px ${c.dotColor}` }} />
+                    <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 700, letterSpacing: 0.5, textTransform: "uppercase" }}>{c.name}</span>
+                  </div>
+                  <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
+                    <button
+                      onClick={() => handleCopy(c.id, c.address)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: copiedId === c.id ? "#10b981" : "var(--text-muted)",
+                        fontSize: 11,
+                        fontWeight: 600,
+                        cursor: "pointer",
+                        display: "flex",
+                        alignItems: "center",
+                        gap: 4,
+                        padding: 0
+                      }}
+                      className="hover:text-primary transition-colors"
+                      title="Copy Address"
+                    >
+                      <Copy size={13} />
+                      <span>{copiedId === c.id ? "Copied!" : "Copy"}</span>
+                    </button>
+                    {c.address && (
+                      <a
+                        href={`${ACTIVE_NETWORK.explorerUrl}/address/${c.address}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        style={{ color: "var(--text-muted)", display: "flex", alignItems: "center" }}
+                        className="hover:text-primary transition-colors"
+                        title="View on Explorer"
+                      >
+                        <ExternalLink size={13} />
+                      </a>
+                    )}
+                  </div>
+                </div>
+                <div style={{
+                  fontSize: 12.5,
+                  fontFamily: "'JetBrains Mono', monospace",
+                  color: "var(--text-primary)",
+                  background: "rgba(0,0,0,0.15)",
+                  padding: "6px 10px",
+                  borderRadius: 6,
+                  border: "1px solid var(--border-light)",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
+                  whiteSpace: "nowrap",
+                  fontWeight: 500,
+                  letterSpacing: "-0.01em"
+                }}>
+                  {c.address}
+                </div>
               </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>
-                  {CONTRACTS.PREDICTION_MARKET || "0x12114397DCD0A58E10ff4eeb1d55c58558849dC7"}
-                </span>
-                {CONTRACTS.PREDICTION_MARKET && (
-                  <a href={`${ACTIVE_NETWORK.explorerUrl}/address/${CONTRACTS.PREDICTION_MARKET}`} target="_blank" rel="noreferrer" style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center" }}>
-                    <ExternalLink size={14} />
-                  </a>
-                )}
-              </div>
-            </div>
-            <div style={{ background: "rgba(0,0,0,0.04)", padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 4 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--primary)", boxShadow: "0 0 6px var(--primary)" }} />
-                <span style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 700 }}>Bet Receipt NFT Contract</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>
-                  {CONTRACTS.BET_RECEIPT_NFT || "0x6afb09487F7b3C5826976fFE1f3b851bD7aec75D"}
-                </span>
-                {CONTRACTS.BET_RECEIPT_NFT && (
-                  <a href={`${ACTIVE_NETWORK.explorerUrl}/address/${CONTRACTS.BET_RECEIPT_NFT}`} target="_blank" rel="noreferrer" style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center" }}>
-                    <ExternalLink size={14} />
-                  </a>
-                )}
-              </div>
-            </div>
-            <div style={{ background: "rgba(0,0,0,0.04)", padding: "10px 14px", borderRadius: 8, border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 4 }}>
-              <div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-                <span style={{ width: 6, height: 6, borderRadius: "50%", background: "var(--purple)", boxShadow: "0 0 6px var(--purple)" }} />
-                <span style={{ fontSize: 10, color: "var(--text-muted)", textTransform: "uppercase", fontWeight: 700 }}>USDC Token Contract</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-                <span style={{ fontSize: 12, fontFamily: "'JetBrains Mono', monospace", color: "var(--text-primary)", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", fontWeight: 500 }}>
-                  {CONTRACTS.USDC || "0x1E4a5963aBFD975d8c9021ce480b42188849D41d"}
-                </span>
-                {CONTRACTS.USDC && (
-                  <a href={`${ACTIVE_NETWORK.explorerUrl}/address/${CONTRACTS.USDC}`} target="_blank" rel="noreferrer" style={{ color: "var(--text-secondary)", display: "flex", alignItems: "center" }}>
-                    <ExternalLink size={14} />
-                  </a>
-                )}
-              </div>
-            </div>
+            ))}
           </div>
-          <p style={{ fontSize: 12, color: "var(--text-secondary)", marginTop: 6, lineHeight: 1.5 }}>
+          <p style={{ fontSize: 11.5, color: "var(--text-muted)", marginTop: 6, lineHeight: 1.5 }}>
             Verification transaction links are also included with every notification message and inside the wagers list on your Portfolio page.
           </p>
         </div>
@@ -930,8 +962,19 @@ function FixturePreviewCard({ fixture }) {
 
 function GlobalBackgroundAnimation({ theme }) {
   const canvasRef = useRef(null);
+  const [isMobile, setIsMobile] = useState(false);
 
   useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+    checkMobile();
+    window.addEventListener("resize", checkMobile);
+    return () => window.removeEventListener("resize", checkMobile);
+  }, []);
+
+  useEffect(() => {
+    if (isMobile) return;
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -1102,7 +1145,9 @@ function GlobalBackgroundAnimation({ theme }) {
       texture.dispose();
       renderer.dispose();
     };
-  }, [theme]);
+  }, [theme, isMobile]);
+
+  if (isMobile) return null;
 
   return (
     <canvas
@@ -3168,7 +3213,7 @@ export default function Home() {
             top: 70,
             left: 0,
             right: 0,
-            background: "var(--bg-card)",
+            background: theme === "dark" ? "#0a0c10" : "#ffffff",
             backdropFilter: "blur(32px)",
             WebkitBackdropFilter: "blur(32px)",
             borderBottom: "1px solid var(--border)",
@@ -3345,8 +3390,6 @@ export default function Home() {
                   Whitepaper <ArrowUpRight size={10} style={{ opacity: 0.6 }} />
                 </a>
                 <button onClick={() => setFooterModal("verification")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Verification</button>
-                <button onClick={() => setFooterModal("odds")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Odds API</button>
-                <button onClick={() => setFooterModal("privacy")} style={{ background: "none", border: "none", cursor: "pointer", fontSize: 12, color: "var(--text-secondary)", fontWeight: 500 }} className="hover:text-primary transition-colors">Privacy</button>
               </div>
             </div>
 
