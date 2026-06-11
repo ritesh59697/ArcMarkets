@@ -935,25 +935,50 @@ function FixturePreviewCard({ fixture }) {
   const homeImg = getCryptoLogo(fixture.homeTeam) || fixture.homeCrest;
   const awayImg = getCryptoLogo(fixture.awayTeam) || fixture.awayCrest;
   return (
-    <div className="card arc-card fixture-preview-card" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 12 }}>
+    <div className="card arc-card fixture-preview-card" style={{ padding: 16, display: "flex", flexDirection: "column", gap: 14 }}>
       <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
         <span className="badge" style={{ fontSize: 10, background: "var(--purple-alpha-bg)", border: "1px solid var(--purple-alpha-border)" }}>
           Live data · {fixture.league}
         </span>
         <span style={{ fontSize: 11, color: "var(--text-muted)" }}>{timeUntil(fixture.kickoffTime)}</span>
       </div>
-      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8 }}>
-        <div style={{ textAlign: "center", flex: 1 }}>
+      
+      {/* Centered logo matchup with team names aligned below */}
+      <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: 8, width: "100%" }}>
+        {/* Home Team */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, minWidth: 0 }}>
           <TeamAvatar emoji="⚽" img={homeImg} size={40} isToken={!!getCryptoLogo(fixture.homeTeam)} />
-          <div style={{ fontSize: 12, fontWeight: 700, marginTop: 6 }}>{fixture.homeTeam}</div>
+          <div className="font-sans" style={{ marginTop: 8, fontSize: 12, fontWeight: 700, textAlign: "center", width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-primary)" }}>
+            {fixture.homeTeam}
+          </div>
         </div>
-        <span style={{ fontSize: 10, fontWeight: 800, color: "var(--accent)" }}>VS</span>
-        <div style={{ textAlign: "center", flex: 1 }}>
+
+        {/* VS Badge */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", padding: "0 4px", flexShrink: 0 }}>
+          <span style={{
+            fontSize: 9,
+            fontWeight: 800,
+            color: "var(--accent)",
+            letterSpacing: "0.05em",
+            padding: "2px 6px",
+            background: "var(--vs-badge-bg)",
+            border: "1px solid var(--vs-badge-border)",
+            borderRadius: 8,
+            display: "inline-block",
+            lineHeight: 1.2
+          }}>VS</span>
+        </div>
+
+        {/* Away Team */}
+        <div style={{ display: "flex", flexDirection: "column", alignItems: "center", flex: 1, minWidth: 0 }}>
           <TeamAvatar emoji="⚽" img={awayImg} size={40} isToken={!!getCryptoLogo(fixture.awayTeam)} />
-          <div style={{ fontSize: 12, fontWeight: 700, marginTop: 6 }}>{fixture.awayTeam}</div>
+          <div className="font-sans" style={{ marginTop: 8, fontSize: 12, fontWeight: 700, textAlign: "center", width: "100%", overflow: "hidden", textOverflow: "ellipsis", whiteSpace: "nowrap", color: "var(--text-primary)" }}>
+            {fixture.awayTeam}
+          </div>
         </div>
       </div>
-      <p style={{ fontSize: 10, color: "var(--text-muted)", textAlign: "center" }}>
+      
+      <p style={{ fontSize: 9.5, color: "var(--text-muted)", textAlign: "center", margin: 0, lineHeight: 1.3 }}>
         Fixture from {fixture.source || "sports API"} — on-chain market opens when listed by protocol
       </p>
     </div>
@@ -3068,25 +3093,25 @@ export default function Home() {
               >
                 {theme === "dark" ? <Sun size={16} /> : <Moon size={16} />}
               </button>
-              <div ref={notifRef} style={{ position: "relative" }}>
+              <div ref={notifRef} style={{ position: "relative", display: "inline-flex", flexShrink: 0 }}>
                 <button
                   onClick={toggleNotifications}
-                  className="btn-ghost"
+                  className="theme-toggle"
                   style={{
-                    padding: "7px 10px",
-                    borderRadius: 8,
                     position: "relative",
-                    display: "flex",
+                    display: "inline-flex",
                     alignItems: "center",
-                    justifyContent: "center"
+                    justifyContent: "center",
+                    flexShrink: 0
                   }}
+                  aria-label="Notifications"
                 >
-                  <Bell size={15} />
+                  <Bell size={16} />
                   {unreadCount > 0 && (
                     <span style={{
                       position: "absolute",
-                      top: 2,
-                      right: 2,
+                      top: 4,
+                      right: 4,
                       width: 7,
                       height: 7,
                       borderRadius: "50%",
