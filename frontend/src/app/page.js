@@ -1360,13 +1360,21 @@ function MatchesTab({
             >
               Explore Markets
             </button>
-            <button
-              onClick={() => setFooterModal("whitepaper")}
+            <a
+              href="https://ritesh5969.gitbook.io/arcmarkets-docs"
+              target="_blank"
+              rel="noopener noreferrer"
               className="hero-secondary-action"
-              style={{ cursor: "pointer" }}
+              style={{
+                cursor: "pointer",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+                textDecoration: "none"
+              }}
             >
               How it Works
-            </button>
+            </a>
           </div>
         </div>
         {/* TEMP: hero football card hidden for testing
