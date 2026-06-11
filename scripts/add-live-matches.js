@@ -24,12 +24,12 @@ async function main() {
 
   const now = Math.floor(Date.now() / 1000);
   const matchesToCreate = [
-    { home: "Brazil", away: "Germany", id: "FB_BRA_GER_01", offsetSeconds: 3600 }, // in 1 hour
-    { home: "Spain", away: "France", id: "FB_ESP_FRA_01", offsetSeconds: 7200 }, // in 2 hours
-    { home: "Argentina", away: "England", id: "FB_ARG_ENG_01", offsetSeconds: 10800 }, // in 3 hours
-    { home: "Bitcoin", away: "Ethereum", id: "CR_BTC_ETH_01", offsetSeconds: 14400 }, // in 4 hours
-    { home: "Solana", away: "BNB", id: "CR_SOL_BNB_01", offsetSeconds: 21600 }, // in 6 hours
-    { home: "Pepe", away: "Dogecoin", id: "CR_PEPE_DOGE_01", offsetSeconds: 28800 } // in 8 hours
+    { home: "Brazil", away: "Germany", id: "FB_BRA_GER_02", offsetSeconds: 86400 * 7 },    // in 7 days
+    { home: "Spain", away: "France", id: "FB_ESP_FRA_02", offsetSeconds: 86400 * 14 },    // in 14 days
+    { home: "Argentina", away: "England", id: "FB_ARG_ENG_02", offsetSeconds: 86400 * 21 },  // in 21 days
+    { home: "Bitcoin", away: "Ethereum", id: "CR_BTC_ETH_02", offsetSeconds: 86400 * 30 },  // in 30 days
+    { home: "Solana", away: "BNB", id: "CR_SOL_BNB_02", offsetSeconds: 86400 * 45 },     // in 45 days
+    { home: "Pepe", away: "Dogecoin", id: "CR_PEPE_DOGE_02", offsetSeconds: 86400 * 60 }    // in 60 days
   ];
 
   console.log("\nCreating live matches...");
