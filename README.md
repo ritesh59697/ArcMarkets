@@ -12,6 +12,7 @@ ArcMarkets is a fully on-chain, peer-to-peer prediction protocol deployed on the
 ## Table of Contents
 
 - [Key Innovations](#key-innovations)
+- [How it Works](#how-it-works)
 - [Architecture Overview](#architecture-overview)
 - [Deployed Contracts](#deployed-contracts)
 - [Quick Start](#quick-start)
@@ -38,6 +39,31 @@ Users escrow a USDC budget directly on-chain and authorize an off-chain AI agent
 ### 100% On-Chain SVG NFT Receipts
 
 Every confirmed wager mints an ERC-721 token containing a fully on-chain SVG receipt generated directly by the smart contract. Bet amount, teams, prediction outcome, and transaction timestamp are Base64-encoded on-chain — ensuring permanent, decentralized visual provenance for every prediction.
+
+---
+
+## How it Works
+
+Participating in ArcMarkets is designed to be seamless. You can make predictions manually or delegate to the AI Betting Agent to place trades automatically.
+
+### Option A: Manual Predictions
+1. **Connect Wallet**: Click **Connect Wallet** in the top right to link your Web3 wallet (configured for the Arc Testnet).
+2. **Select a Match**: Browse the **Markets** tab to view list of active sports fixtures or price matchups.
+3. **Choose an Outcome**:
+   * For Sports: Select **Home**, **Draw**, or **Away**.
+   * For Crypto: Select **Yes** (above benchmark price) or **No** (below benchmark price).
+4. **Enter Wager**: Input the amount of USDC you wish to bet. The dynamic odds and potential payout will update automatically based on current pool distributions.
+5. **Confirm and Claim**: Approve the transaction. You will instantly be minted an **on-chain SVG NFT Receipt** containing your receipt data. Once the match finishes, return to your **Portfolio** to claim your share of the pool if your prediction was correct.
+
+### Option B: Escrowed AI Agent Prediction (Delegated Mode)
+1. **Authorize Agent**: Navigate to the **AI Agent** tab and authorize the delegated AI Betting Agent contract to place wagers on your behalf.
+2. **Fund Escrow**: Deposit a USDC budget into the prediction market escrow contract. The agent can only bet using this balance.
+3. **Set Risk Profile**: Select your risk preference:
+   * **Conservative**: Smaller wagers, highly selective EV threshold.
+   * **Moderate**: Standard Kelly Criterion fraction sizing.
+   * **Aggressive**: Maximum Kelly sizing for higher returns.
+4. **Autonomous Execution**: The AI Agent runs 24/7, fetching live FIFA strength ratings and historical stats to find positive expected-value opportunities. It executes bets and logs every transaction in the client console in real time.
+5. **Revoke Anytime**: You retain full sovereignty. You can revoke authorization or withdraw your remaining escrow budget instantly at any time.
 
 ---
 
