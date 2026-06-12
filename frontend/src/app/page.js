@@ -2466,15 +2466,15 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
     try {
       for (let i = 0; i < uniqueMatchIndexes.length; i++) {
         const matchIdx = uniqueMatchIndexes[i];
-        
+
         // Find bets for this matchIndex to construct a nice notification message
         const matchBets = claimableBets.filter(b => b.matchIndex === matchIdx);
-        const matchDesc = matchBets.length > 0 
-          ? `${matchBets[0].homeTeam} vs ${matchBets[0].awayTeam}` 
+        const matchDesc = matchBets.length > 0
+          ? `${matchBets[0].homeTeam} vs ${matchBets[0].awayTeam}`
           : `Match #${matchIdx}`;
 
         onNotif(`Claiming winnings for ${matchDesc} (${i + 1}/${uniqueMatchIndexes.length})…`, "info");
-        
+
         const txHash = await claimAll(matchIdx);
         if (txHash) {
           successCount++;
@@ -2490,7 +2490,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
               console.error("Failed to cache claim tx", e);
             }
           }
-          
+
           addNotif(
             "Rewards Claimed",
             `Batch claimed winnings for match ${matchDesc}`,
@@ -2830,7 +2830,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
 
   return (
     <div className="portfolio-grid font-sans">
-      
+
       {/* ── User Profile Header Card ── */}
       <div className="card profile-header-card" style={{
         gridColumn: "1 / -1",
@@ -2854,7 +2854,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
           top: 0, left: 0, right: 0, height: 3,
           background: "linear-gradient(90deg, var(--primary) 0%, var(--purple) 100%)"
         }} />
-        
+
         <div style={{ display: "flex", alignItems: "center", gap: 20, flexWrap: "wrap" }}>
           {/* Avatar */}
           <div style={{ position: "relative", flexShrink: 0 }}>
@@ -2881,7 +2881,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                 username ? username.slice(0, 2).toUpperCase() : "TR"
               )}
             </div>
-            
+
             {/* Edit overlay icon */}
             <button
               onClick={() => setShowAvatarEdit(true)}
@@ -3915,7 +3915,7 @@ export default function Home() {
             <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12, display: "flex", justifyContent: "flex-end" }}>
               <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
                 Built by{" "}
-                <a href="https://github.com/Ritesh59697" target="_blank" rel="noopener noreferrer" className="developer-link" style={{ color: "var(--primary)", fontWeight: 600 }}>Ritesh59697</a>
+                <a href="https://x.com/Ritesh5969" target="_blank" rel="noopener noreferrer" className="developer-link" style={{ color: "var(--primary)", fontWeight: 600 }}>ritesh5969</a>
               </span>
             </div>
           </div>
