@@ -2442,7 +2442,7 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
 // ─── Portfolio Tab ────────────────────────────────────────────────────────────
 function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLeaderboard, userBetsState, theme, avatarUrl, setShowAvatarEdit }) {
   const { bets, loading, totalPnl, totalBetAmount, pendingBets, claimableBets, settledBets, refetch: refetchBets } = userBetsState;
-  const { claimWinnings, status: claimStatus } = useBetting(signer);
+  const { claimWinnings, claimAll, status: claimStatus } = useBetting(signer);
   const [activeSubTab, setActiveSubTab] = useState("all");
 
   const [username, setUsername] = useState("");
@@ -2450,6 +2450,70 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
   const [tempUsername, setTempUsername] = useState("");
   const [isCopied, setIsCopied] = useState(false);
   const [activeSection, setActiveSection] = useState("predictions"); // "predictions" | "agent-history"
+  const [claimingAll, setClaimingAll] = useState(false);
+
+  const handleClaimAll = async () => {
+    if (claimingAll) return;
+    if (claimableBets.length === 0) return;
+
+    // Group unique matchIndexes that are claimable
+    const uniqueMatchIndexes = Array.from(new Set(claimableBets.map(b => b.matchIndex)));
+
+    setClaimingAll(true);
+    onNotif(`Starting batch claim for ${uniqueMatchIndexes.length} match(es)…`, "info");
+
+    let successCount = 0;
+    try {
+      for (let i = 0; i < uniqueMatchIndexes.length; i++) {
+        const matchIdx = uniqueMatchIndexes[i];
+        
+        // Find bets for this matchIndex to construct a nice notification message
+        const matchBets = claimableBets.filter(b => b.matchIndex === matchIdx);
+        const matchDesc = matchBets.length > 0 
+          ? `${matchBets[0].homeTeam} vs ${matchBets[0].awayTeam}` 
+          : `Match #${matchIdx}`;
+
+        onNotif(`Claiming winnings for ${matchDesc} (${i + 1}/${uniqueMatchIndexes.length})…`, "info");
+        
+        const txHash = await claimAll(matchIdx);
+        if (txHash) {
+          successCount++;
+          // Cache claim transaction hashes in localStorage for all bets in this matchIndex
+          if (typeof window !== "undefined") {
+            try {
+              const cache = JSON.parse(localStorage.getItem("arcmarkets_claim_tx_map") || "{}");
+              matchBets.forEach(bet => {
+                cache[bet.betId] = txHash;
+              });
+              localStorage.setItem("arcmarkets_claim_tx_map", JSON.stringify(cache));
+            } catch (e) {
+              console.error("Failed to cache claim tx", e);
+            }
+          }
+          
+          addNotif(
+            "Rewards Claimed",
+            `Batch claimed winnings for match ${matchDesc}`,
+            txHash
+          );
+        } else {
+          onNotif(`Claim failed for match ${matchDesc}`, "error");
+          break;
+        }
+      }
+
+      if (successCount > 0) {
+        onNotif(`Successfully claimed ${successCount} match rewards!`, "success");
+        refetchBets();
+        refetchUsdt();
+      }
+    } catch (err) {
+      console.error("claimAll error:", err);
+      onNotif("Error during batch claiming", "error");
+    } finally {
+      setClaimingAll(false);
+    }
+  };
 
   useEffect(() => {
     if (address) {
@@ -3016,9 +3080,37 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
         {/* Prediction Slips Filter Pill Selectors — Only shown in predictions tab */}
         {activeSection === "predictions" && (
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 18, flexWrap: "wrap", gap: 16 }}>
-            <h2 className="font-serif" style={{ fontSize: 18, fontWeight: 400, letterSpacing: "-0.01em", margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
-              <Wallet size={16} style={{ color: "var(--primary)" }} /> Prediction slips
-            </h2>
+            <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
+              <h2 className="font-serif" style={{ fontSize: 18, fontWeight: 400, letterSpacing: "-0.01em", margin: 0, display: "flex", alignItems: "center", gap: 10 }}>
+                <Wallet size={16} style={{ color: "var(--primary)" }} /> Prediction slips
+              </h2>
+              {claimableBets.length > 0 && (
+                <button
+                  onClick={handleClaimAll}
+                  className="btn-shimmer"
+                  disabled={claimingAll || claimStatus === "claiming"}
+                  style={{
+                    padding: "6px 14px",
+                    height: 30,
+                    fontSize: 11.5,
+                    borderRadius: 8,
+                    fontWeight: 700,
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 6,
+                    opacity: (claimingAll || claimStatus === "claiming") ? 0.6 : 1,
+                    cursor: (claimingAll || claimStatus === "claiming") ? "not-allowed" : "pointer"
+                  }}
+                >
+                  {(claimingAll || claimStatus === "claiming") ? (
+                    <RefreshCw size={12} className="animate-spin" />
+                  ) : (
+                    <Unlock size={12} />
+                  )}
+                  {(claimingAll || claimStatus === "claiming") ? "Claiming..." : `Claim All (${claimableBets.length})`}
+                </button>
+              )}
+            </div>
 
             <div style={{
               display: "flex",
