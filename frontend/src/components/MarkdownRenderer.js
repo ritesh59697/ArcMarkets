@@ -432,7 +432,55 @@ export default function MarkdownRenderer({ content }) {
       const renderTokens = (str) => {
         if (!str) return [];
         
-        // Link match
+        // Nested Badge Link match: [![Alt](img_url)](link_url)
+        let badgeMatch = /\[\!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)/.exec(str);
+        if (badgeMatch) {
+          const before = str.substring(0, badgeMatch.index);
+          const alt = badgeMatch[1];
+          const imgUrl = badgeMatch[2];
+          const linkUrl = badgeMatch[3];
+          const after = str.substring(badgeMatch.index + badgeMatch[0].length);
+          
+          return [
+            ...renderTokens(before),
+            <a 
+              key={badgeMatch.index} 
+              href={linkUrl} 
+              target="_blank" 
+              rel="noopener noreferrer" 
+              style={{ display: "inline-flex", marginRight: "8px", verticalAlign: "middle" }}
+            >
+              <img 
+                src={imgUrl} 
+                alt={alt} 
+                style={{ height: "20px", display: "inline-block" }} 
+              />
+            </a>,
+            ...renderTokens(after)
+          ];
+        }
+
+        // Standard Markdown Image match: ![Alt](img_url)
+        let imgMatch = /\!\[([^\]]*)\]\(([^)]+)\)/.exec(str);
+        if (imgMatch) {
+          const before = str.substring(0, imgMatch.index);
+          const alt = imgMatch[1];
+          const imgUrl = imgMatch[2];
+          const after = str.substring(imgMatch.index + imgMatch[0].length);
+          
+          return [
+            ...renderTokens(before),
+            <img 
+              key={imgMatch.index} 
+              src={imgUrl} 
+              alt={alt} 
+              style={{ maxWidth: "100%", height: "auto", borderRadius: "var(--radius-sm)", margin: "12px 0", display: "block" }} 
+            />,
+            ...renderTokens(after)
+          ];
+        }
+
+        // Link match: [Text](url)
         let linkMatch = /\[([^\]]+)\]\(([^)]+)\)/.exec(str);
         if (linkMatch) {
           const before = str.substring(0, linkMatch.index);
