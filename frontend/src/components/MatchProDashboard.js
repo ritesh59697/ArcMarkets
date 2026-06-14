@@ -535,6 +535,22 @@ export default function MatchProDashboard({
                 />
                 <span style={{ position: "absolute", right: 14, top: "50%", transform: "translateY(-50%)", fontSize: 12, fontWeight: 700, color: "var(--primary)", fontFamily: "var(--font-mono)" }}>USDC</span>
               </div>
+              
+              <div style={{ marginTop: 12, marginBottom: 8 }}>
+                <input
+                  type="range"
+                  min="1"
+                  max={Math.min(1000, Math.max(100, Number(usdtBalance) || 100))}
+                  step="1"
+                  value={Math.min(
+                    Math.min(1000, Math.max(100, Number(usdtBalance) || 100)),
+                    Math.max(1, parseFloat(amount) || 0)
+                  )}
+                  onChange={e => setAmount(e.target.value)}
+                  style={{ width: "100%", accentColor: "var(--primary)", cursor: "pointer" }}
+                />
+              </div>
+
               <div style={{ display: "flex", gap: 6, marginTop: 8 }}>
                 {[10, 50, 100, 250].map(val => (
                   <button

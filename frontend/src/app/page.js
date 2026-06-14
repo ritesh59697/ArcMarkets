@@ -496,7 +496,7 @@ function BetSuccessModal({ result, match, onClose, theme }) {
 }
 
 // ─── Bet Modal ────────────────────────────────────────────────────────────────
-function BetModal({ match, initOutcome, onClose, onSuccess, signer, theme }) {
+function BetModal({ match, initOutcome, onClose, onSuccess, signer, theme, usdtBalance }) {
   const [outcome, setOutcome] = useState(initOutcome || null);
   const [amount, setAmount] = useState("50");
   const [potentialPayout, setPotentialPayout] = useState(0);
@@ -637,6 +637,22 @@ function BetModal({ match, initOutcome, onClose, onSuccess, signer, theme }) {
                     className="input font-mono"
                   />
                   <span className="bet-input-suffix font-mono">USDC</span>
+                </div>
+                
+                {/* Bet Amount Slider */}
+                <div style={{ marginTop: 12, marginBottom: 8 }}>
+                  <input
+                    type="range"
+                    min="1"
+                    max={Math.min(1000, Math.max(100, Number(usdtBalance) || 100))}
+                    step="1"
+                    value={Math.min(
+                      Math.min(1000, Math.max(100, Number(usdtBalance) || 100)),
+                      Math.max(1, parseFloat(amount) || 0)
+                    )}
+                    onChange={e => setAmount(e.target.value)}
+                    style={{ width: "100%", accentColor: "var(--primary)", cursor: "pointer" }}
+                  />
                 </div>
               </div>
 
@@ -4123,6 +4139,7 @@ export default function Home() {
           onClose={() => setModal(null)}
           signer={wallet.signer}
           theme={theme}
+          usdtBalance={usdtBalance}
           onSuccess={result => {
             const outcomeName = { 1: "Home Win", 2: "Draw", 3: "Away Win" }[result.outcome] || "Unknown";
             addNotification(
