@@ -10,6 +10,7 @@ import {
   BookOpen, User, Camera
 } from "lucide-react";
 import { useWalletContext } from "./providers";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import { ACTIVE_NETWORK, TEAM_FLAGS, CONTRACTS } from "../utils/config";
 import { useEnrichedMatches } from "../hooks/useEnrichedMatches";
 import { useUserBets } from "../hooks/useUserBets";
@@ -3706,19 +3707,7 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              <div className="desktop-only" style={{ display: "flex", alignItems: "center", gap: 5, padding: "5px 10px", background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)", borderRadius: 7 }}>
-                <span style={{ fontSize: 11, fontWeight: 600, color: "var(--primary)", fontFamily: "'JetBrains Mono', monospace" }}>{ACTIVE_NETWORK.name}</span>
-              </div>
-              {wallet.isConnected ? (
-                <button type="button" className="wallet-pill connected" onClick={wallet.disconnect}>
-                  <span>{shortAddr(wallet.address)}</span>
-                  <LogOut size={12} aria-hidden />
-                </button>
-              ) : (
-                <ShimmerBtn variant="primary" onClick={wallet.connect}>
-                  <Wallet size={14} /> {wallet.isConnecting ? "Connecting…" : <>Connect<span className="desktop-only"> Wallet</span></>}
-                </ShimmerBtn>
-              )}
+              <ConnectButton />
             </div>
           </div>
         </nav>

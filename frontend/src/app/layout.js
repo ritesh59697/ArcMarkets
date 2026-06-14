@@ -1,6 +1,7 @@
 import "./globals.css";
 import "./polish.css";
 import "./themes.css";
+import "@rainbow-me/rainbowkit/styles.css";
 import { Providers } from "./providers";
 
 export default function RootLayout({ children }) {
