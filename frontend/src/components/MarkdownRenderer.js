@@ -3,7 +3,7 @@
 import React, { useState } from "react";
 import { 
   Terminal, Copy, Check, Info, Shield, 
-  Cpu, Wallet, Coins, ArrowRight, Play, RefreshCw, Eye
+  Cpu, Wallet, Coins, ArrowRight, Play, RefreshCw, Eye, Flame
 } from "lucide-react";
 
 // ─── ELEGANT INTERACTIVE SEQUENCE DIAGRAM ────────────────────────────────────
@@ -362,6 +362,46 @@ function MathFormulaBlock({ formula }) {
   );
 }
 
+// ─── INLINE LATEX MATH PARSER ────────────────────────────────────────────────
+const renderMath = (formula) => {
+  let clean = formula;
+  clean = clean.replace(/\\text\{([^}]+)\}/g, "$1");
+  clean = clean.replace(/\\times/g, " × ");
+  clean = clean.replace(/\\%/g, "%");
+  clean = clean.replace(/\\Delta/g, "Δ");
+  clean = clean.replace(/\\texttt\{([^}]+)\}/g, "$1");
+  
+  // Parse subscript: base_subscript or base_{subscript}
+  const subRegex = /^([a-zA-Z0-9*]+)_\{?([^}]+)\}?$/;
+  const subMatch = subRegex.exec(clean);
+  if (subMatch) {
+    const base = subMatch[1];
+    const sub = subMatch[2];
+    return (
+      <span style={{ fontFamily: "var(--font-mono)" }}>
+        <em style={{ fontStyle: "italic" }}>{base}</em>
+        <sub>{sub}</sub>
+      </span>
+    );
+  }
+  
+  // If it's a simple variable like B
+  if (/^[a-zA-Z0-9*^]+$/.test(clean)) {
+    if (clean.includes("^")) {
+      const [base, sup] = clean.split("^");
+      return (
+        <span style={{ fontFamily: "var(--font-mono)" }}>
+          <em style={{ fontStyle: "italic" }}>{base}</em>
+          <sup>{sup}</sup>
+        </span>
+      );
+    }
+    return <em style={{ fontStyle: "italic", fontFamily: "var(--font-mono)" }}>{clean}</em>;
+  }
+  
+  return <span style={{ fontFamily: "var(--font-mono)", fontWeight: 600 }}>{clean}</span>;
+};
+
 // ─── MAIN CUSTOM MARKDOWN PARSER ─────────────────────────────────────────────
 export default function MarkdownRenderer({ content }) {
   if (!content) return null;
@@ -419,18 +459,25 @@ export default function MarkdownRenderer({ content }) {
       // We can do a search replacement or split
       // Let's use simple tokenization for inline formatting
       let currentString = spanText;
-
-      // Handle simple math formula conversions inside paragraph text
-      currentString = currentString.replace(/\$(\Delta R)\$/g, "ΔR");
-      currentString = currentString.replace(/\$([a-zA-Z])_([a-zA-Z0-9*]+)\$/g, "$1_$2");
-      currentString = currentString.replace(/\$([a-zA-Z])\^([a-zA-Z0-9*]+)\$/g, "$1^$2");
-      currentString = currentString.replace(/\$p_([a-zA-Z0-9*{}]+)\$/g, "p_$1");
-      currentString = currentString.replace(/\$O_([a-zA-Z0-9*{}]+)\$/g, "O_$1");
       
       // Render text elements recursively
       // Simple inline splits
       const renderTokens = (str) => {
         if (!str) return [];
+
+        // Inline math match: $formula$
+        let mathMatch = /\$([^\$]+)\$/.exec(str);
+        if (mathMatch) {
+          const before = str.substring(0, mathMatch.index);
+          const formula = mathMatch[1];
+          const after = str.substring(mathMatch.index + mathMatch[0].length);
+          
+          return [
+            ...renderTokens(before),
+            renderMath(formula),
+            ...renderTokens(after)
+          ];
+        }
         
         // Nested Badge Link match: [![Alt](img_url)](link_url)
         let badgeMatch = /\[\!\[([^\]]*)\]\(([^)]+)\)\]\(([^)]+)\)/.exec(str);
@@ -841,6 +888,204 @@ export default function MarkdownRenderer({ content }) {
     // Parse body rows
     const bodyRows = rows.slice(2).map(r => r.split("|").slice(1, -1).map(c => c.trim()));
 
+    const isRiskProfilesTable = headerCols.length === 4 && 
+      headerCols[0].toLowerCase().includes("parameter") &&
+      headerCols[1].toLowerCase().includes("conservative") &&
+      headerCols[2].toLowerCase().includes("moderate") &&
+      headerCols[3].toLowerCase().includes("aggressive");
+
+    if (isRiskProfilesTable && bodyRows.length >= 3) {
+      // Parse profile details dynamically
+      const profiles = [
+        {
+          name: headerCols[1],
+          icon: <Shield size={18} style={{ color: "#10b981" }} />,
+          color: "#10b981",
+          glowColor: "rgba(16, 185, 129, 0.1)",
+          borderColor: "rgba(16, 185, 129, 0.22)",
+          description: "Focuses on capital preservation with highly selective, high-probability betting thresholds.",
+          params: [
+            { label: "Min Confidence", symbol: "p_thresh", value: bodyRows[0][1], pct: parseFloat(bodyRows[0][1].replace(/[^0-9]/g, "")) || 70 },
+            { label: "Max Bet Percent", symbol: "f_max", value: bodyRows[1][1], pct: (parseFloat(bodyRows[1][1].replace(/[^0-9]/g, "")) || 5) * 5 }, // scale 5% to 25% of bar width
+            { label: "Outcome Multiplier", symbol: "m_outcome", value: bodyRows[2][1], pill: true }
+          ]
+        },
+        {
+          name: headerCols[2],
+          icon: <Cpu size={18} style={{ color: "var(--royal-bright)" }} />,
+          color: "var(--royal-bright)",
+          glowColor: "var(--primary-alpha-bg)",
+          borderColor: "var(--primary-alpha-border)",
+          description: "Balances steady growth and capital safety, taking standard EV-positive parimutuel wagers.",
+          params: [
+            { label: "Min Confidence", symbol: "p_thresh", value: bodyRows[0][2], pct: parseFloat(bodyRows[0][2].replace(/[^0-9]/g, "")) || 55 },
+            { label: "Max Bet Percent", symbol: "f_max", value: bodyRows[1][2], pct: (parseFloat(bodyRows[1][2].replace(/[^0-9]/g, "")) || 10) * 5 }, // scale 10% to 50%
+            { label: "Outcome Multiplier", symbol: "m_outcome", value: bodyRows[2][2], pill: true }
+          ]
+        },
+        {
+          name: headerCols[3],
+          icon: <Flame size={18} style={{ color: "#ec4899" }} />,
+          color: "#ec4899",
+          glowColor: "rgba(236, 72, 153, 0.1)",
+          borderColor: "rgba(236, 72, 153, 0.22)",
+          description: "Maximizes compound growth using a higher risk fraction on moderate-to-high conviction EV setups.",
+          params: [
+            { label: "Min Confidence", symbol: "p_thresh", value: bodyRows[0][3], pct: parseFloat(bodyRows[0][3].replace(/[^0-9]/g, "")) || 40 },
+            { label: "Max Bet Percent", symbol: "f_max", value: bodyRows[1][3], pct: (parseFloat(bodyRows[1][3].replace(/[^0-9]/g, "")) || 20) * 5 }, // scale 20% to 100%
+            { label: "Outcome Multiplier", symbol: "m_outcome", value: bodyRows[2][3], pill: true }
+          ]
+        }
+      ];
+      
+      return (
+        <div key={key} style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fit, minmax(260px, 1fr))",
+          gap: "20px",
+          margin: "28px 0"
+        }}>
+          {profiles.map((profile) => (
+            <div 
+              key={profile.name}
+              style={{
+                background: "var(--bg-card)",
+                border: `1px solid ${profile.borderColor}`,
+                borderRadius: "var(--radius)",
+                padding: "20px",
+                boxShadow: `var(--card-shadow)`,
+                backdropFilter: "blur(20px)",
+                display: "flex",
+                flexDirection: "column",
+                gap: "16px",
+                transition: "all 0.3s ease",
+                position: "relative",
+                overflow: "hidden"
+              }}
+              className="hover:scale-[1.02] transition-all"
+            >
+              {/* Top accent line */}
+              <div style={{
+                position: "absolute",
+                top: 0,
+                left: 0,
+                right: 0,
+                height: "3px",
+                background: profile.color
+              }} />
+
+              {/* Profile Header */}
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div style={{
+                  width: "36px",
+                  height: "36px",
+                  borderRadius: "8px",
+                  background: profile.glowColor,
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  border: `1px solid ${profile.borderColor}`
+                }}>
+                  {profile.icon}
+                </div>
+                <div>
+                  <h4 style={{ 
+                    fontFamily: "var(--font-display)", 
+                    fontSize: "15px", 
+                    fontWeight: 700, 
+                    color: "var(--text-primary)", 
+                    margin: 0 
+                  }}>
+                    {profile.name}
+                  </h4>
+                  <span style={{ 
+                    fontSize: "9px", 
+                    color: "var(--text-muted)", 
+                    textTransform: "uppercase", 
+                    letterSpacing: "0.05em",
+                    fontWeight: 700
+                  }}>
+                    Risk Profile
+                  </span>
+                </div>
+              </div>
+
+              <p style={{ 
+                fontSize: "12px", 
+                color: "var(--text-secondary)", 
+                lineHeight: "1.5",
+                margin: 0,
+                minHeight: "36px"
+              }}>
+                {profile.description}
+              </p>
+
+              {/* Divider */}
+              <div style={{ height: "1px", background: "var(--border)", opacity: 0.5 }} />
+
+              {/* Parameters list */}
+              <div style={{ display: "flex", flexDirection: "column", gap: "12px" }}>
+                {profile.params.map((param) => (
+                  <div key={param.label} style={{ display: "flex", flexDirection: "column", gap: "4px" }}>
+                    <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                      <span style={{ fontSize: "12px", color: "var(--text-secondary)", fontWeight: 500 }}>
+                        {param.label}{" "}
+                        <span style={{ fontSize: "10px", color: "var(--text-muted)", fontFamily: "var(--font-mono)" }}>
+                          ({param.symbol === "p_thresh" ? "p_thresh" : param.symbol === "f_max" ? "f_max" : "m_outcome"})
+                        </span>
+                      </span>
+                      <span style={{ 
+                        fontSize: "13px", 
+                        fontWeight: 700, 
+                        fontFamily: "var(--font-mono)", 
+                        color: "var(--text-primary)" 
+                      }}>
+                        {parseInlineElements(param.value)}
+                      </span>
+                    </div>
+                    {!param.pill ? (
+                      <div style={{
+                        width: "100%",
+                        height: "5px",
+                        background: "rgba(255, 255, 255, 0.05)",
+                        borderRadius: "2.5px",
+                        overflow: "hidden"
+                      }}>
+                        <div style={{
+                          width: `${param.pct}%`,
+                          height: "100%",
+                          background: profile.color,
+                          borderRadius: "2.5px"
+                        }} />
+                      </div>
+                    ) : (
+                      <div style={{ display: "flex", marginTop: "1px" }}>
+                        <span style={{
+                          fontSize: "8.5px",
+                          fontWeight: 750,
+                          textTransform: "uppercase",
+                          padding: "2px 6px",
+                          borderRadius: "4px",
+                          background: profile.glowColor,
+                          color: profile.color,
+                          border: `1px solid ${profile.borderColor}`,
+                          letterSpacing: "0.02em",
+                          fontFamily: "var(--font-sans)"
+                        }}>
+                          Multiplier Factor
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+            </div>
+          ))}
+        </div>
+      );
+    }
+
     return (
       <div key={key} style={{ overflowX: "auto", margin: "24px 0", borderRadius: "var(--radius-sm)", border: "1px solid var(--border)" }}>
         <table style={{
@@ -848,7 +1093,7 @@ export default function MarkdownRenderer({ content }) {
           borderCollapse: "collapse",
           fontSize: "13.5px",
           textAlign: "left",
-          background: "rgba(2, 12, 32, 0.4)",
+          background: "var(--bg-card)",
           backdropFilter: "blur(10px)"
         }}>
           <thead>
