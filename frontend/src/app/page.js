@@ -3707,7 +3707,7 @@ export default function Home() {
                   </div>
                 )}
               </div>
-              <ConnectButton />
+              <ConnectButton showBalance={false} />
             </div>
           </div>
         </nav>
