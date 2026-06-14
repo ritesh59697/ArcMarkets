@@ -100,7 +100,7 @@ export default function WhitepaperClient({ whitepaper }) {
             display: "inline-flex",
             alignItems: "center",
             gap: 6,
-            background: "rgba(255,255,255,0.05)",
+            background: "rgba(100, 116, 139, 0.05)",
             border: "1px solid var(--border)",
             borderRadius: "var(--radius-sm)",
             padding: "8px 14px",
@@ -110,11 +110,11 @@ export default function WhitepaperClient({ whitepaper }) {
             textDecoration: "none",
             cursor: "pointer",
             transition: "all 0.2s"
-          }} className="hover:bg-white/10 hover:text-white">
+          }} className="hover:bg-primary/5 hover:text-primary dark:hover:bg-white/10 dark:hover:text-white">
             <ArrowLeft size={14} /> Back to DApp
           </Link>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, color: "white" }}>ArcMarkets Whitepaper</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, color: "var(--text-primary)" }}>ArcMarkets Whitepaper</div>
             <div style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1.2, textTransform: "uppercase", fontWeight: 700 }}>Technical Protocol Specification</div>
           </div>
         </div>

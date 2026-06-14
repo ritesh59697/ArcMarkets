@@ -121,17 +121,17 @@ function InteractiveSequenceDiagram() {
 
       {/* Actor Blocks */}
       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: 20, textAlign: "center", marginBottom: 24 }}>
-        <div style={{ background: "rgba(255,255,255,0.02)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: 14 }}>
+        <div style={{ background: "rgba(100, 116, 139, 0.04)", border: "1px solid var(--border)", borderRadius: "var(--radius-sm)", padding: 14 }}>
           <div style={{ display: "flex", justifyContent: "center", color: "var(--accent)", marginBottom: 8 }}><Wallet size={24} /></div>
           <div style={{ fontSize: 13, fontWeight: 700 }}>User Wallet</div>
           <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>Retains USDC custody &amp; reviews NFT receipts</div>
         </div>
-        <div style={{ background: "rgba(0, 79, 210, 0.05)", border: "1px solid var(--primary-alpha-border)", borderRadius: "var(--radius-sm)", padding: 14 }}>
+        <div style={{ background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)", borderRadius: "var(--radius-sm)", padding: 14 }}>
           <div style={{ display: "flex", justifyContent: "center", color: "var(--primary-glow)", marginBottom: 8 }}><Shield size={24} /></div>
           <div style={{ fontSize: 13, fontWeight: 700, color: "var(--royal-bright)" }}>Smart Contract</div>
           <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>Holds escrow pool &amp; validates permission</div>
         </div>
-        <div style={{ background: "rgba(245, 192, 24, 0.04)", border: "1px solid rgba(245,192,24,0.2)", borderRadius: "var(--radius-sm)", padding: 14 }}>
+        <div style={{ background: "rgba(245, 192, 24, 0.06)", border: "1px solid rgba(245,192,24,0.25)", borderRadius: "var(--radius-sm)", padding: 14 }}>
           <div style={{ display: "flex", justifyContent: "center", color: "var(--accent)", marginBottom: 8 }}><Cpu size={24} /></div>
           <div style={{ fontSize: 13, fontWeight: 700, color: "var(--accent)" }}>AI Agent Client</div>
           <div style={{ fontSize: 10, color: "var(--text-muted)", marginTop: 4 }}>Computes EV &amp; automates fractional Kelly sizing</div>
@@ -148,7 +148,7 @@ function InteractiveSequenceDiagram() {
               key={step.id}
               onClick={() => !isPlaying && setActiveStep(step.id === activeStep ? null : step.id)}
               style={{
-                background: isActive ? "rgba(0, 79, 210, 0.08)" : "rgba(255,255,255,0.01)",
+                background: isActive ? "var(--primary-alpha-bg)" : "rgba(100, 116, 139, 0.02)",
                 border: isActive 
                   ? "1px solid var(--royal-bright)" 
                   : isCompleted 
@@ -176,8 +176,8 @@ function InteractiveSequenceDiagram() {
                     width: 20,
                     height: 20,
                     borderRadius: "50%",
-                    background: isActive ? "var(--accent)" : isCompleted ? "var(--primary)" : "rgba(255,255,255,0.1)",
-                    color: isActive ? "var(--navy-deep)" : "white",
+                    background: isActive ? "var(--accent)" : isCompleted ? "var(--primary)" : "rgba(100, 116, 139, 0.15)",
+                    color: isActive ? "var(--bg)" : "white",
                     display: "inline-flex",
                     alignItems: "center",
                     justifyContent: "center",
@@ -192,7 +192,7 @@ function InteractiveSequenceDiagram() {
                   fontSize: 10, 
                   padding: "2px 8px", 
                   borderRadius: 4, 
-                  background: isActive ? "rgba(0,79,210,0.2)" : "rgba(255,255,255,0.05)",
+                  background: isActive ? "var(--primary-alpha-bg)" : "rgba(100, 116, 139, 0.08)",
                   color: "var(--text-muted)"
                 }}>
                   {step.from} ➔ {step.to}
@@ -237,8 +237,8 @@ function TerminalCodeBlock({ code, language }) {
 
   return (
     <div className="terminal-container" style={{
-      background: "var(--bg-card)",
-      border: "1px solid var(--border)",
+      background: "#030a16",
+      border: "1px solid rgba(255, 255, 255, 0.06)",
       borderRadius: "var(--radius-sm)",
       overflow: "hidden",
       margin: "20px 0",
@@ -249,16 +249,16 @@ function TerminalCodeBlock({ code, language }) {
         display: "flex",
         justifyContent: "space-between",
         alignItems: "center",
-        background: "rgba(255, 255, 255, 0.03)",
+        background: "rgba(255, 255, 255, 0.02)",
         padding: "10px 16px",
-        borderBottom: "1px solid var(--border)",
+        borderBottom: "1px solid rgba(255, 255, 255, 0.04)",
         fontFamily: "var(--font-sans)"
       }}>
         <div style={{ display: "flex", gap: 6, alignItems: "center" }}>
           <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#ff5f56", display: "inline-block" }}></span>
           <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#ffbd2e", display: "inline-block" }}></span>
           <span style={{ width: 10, height: 10, borderRadius: "50%", background: "#27c93f", display: "inline-block" }}></span>
-          <span style={{ fontSize: 11, color: "var(--text-muted)", marginLeft: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
+          <span style={{ fontSize: 11, color: "#8c9cb2", marginLeft: 10, fontWeight: 600, textTransform: "uppercase", letterSpacing: 0.5 }}>
             {language || "code"}
           </span>
         </div>
@@ -267,7 +267,7 @@ function TerminalCodeBlock({ code, language }) {
           style={{
             background: "none",
             border: "none",
-            color: "var(--text-muted)",
+            color: copied ? "var(--green)" : "#8c9cb2",
             cursor: "pointer",
             display: "inline-flex",
             alignItems: "center",
@@ -278,9 +278,9 @@ function TerminalCodeBlock({ code, language }) {
             borderRadius: 4,
             transition: "all 0.2s"
           }}
-          className="hover:bg-white/5 hover:text-white"
+          className="hover:bg-white/10"
         >
-          {copied ? <Check size={12} style={{ color: "var(--green)" }} /> : <Copy size={12} />}
+          {copied ? <Check size={12} /> : <Copy size={12} />}
           {copied ? "Copied!" : "Copy"}
         </button>
       </div>
@@ -293,8 +293,8 @@ function TerminalCodeBlock({ code, language }) {
         fontFamily: "var(--font-mono)",
         fontSize: "12.5px",
         lineHeight: "1.6",
-        background: "rgba(0, 0, 0, 0.15)",
-        color: "#d1e3ff"
+        background: "#01050e",
+        color: "#c8d6eb"
       }}>
         <code>{code}</code>
       </pre>
@@ -336,8 +336,8 @@ function MathFormulaBlock({ formula }) {
 
   return (
     <div style={{
-      background: "radial-gradient(ellipse at center, rgba(0, 79, 210, 0.08), transparent 70%)",
-      border: "1px dashed var(--border)",
+      background: "var(--primary-alpha-bg)",
+      border: "1px dashed var(--primary-alpha-border)",
       borderRadius: "var(--radius-sm)",
       padding: "20px 24px",
       margin: "20px 0",

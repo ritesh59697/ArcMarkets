@@ -107,7 +107,7 @@ export default function DocsClient({ howItWorks, readme }) {
             display: "inline-flex",
             alignItems: "center",
             gap: 6,
-            background: "rgba(255,255,255,0.05)",
+            background: "rgba(100, 116, 139, 0.05)",
             border: "1px solid var(--border)",
             borderRadius: "var(--radius-sm)",
             padding: "8px 14px",
@@ -117,11 +117,11 @@ export default function DocsClient({ howItWorks, readme }) {
             textDecoration: "none",
             cursor: "pointer",
             transition: "all 0.2s"
-          }} className="hover:bg-white/10 hover:text-white">
+          }} className="hover:bg-primary/5 hover:text-primary dark:hover:bg-white/10 dark:hover:text-white">
             <ArrowLeft size={14} /> Back to DApp
           </Link>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, color: "white" }}>ArcMarkets Docs</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, color: "var(--text-primary)" }}>ArcMarkets Docs</div>
             <div style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1, textTransform: "uppercase", fontWeight: 700 }}>User &amp; System Guides</div>
           </div>
         </div>
@@ -217,7 +217,7 @@ export default function DocsClient({ howItWorks, readme }) {
                   cursor: "pointer",
                   transition: "all 0.2s"
                 }}
-                className={activeTab !== "how-it-works" ? "hover:bg-white/5" : ""}
+                className={activeTab !== "how-it-works" ? "hover:bg-primary/5 dark:hover:bg-white/5" : ""}
               >
                 <HelpCircle size={15} /> How it Works
               </button>
@@ -239,7 +239,7 @@ export default function DocsClient({ howItWorks, readme }) {
                   cursor: "pointer",
                   transition: "all 0.2s"
                 }}
-                className={activeTab !== "readme" ? "hover:bg-white/5" : ""}
+                className={activeTab !== "readme" ? "hover:bg-primary/5 dark:hover:bg-white/5" : ""}
               >
                 <BookOpen size={15} /> System Overview
               </button>
