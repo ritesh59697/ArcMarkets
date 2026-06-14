@@ -3168,7 +3168,7 @@ function PortfolioTab({ address, signer, refetchUsdt, onNotif, addNotif, onGoLea
                         ? "rgba(212, 175, 55, 0.15)"
                         : "rgba(255, 255, 255, 0.05)",
                     color: activeSubTab === tab.id
-                      ? "#000"
+                      ? "#ffffff"
                       : tab.highlight
                         ? "var(--gold)"
                         : "var(--text-muted)",
