@@ -195,7 +195,7 @@ export default function WhitepaperClient({ whitepaper }) {
         <aside 
           style={{
             width: 320,
-            background: "rgba(4, 18, 48, 0.2)",
+            background: theme === "dark" ? "rgba(4, 18, 48, 0.25)" : "rgba(100, 116, 139, 0.04)",
             borderRight: "1px solid var(--border)",
             padding: "24px",
             position: "sticky",

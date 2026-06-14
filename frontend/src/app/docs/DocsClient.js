@@ -180,7 +180,7 @@ export default function DocsClient({ howItWorks, readme }) {
         <aside 
           style={{
             width: 300,
-            background: "rgba(4, 18, 48, 0.2)",
+            background: theme === "dark" ? "rgba(4, 18, 48, 0.25)" : "rgba(100, 116, 139, 0.04)",
             borderRight: "1px solid var(--border)",
             padding: "24px",
             position: "sticky",
@@ -261,9 +261,9 @@ export default function DocsClient({ howItWorks, readme }) {
                   width: "100%",
                   padding: "8px 12px 8px 30px",
                   borderRadius: 6,
-                  background: "rgba(2, 12, 32, 0.6)",
+                  background: "var(--input-bg)",
                   border: "1px solid var(--border)",
-                  color: "white",
+                  color: "var(--text-primary)",
                   fontSize: 12,
                   outline: "none",
                   transition: "all 0.2s"
@@ -442,7 +442,7 @@ export default function DocsClient({ howItWorks, readme }) {
 
           {/* Quick Support / Contact Callout */}
           <div style={{
-            background: "rgba(4, 18, 48, 0.45)",
+            background: "var(--bg-card)",
             border: "1px solid var(--border)",
             borderRadius: "var(--radius)",
             padding: "20px",
