@@ -1268,6 +1268,10 @@ function MatchesTab({
   const [selectedMatch, setSelectedMatch] = useState(null);
   const [initialOutcome, setInitialOutcome] = useState(1);
 
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [selectedMatch]);
+
   if (selectedMatch) {
     return (
       <MatchProDashboard
@@ -3313,6 +3317,10 @@ export default function Home() {
   const [theme, setTheme] = useState("light");
   const [footerModal, setFooterModal] = useState(null);
   const [showMobileMenu, setShowMobileMenu] = useState(false);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "instant" });
+  }, [tab]);
 
   // Avatar states
   const [avatarUrl, setAvatarUrl] = useState("");

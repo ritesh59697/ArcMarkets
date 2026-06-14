@@ -377,24 +377,26 @@ export default function MatchProDashboard({
                       strokeWidth="2.5" 
                       style={{ filter: "drop-shadow(0 0 6px var(--primary))" }}
                     />
-                    <line 
-                      x1={getX(hoverIndex !== null ? hoverIndex : chartData.length - 1)} 
-                      y1={pad} 
-                      x2={getX(hoverIndex !== null ? hoverIndex : chartData.length - 1)} 
-                      y2={height - pad - 10} 
-                      stroke="var(--border)" 
-                      strokeWidth="1.5" 
-                    />
+                    {hoverIndex !== null && (
+                      <line 
+                        x1={getX(hoverIndex)} 
+                        y1={pad} 
+                        x2={getX(hoverIndex)} 
+                        y2={height - pad - 10} 
+                        stroke="var(--border)" 
+                        strokeWidth="1.5" 
+                      />
+                    )}
                   </g>
                 )}
               </svg>
 
               {/* Live Odds/Tooltip box */}
-              {activePoint && (
+              {hoverIndex !== null && activePoint && (
                 <div style={{
                   position: "absolute",
                   top: 10,
-                  left: hoverIndex !== null ? `${Math.min(75, Math.max(10, (hoverIndex / chartData.length) * 100))}%` : "16px",
+                  left: `${Math.min(75, Math.max(10, (hoverIndex / chartData.length) * 100))}%`,
                   background: "var(--bg-card)",
                   border: "1px solid var(--border)",
                   borderRadius: 10,
