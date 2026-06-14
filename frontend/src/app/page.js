@@ -1354,7 +1354,7 @@ function MatchesTab({
               Explore Markets
             </button>
             <a
-              href="https://ritesh5969.gitbook.io/arcmarkets-docs#how-it-works"
+              href="/docs#how-it-works"
               target="_blank"
               rel="noopener noreferrer"
               className="hero-secondary-action"
@@ -3562,7 +3562,7 @@ export default function Home() {
                 </button>
               ))}
               <a
-                href="https://ritesh5969.gitbook.io/arcmarkets-docs"
+                href="/docs"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="tab-item"
@@ -3760,7 +3760,7 @@ export default function Home() {
               </button>
             ))}
             <a
-              href="https://ritesh5969.gitbook.io/arcmarkets-docs"
+              href="/docs"
               target="_blank"
               rel="noopener noreferrer"
               className="mobile-menu-item"
@@ -3878,7 +3878,7 @@ export default function Home() {
               {/* Support Links */}
               <div style={{ display: "flex", gap: 20, flexWrap: "wrap" }}>
                 <a
-                  href="https://ritesh5969.gitbook.io/arcmarkets-docs/whitepaper"
+                  href="/whitepaper"
                   target="_blank"
                   rel="noopener noreferrer"
                   style={{
