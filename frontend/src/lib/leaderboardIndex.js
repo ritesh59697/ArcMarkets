@@ -2,7 +2,7 @@ import { ethers } from "ethers";
 import { PREDICTION_MARKET_ABI } from "../utils/abis";
 
 const USDC_DECIMALS = 6;
-const CHUNK = 2500;
+const CHUNK = 9000;
 
 function getMarketAddress() {
   return (
@@ -31,17 +31,18 @@ function emptyStats() {
 }
 
 async function queryChunked(contract, filter, fromBlock, toBlock) {
-  const logs = [];
+  const promises = [];
   for (let start = fromBlock; start <= toBlock; start += CHUNK) {
     const end = Math.min(start + CHUNK - 1, toBlock);
-    try {
-      const batch = await contract.queryFilter(filter, start, end);
-      logs.push(...batch);
-    } catch (err) {
-      console.warn(`queryFilter ${start}-${end}:`, err.message);
-    }
+    promises.push(
+      contract.queryFilter(filter, start, end).catch(err => {
+        console.warn(`queryFilter ${start}-${end}:`, err.message);
+        return [];
+      })
+    );
   }
-  return logs;
+  const batches = await Promise.all(promises);
+  return batches.flat();
 }
 
 export async function buildOnChainLeaderboard(limit = 50) {
@@ -50,17 +51,7 @@ export async function buildOnChainLeaderboard(limit = 50) {
   const contract = new ethers.Contract(marketAddress, PREDICTION_MARKET_ABI, provider);
 
   const latest = await provider.getBlockNumber();
-  let fromBlock = Number(process.env.LEADERBOARD_FROM_BLOCK || 0);
-
-  if (!fromBlock) {
-    const created = await queryChunked(
-      contract,
-      contract.filters.MatchCreated(),
-      Math.max(0, latest - 100000),
-      latest
-    );
-    fromBlock = created.length ? created[0].blockNumber : Math.max(0, latest - 50000);
-  }
+  const fromBlock = Number(process.env.LEADERBOARD_FROM_BLOCK || 46585000);
 
   const [betLogs, claimLogs, resolveLogs] = await Promise.all([
     queryChunked(contract, contract.filters.BetPlaced(), fromBlock, latest),

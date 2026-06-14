@@ -577,7 +577,7 @@ export default function MatchProDashboard({
                 type="range"
                 min="0.5"
                 max="10.0"
-                step="0.5"
+                step="0.1"
                 value={slippage}
                 onChange={e => setSlippage(e.target.value)}
                 style={{ width: "100%", accentColor: "var(--primary)", cursor: "pointer" }}
