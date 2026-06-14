@@ -61,8 +61,8 @@ html {
   --navbar-shadow: 0 10px 40px rgba(0, 0, 0, 0.65);
 
   --font-sans: 'Outfit', system-ui, sans-serif;
-  --font-serif: 'Syne', system-ui, sans-serif;
-  --font-display: 'Syne', system-ui, sans-serif;
+  --font-serif: 'Outfit', system-ui, sans-serif;
+  --font-display: 'Outfit', system-ui, sans-serif;
   --font-mono: 'JetBrains Mono', monospace;
 
   --avatar-border-grad: linear-gradient(135deg, rgba(0, 79, 210, 0.5), rgba(245, 192, 24, 0.4));
