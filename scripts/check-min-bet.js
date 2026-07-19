@@ -6,10 +6,10 @@ async function main() {
   const market = await ethers.getContractAt("PredictionMarket", marketAddr);
 
   const minBet = await market.MIN_BET();
-  const usdtAddress = await market.usdt();
+  const usdcAddress = await market.usdc();
   
   console.log("MIN_BET on contract:", minBet.toString());
-  console.log("USDT Address on contract:", usdtAddress);
+  console.log("USDC Address on contract:", usdcAddress);
 }
 
 main().catch(console.error);
