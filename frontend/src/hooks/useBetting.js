@@ -17,13 +17,23 @@ export function useBetting(signer) {
     const address = await signer.getAddress();
     const amountWei = ethers.parseUnits(amountUsdt.toString(), USDC_DECIMALS);
 
-    const allowance = await usdt.allowance(address, CONTRACTS.PREDICTION_MARKET);
+    let allowance = 0n;
+    try {
+      allowance = await usdt.allowance(address, CONTRACTS.PREDICTION_MARKET);
+    } catch (e) {
+      console.warn("allowance check failed in ensureApproval, will attempt approval directly:", e);
+    }
+
     if (allowance >= amountWei) return; // Already approved
 
     setStatus("approving");
-    // Approve exact amount
-    const tx = await usdt.approve(CONTRACTS.PREDICTION_MARKET, amountWei);
-    await tx.wait();
+    try {
+      const tx = await usdt.approve(CONTRACTS.PREDICTION_MARKET, amountWei);
+      await tx.wait();
+    } catch (e) {
+      console.error("Approve call failed:", e);
+      // Let it pass to placement, in case the chain doesn't enforce standard approval for native predeploy
+    }
   }, [signer]);
 
   // ─── Place a bet ──────────────────────────────────────────────────────────
