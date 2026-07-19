@@ -19,8 +19,7 @@ const RPC_ENDPOINTS = [
 let activeRpcUrl = RPC_ENDPOINTS[0];
 
 export function getRpcProvider() {
-  const url = typeof window !== "undefined" ? `${window.location.origin}/api/rpc` : activeRpcUrl;
-  return new ethers.JsonRpcProvider(url, undefined, { batchMaxCount: 100, batchStallTime: 10 });
+  return new ethers.JsonRpcProvider(activeRpcUrl, undefined, { batchMaxCount: 100, batchStallTime: 10 });
 }
 
 export function switchRpc() {
