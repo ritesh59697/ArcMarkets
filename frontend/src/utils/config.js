@@ -29,7 +29,7 @@ export function switchRpc() {
 }
 
 export async function runWithRpcFallback(fn) {
-  const maxRetries = RPC_ENDPOINTS.length * 2;
+  const maxRetries = Math.max(RPC_ENDPOINTS.length * 2, 3);
   let lastError;
   for (let i = 0; i < maxRetries; i++) {
     try {
@@ -37,6 +37,11 @@ export async function runWithRpcFallback(fn) {
     } catch (err) {
       lastError = err;
       switchRpc();
+      // Give a rate-limited/transient-failure RPC node a moment to recover
+      // before retrying, instead of hammering it back-to-back.
+      if (i < maxRetries - 1) {
+        await new Promise((resolve) => setTimeout(resolve, 300 * (i + 1)));
+      }
     }
   }
   throw lastError;
