@@ -2,8 +2,9 @@
 import { NextResponse } from "next/server";
 
 const RPC_ENDPOINTS = [
-  process.env.NEXT_PUBLIC_ARC_RPC_URL || "https://rpc.testnet.arc.network",
-];
+  process.env.NEXT_PUBLIC_ARC_RPC_URL,
+  "https://rpc.testnet.arc.network",
+].filter((url, index, self) => url && self.indexOf(url) === index);
 
 let activeRpcIndex = 0;
 

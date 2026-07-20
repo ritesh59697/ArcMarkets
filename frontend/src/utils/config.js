@@ -13,8 +13,9 @@ export const ARC_TESTNET = {
 export const ACTIVE_NETWORK = ARC_TESTNET;
 
 const RPC_ENDPOINTS = [
-  process.env.NEXT_PUBLIC_ARC_RPC_URL || ARC_TESTNET.rpcUrl,
-];
+  process.env.NEXT_PUBLIC_ARC_RPC_URL,
+  "https://rpc.testnet.arc.network",
+].filter((url, index, self) => url && self.indexOf(url) === index);
 
 let activeRpcUrl = RPC_ENDPOINTS[0];
 
