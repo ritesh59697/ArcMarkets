@@ -18,29 +18,34 @@ const RPC_ENDPOINTS = [
 
 let activeRpcUrl = RPC_ENDPOINTS[0];
 
-export function getRpcProvider() {
-  return new ethers.JsonRpcProvider(activeRpcUrl, undefined, { batchMaxCount: 100, batchStallTime: 10 });
+export function getRpcProvider(useDirect = false) {
+  if (typeof window !== "undefined" && !useDirect) {
+    const proxyUrl = `${window.location.origin}/api/rpc`;
+    return new ethers.JsonRpcProvider(proxyUrl, undefined, { batchMaxCount: 50, batchStallTime: 20 });
+  }
+  return new ethers.JsonRpcProvider(activeRpcUrl, undefined, { batchMaxCount: 50, batchStallTime: 20 });
 }
 
 export function switchRpc() {
   const currentIndex = RPC_ENDPOINTS.indexOf(activeRpcUrl);
   activeRpcUrl = RPC_ENDPOINTS[(currentIndex + 1) % RPC_ENDPOINTS.length];
-  return getRpcProvider();
+  return getRpcProvider(true);
 }
 
 export async function runWithRpcFallback(fn) {
-  const maxRetries = Math.max(RPC_ENDPOINTS.length * 2, 3);
+  const maxRetries = Math.max(RPC_ENDPOINTS.length * 3, 4);
   let lastError;
   for (let i = 0; i < maxRetries; i++) {
     try {
-      return await fn(getRpcProvider());
+      const provider = i === 0 ? getRpcProvider() : getRpcProvider(true);
+      return await fn(provider);
     } catch (err) {
       lastError = err;
       switchRpc();
-      // Give a rate-limited/transient-failure RPC node a moment to recover
-      // before retrying, instead of hammering it back-to-back.
       if (i < maxRetries - 1) {
-        await new Promise((resolve) => setTimeout(resolve, 300 * (i + 1)));
+        // Exponential backoff with jitter for public RPC rate-limits
+        const delay = Math.min(400 * Math.pow(2, i), 2500) + Math.random() * 100;
+        await new Promise((resolve) => setTimeout(resolve, delay));
       }
     }
   }
