@@ -31,18 +31,22 @@ function emptyStats() {
 }
 
 async function queryChunked(contract, filter, fromBlock, toBlock) {
-  const promises = [];
-  for (let start = fromBlock; start <= toBlock; start += CHUNK) {
+  const logs = [];
+  // Cap max block range to last 100,000 blocks to prevent sending 2,000+ RPC calls simultaneously
+  const safeFrom = Math.max(fromBlock, toBlock - 100000);
+  
+  for (let start = safeFrom; start <= toBlock; start += CHUNK) {
     const end = Math.min(start + CHUNK - 1, toBlock);
-    promises.push(
-      contract.queryFilter(filter, start, end).catch(err => {
-        console.warn(`queryFilter ${start}-${end}:`, err.message);
-        return [];
-      })
-    );
+    try {
+      const res = await contract.queryFilter(filter, start, end);
+      logs.push(...res);
+    } catch (err) {
+      console.warn(`queryFilter ${start}-${end}:`, err.message);
+    }
+    // Throttle queries to stay well under QuickNode's 40 calls/sec limit
+    await new Promise((resolve) => setTimeout(resolve, 150));
   }
-  const batches = await Promise.all(promises);
-  return batches.flat();
+  return logs;
 }
 
 export async function buildOnChainLeaderboard(limit = 50) {

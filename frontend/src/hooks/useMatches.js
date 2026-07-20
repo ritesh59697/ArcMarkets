@@ -3,8 +3,75 @@ import { ethers } from "ethers";
 import { CONTRACTS, TEAM_FLAGS, USDC_DECIMALS, runWithRpcFallback } from "../utils/config";
 import { PREDICTION_MARKET_ABI } from "../utils/abis";
 
+const DEFAULT_MATCHES = [
+  {
+    index: 0,
+    homeTeam: "Solana",
+    awayTeam: "BNB",
+    homeFlag: "🇸🇴",
+    awayFlag: "🪙",
+    matchId: "CRYPTO-SOL-BNB",
+    kickoffTime: Date.now() + 86400000,
+    totalPool: 2.78,
+    homePool: 1.5,
+    drawPool: 0.28,
+    awayPool: 1.0,
+    result: 0,
+    status: 0,
+    odds: { home: 1.55, draw: 5, away: 2.83 },
+  },
+  {
+    index: 1,
+    homeTeam: "Pepe",
+    awayTeam: "Dogecoin",
+    homeFlag: "🐸",
+    awayFlag: "🐶",
+    matchId: "CRYPTO-PEPE-DOGE",
+    kickoffTime: Date.now() + 172800000,
+    totalPool: 10.36,
+    homePool: 5.0,
+    drawPool: 0.36,
+    awayPool: 5.0,
+    result: 0,
+    status: 0,
+    odds: { home: 2.15, draw: 5, away: 1.87 },
+  },
+  {
+    index: 2,
+    homeTeam: "Silver",
+    awayTeam: "MARKET OPEN",
+    homeFlag: "🥈",
+    awayFlag: "📈",
+    matchId: "SILVER-ATH",
+    kickoffTime: Date.now() + 259200000,
+    totalPool: 5.0,
+    homePool: 2.5,
+    drawPool: 0,
+    awayPool: 2.5,
+    result: 0,
+    status: 0,
+    odds: { home: 2.15, draw: 5, away: 1.87 },
+  },
+  {
+    index: 3,
+    homeTeam: "GOLD",
+    awayTeam: "MARKET OPEN",
+    homeFlag: "🥇",
+    awayFlag: "📈",
+    matchId: "GOLD-ATH",
+    kickoffTime: Date.now() + 345600000,
+    totalPool: 5.0,
+    homePool: 5.0,
+    drawPool: 0,
+    awayPool: 0,
+    result: 0,
+    status: 0,
+    odds: { home: 1, draw: 5, away: 3 },
+  },
+];
+
 export function useMatches() {
-  const [matches, setMatches] = useState([]);
+  const [matches, setMatches] = useState(DEFAULT_MATCHES);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
 
@@ -12,7 +79,10 @@ export function useMatches() {
     try {
       const cached = localStorage.getItem("arc_matches_cache");
       if (cached) {
-        setMatches(JSON.parse(cached));
+        const parsed = JSON.parse(cached);
+        if (parsed && parsed.length > 0) {
+          setMatches(parsed);
+        }
         setLoading(false);
       }
     } catch (e) {
