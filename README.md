@@ -1,5 +1,7 @@
 # ArcMarkets: Decentralized Prediction Markets on Arc Network
 
+[![Live App](https://img.shields.io/badge/Live_App-arc--markets--nine.vercel.app-00d4ff?style=flat-square&logo=vercel)](https://arc-markets-nine.vercel.app)
+[![Demo Video](https://img.shields.io/badge/Demo_Video-YouTube-ff0000?style=flat-square&logo=youtube)](https://youtu.be/2w3pnFuFAhI)
 [![Network](https://img.shields.io/badge/Network-Arc_Testnet-7b2ff7?style=flat-square)](https://rpc.testnet.arc.network)
 [![Gas Token](https://img.shields.io/badge/Gas-USDC_Native-00d4ff?style=flat-square)](https://testnet.arcscan.app)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
@@ -9,8 +11,17 @@ ArcMarkets is a fully on-chain, peer-to-peer prediction protocol deployed on the
 
 ---
 
+## 🔗 Links & Resources
+
+- 🌐 **Live DApp**: [https://arc-markets-nine.vercel.app](https://arc-markets-nine.vercel.app)
+- 🎬 **Demo Video**: [Watch Walkthrough on YouTube](https://youtu.be/2w3pnFuFAhI)
+- 📄 **Whitepaper**: [WHITEPAPER.md](./WHITEPAPER.md)
+
+---
+
 ## Table of Contents
 
+- [Links & Resources](#-links--resources)
 - [Key Innovations](#key-innovations)
 - [How it Works](#how-it-works)
 - [Architecture Overview](#architecture-overview)
