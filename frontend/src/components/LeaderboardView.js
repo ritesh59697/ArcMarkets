@@ -195,7 +195,7 @@ export function LeaderboardTab({ theme }) {
             On-chain <span className="text-gradient-arc" style={{ fontStyle: "italic" }}>Leaderboard</span>
           </h1>
           <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-            Ranked by realized USDC profit from contract events · Arc Testnet
+            Ranked by realized USDC profit on-chain · Arc Testnet
             {meta?.betCount != null && ` · ${meta.betCount} bets indexed`}
           </p>
         </div>
@@ -216,8 +216,8 @@ export function LeaderboardTab({ theme }) {
             <RefreshCw size={22} className="animate-spin" style={{ color: "var(--primary)" }} />
           </div>
           <div style={{ textAlign: "center" }}>
-            <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>Scanning Events</div>
-            <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Scanning BetPlaced & WinningsClaimed events on-chain…</div>
+            <div style={{ fontSize: 15, fontWeight: 700, color: "var(--text-primary)", marginBottom: 4 }}>Fetching On-chain State</div>
+            <div style={{ fontSize: 13, color: "var(--text-muted)" }}>Reading predictions and match data directly on-chain…</div>
           </div>
         </div>
       ) : (

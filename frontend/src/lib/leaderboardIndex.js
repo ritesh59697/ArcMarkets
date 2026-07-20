@@ -1,8 +1,7 @@
 import { ethers } from "ethers";
-import { PREDICTION_MARKET_ABI } from "../utils/abis";
+import { PREDICTION_MARKET_ABI } from "../utils/abis.js";
 
 const USDC_DECIMALS = 6;
-const CHUNK = 9000;
 
 function getMarketAddress() {
   return (
@@ -11,13 +10,12 @@ function getMarketAddress() {
   );
 }
 
-function getRpcUrl() {
-  return (
-    process.env.NEXT_PUBLIC_ARC_RPC_URL ||
-    process.env.ARC_RPC_URL ||
-    "https://rpc.testnet.arc.network"
-  );
-}
+const RPC_ENDPOINTS = [
+  process.env.NEXT_PUBLIC_ARC_RPC_URL,
+  process.env.ARC_RPC_URL,
+  "https://arc-testnet.g.alchemy.com/v2/dsKUaW_GE724U3laOjGG2",
+  "https://rpc.testnet.arc.network",
+].filter((url, index, self) => url && self.indexOf(url) === index);
 
 function emptyStats() {
   return {
@@ -30,79 +28,85 @@ function emptyStats() {
   };
 }
 
-async function queryChunked(contract, filter, fromBlock, toBlock) {
-  const logs = [];
-  // Cap max block range to last 100,000 blocks to prevent sending 2,000+ RPC calls simultaneously
-  const safeFrom = Math.max(fromBlock, toBlock - 100000);
-  
-  for (let start = safeFrom; start <= toBlock; start += CHUNK) {
-    const end = Math.min(start + CHUNK - 1, toBlock);
-    try {
-      const res = await contract.queryFilter(filter, start, end);
-      logs.push(...res);
-    } catch (err) {
-      console.warn(`queryFilter ${start}-${end}:`, err.message);
-    }
-    // Throttle queries to stay well under QuickNode's 40 calls/sec limit
-    await new Promise((resolve) => setTimeout(resolve, 150));
-  }
-  return logs;
-}
-
-export async function buildOnChainLeaderboard(limit = 50) {
-  const marketAddress = getMarketAddress();
-  const provider = new ethers.JsonRpcProvider(getRpcUrl(), undefined, { batchMaxCount: 100, batchStallTime: 10 });
+async function fetchWithProvider(provider, marketAddress, limit) {
   const contract = new ethers.Contract(marketAddress, PREDICTION_MARKET_ABI, provider);
+  const latest = await provider.getBlockNumber().catch(() => 0);
 
-  const latest = await provider.getBlockNumber();
-  const fromBlock = Number(process.env.LEADERBOARD_FROM_BLOCK || 46585000);
-
-  const [betLogs, claimLogs, resolveLogs] = await Promise.all([
-    queryChunked(contract, contract.filters.BetPlaced(), fromBlock, latest),
-    queryChunked(contract, contract.filters.WinningsClaimed(), fromBlock, latest),
-    queryChunked(contract, contract.filters.MarketResolved(), fromBlock, latest),
-  ]);
-
-  const matchResults = {};
-  for (const log of resolveLogs) {
-    matchResults[Number(log.args.matchIndex)] = Number(log.args.result);
+  // 1. Fetch matches in chunks of 10
+  const matchCount = Number(await contract.getMatchCount());
+  const matches = [];
+  for (let i = 0; i < matchCount; i += 10) {
+    const chunk = Array.from({ length: Math.min(10, matchCount - i) }, (_, j) => contract.getMatch(i + j));
+    const res = await Promise.all(chunk);
+    matches.push(...res.map((m) => ({
+      status: Number(m.status),
+      result: Number(m.result),
+      totalPool: Number(ethers.formatUnits(m.totalPool, USDC_DECIMALS)),
+      outcomePools: m.outcomePools.map((p) => Number(ethers.formatUnits(p, USDC_DECIMALS))),
+    })));
   }
 
-  const stats = new Map();
-  const betsById = new Map();
+  // 2. Binary search upper bound of bet IDs
+  let low = 0, high = 1000, maxBet = -1;
+  while (low <= high) {
+    const mid = Math.floor((low + high) / 2);
+    try {
+      await contract.getBet(mid);
+      maxBet = mid;
+      low = mid + 1;
+    } catch {
+      high = mid - 1;
+    }
+  }
 
+  const totalBets = maxBet + 1;
+
+  // 3. Fetch bets in chunks of 15
+  const allBets = [];
+  for (let i = 0; i < totalBets; i += 15) {
+    const chunk = Array.from({ length: Math.min(15, totalBets - i) }, (_, j) => contract.getBet(i + j));
+    const res = await Promise.all(chunk);
+    allBets.push(...res.map((b, idx) => ({
+      id: i + idx,
+      bettor: b.bettor,
+      matchIndex: Number(b.matchIndex),
+      outcome: Number(b.outcome),
+      amount: Number(ethers.formatUnits(b.amount, USDC_DECIMALS)),
+      claimed: b.claimed,
+      isAgentBet: b.isAgentBet,
+      timestamp: Number(b.timestamp),
+    })));
+  }
+
+  // 4. Aggregate user stats
+  const stats = new Map();
   const touch = (addr) => {
     const key = addr.toLowerCase();
     if (!stats.has(key)) stats.set(key, { address: addr, ...emptyStats() });
     return stats.get(key);
   };
 
-  for (const log of betLogs) {
-    const bettor = log.args.bettor;
-    const amount = Number(ethers.formatUnits(log.args.amount, USDC_DECIMALS));
-    const betId = Number(log.args.betId);
-    const matchIndex = Number(log.args.matchIndex);
-    const outcome = Number(log.args.outcome);
-
-    const s = touch(bettor);
-    s.volume += amount;
+  for (const b of allBets) {
+    const s = touch(b.bettor);
+    s.volume += b.amount;
     s.bets += 1;
-    betsById.set(betId, { bettor, amount, matchIndex, outcome });
 
-    const result = matchResults[matchIndex];
-    if (result !== undefined) {
+    const m = matches[b.matchIndex];
+    if (m && (m.status === 2 || m.status === 3)) { // RESOLVED (2) or CANCELLED (3)
       s.resolvedBets += 1;
-      if (outcome === result) s.wins += 1;
-      else s.profit -= amount;
+      if (m.status === 3) {
+        if (b.claimed) s.claimed += b.amount;
+      } else if (b.outcome === m.result) {
+        s.wins += 1;
+        const winningPool = m.outcomePools[m.result];
+        const netPool = m.totalPool * 0.98;
+        const payout = winningPool > 0 ? (b.amount / winningPool) * netPool : 0;
+        s.profit += (payout - b.amount);
+        if (b.claimed) s.claimed += payout;
+      } else {
+        s.profit -= b.amount;
+      }
     }
-  }
-
-  for (const log of claimLogs) {
-    const bettor = log.args.bettor;
-    const payout = Number(ethers.formatUnits(log.args.payout, USDC_DECIMALS));
-    const s = touch(bettor);
-    s.claimed += payout;
-    s.profit += payout;
   }
 
   const rows = Array.from(stats.values())
@@ -132,9 +136,36 @@ export async function buildOnChainLeaderboard(limit = 50) {
 
   return {
     rows,
-    indexedFromBlock: fromBlock,
+    indexedFromBlock: 0,
     latestBlock: latest,
-    betCount: betLogs.length,
+    betCount: totalBets,
     updatedAt: Date.now(),
   };
 }
+
+export async function buildOnChainLeaderboard(limit = 50) {
+  const marketAddress = getMarketAddress();
+  let lastErr;
+
+  for (const rpcUrl of RPC_ENDPOINTS) {
+    try {
+      const provider = new ethers.JsonRpcProvider(rpcUrl);
+      return await fetchWithProvider(provider, marketAddress, limit);
+    } catch (err) {
+      console.warn(`RPC ${rpcUrl} failed:`, err.message);
+      lastErr = err;
+    }
+  }
+
+  console.error("All RPC endpoints failed for leaderboard build:", lastErr);
+  return {
+    rows: [],
+    indexedFromBlock: 0,
+    latestBlock: 0,
+    betCount: 0,
+    updatedAt: Date.now(),
+    error: lastErr?.message || "Failed to fetch on-chain leaderboard",
+  };
+}
+
+
