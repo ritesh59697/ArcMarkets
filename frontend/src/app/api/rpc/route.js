@@ -75,40 +75,51 @@ export async function POST(request) {
       const endpointIndex = (activeRpcIndex + i) % RPC_ENDPOINTS.length;
       const endpoint = RPC_ENDPOINTS[endpointIndex];
       
-      try {
-        const response = await fetch(endpoint, {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify(body),
-          signal: AbortSignal.timeout(5000) // 5s timeout to switch quickly on dead nodes
-        });
-        
-        if (!response.ok) {
-          throw new Error(`HTTP error ${response.status}`);
-        }
-        
-        const data = await response.json();
-        
-        // If we switched from the default and it succeeded, persist the new active index
-        if (i > 0) {
-          activeRpcIndex = endpointIndex;
-          console.log(`Server-side RPC fallback switched to: ${endpoint}`);
-        }
-        
-        // Cache successful read-only results
-        if (isReadOnly && data && !data.error) {
-          cache.set(cacheKey, {
-            data,
-            timestamp: Date.now()
+      for (let attempt = 0; attempt < 3; attempt++) {
+        try {
+          const response = await fetch(endpoint, {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify(body),
+            signal: AbortSignal.timeout(5000) // 5s timeout to switch quickly on dead nodes
           });
+          
+          if (response.status === 429) {
+            console.warn(`Server RPC 429 rate limited for ${endpoint} (attempt ${attempt + 1}), retrying...`);
+            await new Promise((resolve) => setTimeout(resolve, 500 * (attempt + 1)));
+            continue;
+          }
+          
+          if (!response.ok) {
+            throw new Error(`HTTP error ${response.status}`);
+          }
+          
+          const data = await response.json();
+          
+          // If we switched from the default and it succeeded, persist the new active index
+          if (i > 0) {
+            activeRpcIndex = endpointIndex;
+            console.log(`Server-side RPC fallback switched to: ${endpoint}`);
+          }
+          
+          // Cache successful read-only results
+          if (isReadOnly && data && !data.error) {
+            cache.set(cacheKey, {
+              data,
+              timestamp: Date.now()
+            });
+          }
+          
+          return NextResponse.json(data);
+        } catch (err) {
+          console.warn(`Server-side RPC attempt ${attempt + 1} failed for ${endpoint}:`, err.message);
+          lastError = err;
+          if (attempt < 2) {
+            await new Promise((resolve) => setTimeout(resolve, 400 * (attempt + 1)));
+          }
         }
-        
-        return NextResponse.json(data);
-      } catch (err) {
-        console.warn(`Server-side RPC failed for ${endpoint}:`, err.message);
-        lastError = err;
       }
     }
     

@@ -38,9 +38,9 @@ export function useMatches() {
         const count = Number(await contract.getMatchCount());
         const results = [];
 
-        // Batch fetch all matches + odds in parallel
-        await Promise.all(
-          Array.from({ length: count }, async (_, i) => {
+        // Fetch matches in controlled chunks to avoid overwhelming the public RPC endpoint
+        for (let i = 0; i < count; i++) {
+          try {
             const [m, odds] = await Promise.all([
               contract.getMatch(i),
               contract.getOdds(i),
@@ -80,21 +80,35 @@ export function useMatches() {
                 away: toDecimal(odds.awayOdds),
               },
             };
-          })
-        );
+          } catch (itemErr) {
+            console.warn(`Failed to fetch match ${i}:`, itemErr);
+          }
+        }
 
         const filteredResults = results.filter(Boolean);
-        setMatches(filteredResults);
-        if (typeof window !== "undefined") {
-          try {
-            localStorage.setItem("arc_matches_cache", JSON.stringify(filteredResults));
-          } catch (e) {
-            console.warn("Failed to write matches cache:", e);
+        if (filteredResults.length > 0) {
+          setMatches(filteredResults);
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.setItem("arc_matches_cache", JSON.stringify(filteredResults));
+            } catch (e) {
+              console.warn("Failed to write matches cache:", e);
+            }
           }
         }
       });
     } catch (err) {
       console.error("fetchMatches error:", err);
+      // Retain cached matches on RPC error so the UI stays populated
+      try {
+        const cached = localStorage.getItem("arc_matches_cache");
+        if (cached) {
+          const parsed = JSON.parse(cached);
+          if (parsed && parsed.length > 0) {
+            setMatches(parsed);
+          }
+        }
+      } catch (e) {}
       setError(err.message || "Failed to load matches");
     } finally {
       setLoading(false);
