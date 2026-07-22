@@ -1,13 +1,13 @@
-# ArcMarkets: Decentralized Prediction Markets on Arc Network
+# ApexMarkets: Decentralized Prediction Markets Built on Arc Network
 
 [![Live App](https://img.shields.io/badge/Live_App-arc--markets--nine.vercel.app-00d4ff?style=flat-square&logo=vercel)](https://arc-markets-nine.vercel.app)
 [![Demo Video](https://img.shields.io/badge/Demo_Video-YouTube-ff0000?style=flat-square&logo=youtube)](https://youtu.be/2w3pnFuFAhI)
-[![Network](https://img.shields.io/badge/Network-Arc_Testnet-7b2ff7?style=flat-square)](https://rpc.testnet.arc.network)
+[![Network](https://img.shields.io/badge/Network-Arc_Network_Testnet-7b2ff7?style=flat-square)](https://rpc.testnet.arc.network)
 [![Gas Token](https://img.shields.io/badge/Gas-USDC_Native-00d4ff?style=flat-square)](https://testnet.arcscan.app)
 [![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)](./LICENSE)
 [![Hardhat](https://img.shields.io/badge/Built_with-Hardhat-f0d060?style=flat-square)](https://hardhat.org)
 
-ArcMarkets is a fully on-chain, peer-to-peer prediction protocol deployed on the **Arc Network**. By leveraging Arc's native USDC gas model, participants can deposit funds, place wagers, and settle transaction fees entirely in USDC — eliminating the traditional onboarding friction associated with maintaining a separate native gas token.
+ApexMarkets is a fully on-chain, peer-to-peer prediction protocol built on **Arc Network**. By leveraging Arc Network's native USDC gas model, participants can deposit funds, place wagers, and settle transaction fees entirely in USDC — eliminating the traditional onboarding friction associated with maintaining a separate native gas token.
 
 ---
 
@@ -55,7 +55,7 @@ Every confirmed wager mints an ERC-721 token containing a fully on-chain SVG rec
 
 ## How it Works
 
-Participating in ArcMarkets is designed to be seamless. You can make predictions manually or delegate to the AI Betting Agent to place trades automatically.
+Participating in ApexMarkets is designed to be seamless. You can make predictions manually or delegate to the AI Betting Agent to place trades automatically.
 
 ### Option A: Manual Predictions
 1. **Connect Wallet**: Click **Connect Wallet** in the top right to link your Web3 wallet (configured for the Arc Testnet).
@@ -213,7 +213,7 @@ sequenceDiagram
 sequenceDiagram
     actor User as User Wallet
     participant Contract as PredictionMarket (On-Chain)
-    participant Agent as ArcMarketsAgent (Client)
+    participant Agent as ApexMarketsAgent (Client)
 
     User->>Contract: authorizeMyAgent(agentWallet, budget)
     Note over User,Contract: USDC transferred to on-chain escrow

@@ -1,14 +1,14 @@
-# ArcMarkets: A Next-Generation Predict-to-Earn Protocol on the Arc Network
+# ApexMarkets: A Next-Generation Predict-to-Earn Protocol Built on Arc Network
 
 **Protocol Version:** 1.0  
-**Network:** Arc Testnet (Chain ID: 5042002)  
+**Network:** Arc Network Testnet (Chain ID: 5042002)  
 **Status:** Live Deployment
 
 ---
 
 ## Abstract
 
-This paper presents the technical specification of **ArcMarkets**, a decentralized peer-to-peer parimutuel prediction market protocol deployed on the Arc Network. ArcMarkets introduces two core architectural innovations: **(1) Autonomous AI Agent Delegation**, enabling users to escrow USDC on-chain and authorize a specialized off-chain agent to place mathematically optimized wagers using a fractional Kelly Criterion model; and **(2) 100% On-Chain SVG NFT Receipts**, which encode prediction parameters, outcomes, and visual metadata entirely in Solidity without dependence on external storage layers such as IPFS or Arweave. By leveraging Arc Network's native USDC gas model, ArcMarkets delivers a seamless, low-friction user experience suited to both institutional hedging and consumer-grade prediction markets.
+This paper presents the technical specification of **ApexMarkets**, a decentralized peer-to-peer parimutuel prediction market protocol deployed on **Arc Network**. ApexMarkets introduces two core architectural innovations: **(1) Autonomous AI Agent Delegation**, enabling users to escrow USDC on-chain and authorize a specialized off-chain agent to place mathematically optimized wagers using a fractional Kelly Criterion model; and **(2) 100% On-Chain SVG NFT Receipts**, which encode prediction parameters, outcomes, and visual metadata entirely in Solidity without dependence on external storage layers such as IPFS or Arweave. By leveraging Arc Network's native USDC gas model, ApexMarkets delivers a seamless, low-friction user experience suited to both institutional hedging and consumer-grade prediction markets.
 
 ---
 
@@ -22,13 +22,13 @@ Traditional prediction markets and sports betting platforms are structurally dis
 
 3. **Execution Complexity.** Placing mathematically optimal bets requires continuous market monitoring, real-time probability modeling, and disciplined risk sizing — a combination of demands that is impractical for the average participant.
 
-**ArcMarkets** addresses these inefficiencies by deploying on the **Arc Network**, utilizing **native USDC gas**, and pairing on-chain parimutuel liquidity pools with a delegated, quantitatively driven AI agent.
+**ApexMarkets** addresses these inefficiencies by deploying on **Arc Network**, utilizing **native USDC gas**, and pairing on-chain parimutuel liquidity pools with a delegated, quantitatively driven AI agent.
 
 ---
 
 ## 2. Parimutuel Pool Pricing Model
 
-Unlike peer-to-peer order books or Constant Product Market Makers ($x \cdot y = k$), ArcMarkets implements a **Parimutuel Pooling Engine** in which all wagers on a specific event are aggregated into a single outcome-stratified liquidity pool.
+Unlike peer-to-peer order books or Constant Product Market Makers ($x \cdot y = k$), ApexMarkets implements a **Parimutuel Pooling Engine** in which all wagers on a specific event are aggregated into a single outcome-stratified liquidity pool.
 
 ### 2.1 Mathematical Formulation
 
@@ -72,14 +72,16 @@ $$P(w) = w$$
 
 ## 3. Escrowed AI Agent Delegation
 
-ArcMarkets employs an on-chain/off-chain hybrid delegation architecture that enables autonomous market participation without compromising user custody.
+ApexMarkets employs an on-chain/off-chain hybrid delegation architecture that enables autonomous market participation without compromising user custody.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor User as User Wallet
-    participant Contract as PredictionMarket (On-Chain)
-    participant Agent as ArcMarketsAgent (Client)
+    participant App as ApexMarkets DApp
+    participant Contract as PredictionMarket.sol
+    participant Agent as ApexMarketsAgent (Client)
+    participant Oracle as Sports Data Feeds
 
     User->>Contract: authorizeMyAgent(agentAddress, budget)
     Note over User,Contract: Budget USDC escrowed in contract
@@ -141,7 +143,7 @@ The raw Kelly fraction $f^*$ defines the theoretically optimal proportion of cap
 
 $$f^* = \max\!\left(0,\; \frac{p_{i^*} \cdot O_{i^*} - 1}{O_{i^*} - 1}\right) = \max\!\left(0,\; \frac{EV_{i^*}}{O_{i^*} - 1}\right)$$
 
-In practice, the full Kelly formula is sensitive to estimation error in $p_i$ and can produce excessive drawdowns. ArcMarkets applies an **Outcome Multiplier** $m_{\text{outcome}}$ and a fixed safety scalar to derive a conservative adjusted fraction:
+In practice, the full Kelly formula is sensitive to estimation error in $p_i$ and can produce excessive drawdowns. ApexMarkets applies an **Outcome Multiplier** $m_{\text{outcome}}$ and a fixed safety scalar to derive a conservative adjusted fraction:
 
 $$f_{\text{adj}} = \max(0,\; EV_{i^*}) \cdot m_{\text{outcome}} \cdot 0.25$$
 
@@ -167,7 +169,7 @@ $$\text{Confidence} = \min\!\left(100,\; \text{round}(p_{i^*} \cdot m_{\text{out
 
 ## 5. On-Chain SVG NFT Receipts
 
-Every confirmed prediction is accompanied by a unique ERC-721 token that serves as a tamper-proof, permanently accessible receipt of the wager. By generating all visual assets directly on-chain, ArcMarkets eliminates dependence on centralized servers, IPFS gateways, or Arweave lookups — all of which are subject to latency, availability degradation, or permanent data loss.
+Every confirmed prediction is accompanied by a unique ERC-721 token that serves as a tamper-proof, permanently accessible receipt of the wager. By generating all visual assets directly on-chain, ApexMarkets eliminates dependence on centralized servers, IPFS gateways, or Arweave lookups — all of which are subject to latency, availability degradation, or permanent data loss.
 
 ### 5.1 SVG Construction
 
@@ -185,7 +187,7 @@ This implementation guarantees that the visual representation of every predictio
 
 ## 6. Arc Network Native Integrations
 
-ArcMarkets is purpose-built for the **Arc Network** Layer 2 infrastructure and leverages two platform-native capabilities:
+ApexMarkets is purpose-built for the **Arc Network** Layer 2 infrastructure and leverages two platform-native capabilities:
 
 ### 6.1 USDC Native Gas Predeploy
 
@@ -199,7 +201,7 @@ The frontend client proxies all node communication through a serverless Next.js 
 
 ## 7. Conclusion and Future Directions
 
-ArcMarkets integrates three distinct technical primitives — parimutuel liquidity pooling, Kelly-optimized AI agent delegation, and fully on-chain visual NFT receipts — into a single cohesive prediction protocol. The result is a system that is mathematically rigorous, custody-safe, and architecturally independent of any centralized infrastructure.
+ApexMarkets integrates three distinct technical primitives — parimutuel liquidity pooling, Kelly-optimized AI agent delegation, and fully on-chain visual NFT receipts — into a single cohesive prediction protocol. The result is a system that is mathematically rigorous, custody-safe, and architecturally independent of any centralized infrastructure.
 
 Planned protocol upgrades include:
 
@@ -209,4 +211,10 @@ Planned protocol upgrades include:
 
 ---
 
-*ArcMarkets Protocol — Technical Specification v1.0*
+## 8. Brand & Infrastructure Notice
+
+**ApexMarkets** is an independent prediction market application built on top of **Arc Network**. Arc Network is blockchain infrastructure developed by Circle. ApexMarkets is not affiliated with, endorsed by, or sponsored by Circle or the Arc Network team. All brand assets, logos, and network names are used purely to describe the underlying infrastructure supporting the protocol.
+
+---
+
+*ApexMarkets Protocol — Technical Specification v1.0*

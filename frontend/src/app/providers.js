@@ -29,7 +29,7 @@ const arcTestnet = defineChain({
 });
 
 const config = getDefaultConfig({
-  appName: "ArcMarkets",
+  appName: "ApexMarkets",
   projectId: process.env.NEXT_PUBLIC_WALLETCONNECT_PROJECT_ID || "3a8170812b534d0ff9ec4b11c0ac5ba5",
   chains: [arcTestnet],
   ssr: true,

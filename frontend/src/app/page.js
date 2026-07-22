@@ -714,12 +714,12 @@ function InfoModal({ type, onClose, theme }) {
 
   const MODAL_CONTENT = {
     whitepaper: {
-      title: "ArcMarkets Whitepaper",
+      title: "ApexMarkets Whitepaper",
       subtitle: "Decentralized Parimutuel Sports Betting & AI Execution",
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--text-primary)" }}>
-            ArcMarkets is a state-of-the-art decentralized sports betting protocol that leverages parimutuel pooling and autonomous AI execution on the <strong>Arc Testnet</strong> blockchain.
+            ApexMarkets is a state-of-the-art decentralized sports betting protocol that leverages parimutuel pooling and autonomous AI execution on the <strong>Arc Network Testnet</strong>.
           </p>
           <h4 style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)", marginTop: 6 }}>1. Parimutuel Pooling</h4>
           <p style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--text-secondary)" }}>
@@ -738,7 +738,7 @@ function InfoModal({ type, onClose, theme }) {
     },
     verification: {
       title: "On-Chain Verification",
-      subtitle: "Verify contract addresses and logs on the Arc Testnet Explorer",
+      subtitle: "Verify contract addresses and logs on the Arc Network Testnet Explorer",
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <p style={{ fontSize: 13, lineHeight: 1.6, color: "var(--text-secondary)" }}>
@@ -831,7 +831,7 @@ function InfoModal({ type, onClose, theme }) {
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--text-primary)" }}>
-            ArcMarkets operates on a decentralized parimutuel wagering model, meaning there are no fixed bookmaker margins. Odds are determined purely by user participation.
+            ApexMarkets operates on a decentralized parimutuel wagering model, meaning there are no fixed bookmaker margins. Odds are determined purely by user participation.
           </p>
           <h4 style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)", marginTop: 6 }}>Dynamic Formula</h4>
           <div style={{ background: "var(--primary-alpha-bg)", border: "1px solid var(--primary-alpha-border)", padding: "12px", borderRadius: 8, textAlign: "center", fontFamily: "'JetBrains Mono', monospace", fontSize: 14, fontWeight: 700, color: "var(--primary)" }}>
@@ -857,10 +857,10 @@ function InfoModal({ type, onClose, theme }) {
           </p>
           <div style={{ background: "rgba(0,0,0,0.03)", padding: "16px", borderRadius: 10, border: "1px solid var(--border)", display: "flex", flexDirection: "column", gap: 12 }}>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-              <strong>Email Support:</strong> support@arcmarkets.io
+              <strong>Email Support:</strong> support@apexmarkets.io
             </div>
             <div style={{ fontSize: 12, color: "var(--text-secondary)" }}>
-              <strong>Discord Community:</strong> discord.gg/arcmarkets
+              <strong>Discord Community:</strong> discord.gg/apexmarkets
             </div>
             <div style={{ fontSize: 11, color: "var(--text-muted)", borderTop: "1px solid var(--border)", paddingTop: 10 }}>
               Please include your wallet address, transaction hash, and match ID in any support query to expedite resolution.
@@ -881,7 +881,7 @@ function InfoModal({ type, onClose, theme }) {
       content: (
         <div style={{ display: "flex", flexDirection: "column", gap: 14 }}>
           <p style={{ fontSize: 13.5, lineHeight: 1.6, color: "var(--text-primary)" }}>
-            ArcMarkets is committed to absolute user privacy. Our architecture contains no centralized login, database, or analytics trackers.
+            ApexMarkets is committed to absolute user privacy. Our architecture contains no centralized login, database, or analytics trackers.
           </p>
           <h4 style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)", marginTop: 6 }}>1. Zero Personal Data</h4>
           <p style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--text-secondary)" }}>
@@ -893,7 +893,7 @@ function InfoModal({ type, onClose, theme }) {
           </p>
           <h4 style={{ fontSize: 12, textTransform: "uppercase", letterSpacing: "0.08em", color: "var(--primary)", marginTop: 6 }}>3. Smart Contract Execution</h4>
           <p style={{ fontSize: 12.5, lineHeight: 1.5, color: "var(--text-secondary)" }}>
-            All transaction parameters are publicly accessible on the public blockchain ledger (Arc Testnet). By using ArcMarkets, you acknowledge that on-chain actions are immutable.
+            All transaction parameters are publicly accessible on the public blockchain ledger (Arc Network Testnet). By using ApexMarkets, you acknowledge that on-chain actions are immutable.
           </p>
         </div>
       )
@@ -1361,7 +1361,7 @@ function MatchesTab({
             Predict the Future, <span>Win the Rewards</span>
           </h1>
           <p className="hero-subtitle">
-            The first prediction market with built-in <strong> AI Agents </strong> that analyze live sports &amp; crypto data, place smart bets on your behalf, and settle on-chain transparently, automatically, 24/7 on <span className="hero-arc">Arc</span>
+            The first prediction market with built-in <strong> AI Agents </strong> that analyze live sports &amp; crypto data, place smart bets on your behalf, and settle on-chain transparently, automatically, 24/7 on <span className="hero-arc">Arc Network</span>
           </p>
           <div className="hero-actions">
             <button
@@ -1583,7 +1583,7 @@ function MatchesTab({
             <div style={{ display: "flex", flexDirection: "column", justifyContent: "space-between", gap: 16, marginBottom: 28 }} className="md:flex-row md:items-center">
               <div>
                 <h2 className="font-serif" style={{ fontSize: 24, fontWeight: 700, letterSpacing: "-0.01em", margin: 0 }}>Weekly Champions</h2>
-                <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "4px 0 0 0" }}>The most profitable predictors on ArcMarkets right now.</p>
+                <p style={{ fontSize: 13, color: "var(--text-secondary)", margin: "4px 0 0 0" }}>The most profitable predictors on ApexMarkets right now.</p>
               </div>
               <div style={{ display: "flex", gap: 8, padding: 4, background: "var(--surface-container)", borderRadius: 12 }} className="w-fit">
                 {[
@@ -1744,8 +1744,8 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
   } = useAgent(address, signer);
 
   const [logs, setLogs] = useState([
-    { text: "[System] ArcMarkets Agent v2.1 initialized.", col: "var(--terminal-system)" },
-    { text: "[Auth] Connected to Arc Testnet Oracle nodes.", col: "var(--terminal-system)" },
+    { text: "[System] ApexMarkets Agent v2.1 initialized.", col: "var(--terminal-system)" },
+    { text: "[Auth] Connected to Arc Network Testnet Oracle nodes.", col: "var(--terminal-system)" },
     { text: "[Scan] Monitoring active World Cup markets…", col: "var(--terminal-system)" },
     { text: "> Odds engine ready. EV model loaded.", col: "var(--terminal-info)" },
     { text: "> Kelly criterion sizing: ACTIVE", col: "var(--terminal-primary)" },
@@ -2419,13 +2419,13 @@ function AgentTab({ address, signer, matches, usdtBalance, refetchUsdt, onNotif,
               <span className="mac-window-dot mac-window-dot-yellow" />
               <span className="mac-window-dot mac-window-dot-green" />
             </div>
-            <div className="mac-terminal-title">arc-agent — zsh — 80x24</div>
+            <div className="mac-terminal-title">apex-agent — zsh — 80x24</div>
             <div className="mac-terminal-spacer" />
           </div>
           <div ref={logRef} className="terminal mac-terminal-body" style={{ flex: 1, minHeight: 0, maxHeight: 440, overflowY: "auto" }}>
             {logs.map((l, i) => (
               <div key={i} className="terminal-line mac-terminal-line" style={{ color: l.col || "var(--text-secondary)", animationDelay: `${i * 0.04}s` }}>
-                <span className="mac-terminal-prompt" aria-hidden>arcmarkets%</span>
+                <span className="mac-terminal-prompt" aria-hidden>apexmarkets%</span>
                 <span className="mac-terminal-output">{l.text}</span>
                 {l.txHash && (
                   <a
@@ -3572,8 +3572,8 @@ export default function Home() {
                   fontWeight: 400,
                   letterSpacing: "-0.01em",
                   lineHeight: 1
-                }}>ArcMarkets</div>
-                <div className="nav-tagline" style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1.8, textTransform: "uppercase", fontWeight: 700, marginTop: 2 }}>Sports · Crypto · Arc</div>
+                }}>ApexMarkets</div>
+                <div className="nav-tagline" style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1.8, textTransform: "uppercase", fontWeight: 700, marginTop: 2 }}>Sports · Crypto · Built on Arc Network</div>
               </div>
             </div>
 
@@ -3895,8 +3895,8 @@ export default function Home() {
           <div style={{ maxWidth: 1400, margin: "0 auto", display: "flex", flexDirection: "column", gap: 20 }} className="font-sans">
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 16 }}>
               <div style={{ display: "flex", alignItems: "center", gap: 12, flexWrap: "wrap" }}>
-                <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>ArcMarkets</div>
-                <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>© 2026 ArcMarkets · Secured by Arc Testnet</span>
+                <div className="text-gradient-logo" style={{ fontFamily: "var(--font-display)", fontSize: 18, fontWeight: 700, letterSpacing: "-0.02em" }}>ApexMarkets</div>
+                <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>© 2026 ApexMarkets · Built on Arc Network</span>
               </div>
 
               {/* Support Links */}
@@ -3925,7 +3925,10 @@ export default function Home() {
               </div>
             </div>
 
-            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12, display: "flex", justifyContent: "flex-end" }}>
+            <div style={{ borderTop: "1px solid var(--border)", paddingTop: 12, display: "flex", justifyContent: "space-between", alignItems: "center", flexWrap: "wrap", gap: 8 }}>
+              <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 400, maxWidth: 800 }}>
+                <strong>Brand &amp; Infrastructure Notice:</strong> ApexMarkets is an independent prediction market application built on Arc Network. Arc Network is blockchain infrastructure developed by Circle.
+              </span>
               <span style={{ fontSize: 11, color: "var(--text-muted)", fontWeight: 500 }}>
                 Built by{" "}
                 <a href="https://x.com/Ritesh5969" target="_blank" rel="noopener noreferrer" className="developer-link" style={{ color: "var(--primary)", fontWeight: 600 }}>ritesh5969</a>

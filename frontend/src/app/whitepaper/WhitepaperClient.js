@@ -114,7 +114,7 @@ export default function WhitepaperClient({ whitepaper }) {
             <ArrowLeft size={14} /> Back to DApp
           </Link>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, color: "var(--text-primary)" }}>ArcMarkets Whitepaper</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, color: "var(--text-primary)" }}>ApexMarkets Whitepaper</div>
             <div style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1.2, textTransform: "uppercase", fontWeight: 700 }}>Technical Protocol Specification</div>
           </div>
         </div>
@@ -370,7 +370,7 @@ export default function WhitepaperClient({ whitepaper }) {
             fontSize: "11.5px",
             color: "var(--text-muted)"
           }} className="no-print">
-            <p>© 2026 ArcMarkets Protocol. All rights reserved. Secured by the Arc Network Testnet.</p>
+            <p>© 2026 ApexMarkets Protocol. Built on Arc Network.</p>
             <Link href="/" style={{
               display: "inline-flex",
               alignItems: "center",

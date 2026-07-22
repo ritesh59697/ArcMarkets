@@ -1,6 +1,6 @@
 # How it Works
 
-Participating in ArcMarkets is designed to be seamless and user-friendly. The platform supports two primary prediction modes: manual betting and delegated autonomous AI agent betting.
+Participating in ApexMarkets is designed to be seamless and user-friendly. The platform supports two primary prediction modes: manual betting and delegated autonomous AI agent betting.
 
 ---
 
@@ -41,7 +41,7 @@ Once the fixture finishes and is resolved on-chain, head to your **Portfolio** t
 For users who prefer an automated, hands-off approach using autonomous prediction strategies:
 
 ### Step 1: Authorize the AI Betting Agent
-Navigate to the **AI Agent** tab. Click **Authorize Agent** to grant permission to the ArcMarkets smart contract to allow the AI Agent to execute wagers on your behalf.
+Navigate to the **AI Agent** tab. Click **Authorize Agent** to grant permission to the ApexMarkets smart contract to allow the AI Agent to execute wagers on your behalf.
 * **Zero Private Key Sharing**: The agent *never* has access to your private keys or seed phrase. All authorization is handled securely on-chain.
 
 ### Step 2: Fund Your Escrow Budget

@@ -121,7 +121,7 @@ export default function DocsClient({ howItWorks, readme }) {
             <ArrowLeft size={14} /> Back to DApp
           </Link>
           <div style={{ display: "flex", flexDirection: "column" }}>
-            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, color: "var(--text-primary)" }}>ArcMarkets Docs</div>
+            <div style={{ fontFamily: "var(--font-display)", fontWeight: 800, fontSize: 16, color: "var(--text-primary)" }}>ApexMarkets Docs</div>
             <div style={{ fontSize: 9, color: "var(--accent)", letterSpacing: 1, textTransform: "uppercase", fontWeight: 700 }}>User &amp; System Guides</div>
           </div>
         </div>

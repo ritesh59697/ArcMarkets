@@ -93,7 +93,7 @@ function LeaderboardRows({ rows, compact = false }) {
               {row.shortAddr || row.addr}
             </div>
             <div style={{ fontSize: 10, color: "var(--text-muted)" }}>
-              Vol ${fmtK(row.volume)} · Arc Testnet
+              Vol ${fmtK(row.volume)} · Built on Arc Network
             </div>
           </div>
           {!compact && (
@@ -195,7 +195,7 @@ export function LeaderboardTab({ theme }) {
             On-chain <span className="text-gradient-arc" style={{ fontStyle: "italic" }}>Leaderboard</span>
           </h1>
           <p style={{ fontSize: 13, color: "var(--text-secondary)" }}>
-            Ranked by realized USDC profit on-chain · Arc Testnet
+            Ranked by realized USDC profit on-chain · Built on Arc Network
             {meta?.betCount != null && ` · ${meta.betCount} bets indexed`}
           </p>
         </div>

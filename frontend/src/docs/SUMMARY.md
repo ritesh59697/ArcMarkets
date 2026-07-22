@@ -1,5 +1,5 @@
 # Table of contents
 
-* [ArcMarkets: Decentralized Prediction Markets on Arc Network](README.md)
+* [ApexMarkets: Decentralized Prediction Markets Built on Arc Network](README.md)
 * [How it Works](HOW_IT_WORKS.md)
-* [ArcMarkets: A Next-Generation Predict-to-Earn Protocol on the Arc Network](WHITEPAPER.md)
+* [ApexMarkets: A Next-Generation Predict-to-Earn Protocol Built on Arc Network](WHITEPAPER.md)
